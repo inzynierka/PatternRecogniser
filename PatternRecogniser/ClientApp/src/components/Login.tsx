@@ -1,6 +1,6 @@
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Row, Button, Input, Form, message, Alert } from 'antd';
-import { useContext } from 'react';
+import { Row, Button, Input, Form, message, Alert, Col, Space } from 'antd';
+import { useContext, useEffect } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 import 'antd/dist/antd.min.css';
@@ -14,10 +14,6 @@ export default function Login(props : Props) {
     const { dispatch } = useContext(globalContext);
     const navigate = useNavigate();
     const [userNotFound, setUserNotFound] = useState(false);
-
-    const passwordValidate = (password : String) => {
-        return password.length > 0;
-    }  
 
     const successfullLogIn = (user : any, token : string) => {
         setUserNotFound(false);
@@ -41,6 +37,10 @@ export default function Login(props : Props) {
         }
     }
 
+    const signInHandler = () => {
+        //navigate('/pattern-recogniser/signin', {replace: true});
+    }
+
     return (
         <div>
             <Row justify="space-around" align="middle" style={{minHeight: "81vh" }}>
@@ -60,22 +60,9 @@ export default function Login(props : Props) {
                         ]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
                         </Form.Item>
-                        <Form.Item label="Hasło" name="password" hasFeedback
-                            rules={[
-                            {
-                                required: true,
-                                message: 'Proszę wprowadzić hasło!',
-                            },
-                            () => ({
-                                validator(_: any, value: String) {
-                                if (passwordValidate(value)) {
-                                    return Promise.resolve();
-                                }
 
-                                return Promise.reject();
-                                },
-                            }),
-                            ]}
+                        <Form.Item label="Hasło" name="password" hasFeedback
+                            rules={[ {required: true, message: 'Proszę wprowadzić hasło!',} ]}
                         >
                             <Input.Password 
                                 prefix={<LockOutlined className="site-form-item-icon" />}
@@ -86,9 +73,14 @@ export default function Login(props : Props) {
                             />
                         </Form.Item>
 
+
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "60vh" }}>Log in</Button>
+                            <Row justify="space-between" style={{ width: "60vh" }}>
+                                <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "29vh" }}>Zarejestruj</Button>
+                                <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "29vh" }}>Zaloguj</Button>
+                            </Row>
                         </Form.Item>
+                       
 
                         {
                             userNotFound && 
