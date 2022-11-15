@@ -1,10 +1,8 @@
-import {Card, Typography, Form, Space, Tooltip, Input, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message } from "antd"
-import { LoadingOutlined } from '@ant-design/icons';
+import {Typography, Form, Space, Tooltip, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message } from "antd"
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
-import { globalContext } from "../reducers/GlobalStore";
 import { QuestionCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
 
@@ -13,12 +11,10 @@ const { Title } = Typography;
 
 const TrainPage = () => {
     const [form] = Form.useForm();
-    const { globalState } = useContext(globalContext);
-    const [loading, setLoading] = useState(false);
     const [selectedDistributionType, setSelectedDistributionType] = useState("train/test");
     const [train, setTrain] = useState(80);
     const [test, setTest] = useState(20);
-    const [emptyfile, _] = useState<UploadFile>();
+    const [emptyfile, ] = useState<UploadFile>();
     const [file, setFile] = useState<UploadFile>();
     const [uploading, setUploading] = useState(false);
 

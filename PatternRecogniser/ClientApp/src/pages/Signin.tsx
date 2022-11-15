@@ -1,6 +1,6 @@
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Row, Button, Input, Form, message, Alert, Col, Space } from 'antd';
-import { useContext, useEffect } from 'react';
+import { Row, Button, Input, Form, message, Alert } from 'antd';
+import { useContext } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 import 'antd/dist/antd.min.css';
@@ -39,7 +39,7 @@ export default function SignIn(props : Props) {
     }
 
     const passwordValidate = (password : string) => {
-        const strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+        const strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})");
         const result = strongRegex.test(password);
         setCorrectPassword(result)
         return result;
@@ -102,7 +102,7 @@ export default function SignIn(props : Props) {
                     <Form.Item label="Hasło" name="password" hasFeedback
                         rules={[ 
                             {required: true, message: 'Proszę wprowadzić hasło!',},
-                            ({  }) => ({
+                            ( ) => ({
                                 validator(_, value) {
                                 if (!value || passwordValidate(value)) {
                                     return Promise.resolve();

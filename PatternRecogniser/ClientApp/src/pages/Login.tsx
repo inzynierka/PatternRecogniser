@@ -1,6 +1,6 @@
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Row, Button, Input, Form, message, Alert, Col, Space } from 'antd';
-import { useContext, useEffect } from 'react';
+import { Row, Button, Input, Form, message, Alert } from 'antd';
+import { useContext } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 import 'antd/dist/antd.min.css';
@@ -9,10 +9,7 @@ import { Typography } from 'antd';
 
 const { Title } = Typography;
 
-interface Props {
-}
-
-export default function Login(props : Props) {
+export default function Login() {
     const [form] = Form.useForm();
     const { dispatch } = useContext(globalContext);
     const navigate = useNavigate();
