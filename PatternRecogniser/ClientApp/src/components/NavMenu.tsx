@@ -43,7 +43,7 @@ export function NavMenu() {
       <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()}>
           {
             globalState.isUserAuthenticated && avatarClicked &&
-              <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Log out</NavLink></Menu.Item>
+              <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>
           }
       </Menu>
       

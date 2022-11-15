@@ -5,6 +5,9 @@ import {useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 import 'antd/dist/antd.min.css';
 import { globalContext } from '../reducers/GlobalStore';
+import { Typography } from 'antd';
+
+const { Title } = Typography;
 
 interface Props {
 }
@@ -21,7 +24,7 @@ export default function Login(props : Props) {
         dispatch({ type: 'SET_TOKEN', payload: token });
         dispatch({ type: 'SET_USER', payload: user.login });
         message.success('Logged in succesfully!');
-        navigate('/pattern-recogniser/home', {replace: true});
+        navigate('/home', {replace: true});
     }
 
     const demoLogin = (user : any) => {
@@ -38,7 +41,7 @@ export default function Login(props : Props) {
     }
 
     const signInHandler = () => {
-        //navigate('/pattern-recogniser/signin', {replace: true});
+        navigate('/signin', {replace: true});
     }
 
     return (
@@ -51,46 +54,48 @@ export default function Login(props : Props) {
                     className="login-form"
                     onFinish={loginHandler}
                 >
-                        <Form.Item name="login" label="Login"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Login nie może być pusty!',
-                                },
-                        ]}>
-                            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
-                        </Form.Item>
+                    <Title>Logowanie</Title>
 
-                        <Form.Item label="Hasło" name="password" hasFeedback
-                            rules={[ {required: true, message: 'Proszę wprowadzić hasło!',} ]}
-                        >
-                            <Input.Password 
-                                prefix={<LockOutlined className="site-form-item-icon" />}
-                                type="password"
-                                placeholder="Hasło"
-                                size="large"
-                                style={{ width: "60vh" }}
-                            />
-                        </Form.Item>
+                    <Form.Item name="login" label="Login"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Login nie może być pusty!',
+                            },
+                    ]}>
+                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
+                    </Form.Item>
+
+                    <Form.Item label="Hasło" name="password" hasFeedback
+                        rules={[ {required: true, message: 'Proszę wprowadzić hasło!',} ]}
+                    >
+                        <Input.Password 
+                            prefix={<LockOutlined className="site-form-item-icon" />}
+                            type="password"
+                            placeholder="Hasło"
+                            size="large"
+                            style={{ width: "60vh" }}
+                        />
+                    </Form.Item>
 
 
-                        <Form.Item>
-                            <Row justify="space-between" style={{ width: "60vh" }}>
-                                <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "29vh" }}>Zarejestruj</Button>
-                                <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "29vh" }}>Zaloguj</Button>
-                            </Row>
-                        </Form.Item>
-                       
+                    <Form.Item>
+                        <Row justify="space-between" style={{ width: "60vh" }}>
+                            <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "29vh" }}>Zarejestruj</Button>
+                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "29vh" }}>Zaloguj</Button>
+                        </Row>
+                    </Form.Item>
+                    
 
-                        {
-                            userNotFound && 
-                            <Alert
-                            message="Niepoprawne dane"
-                            description="Logowanie nie powiodło się. Sprawdź czy wprowadzone dane są poprawne."
-                            type="error"
-                            showIcon
-                            />
-                        }
+                    {
+                        userNotFound && 
+                        <Alert
+                        message="Niepoprawne dane"
+                        description="Logowanie nie powiodło się. Sprawdź czy wprowadzone dane są poprawne."
+                        type="error"
+                        showIcon
+                        />
+                    }
                         
                 </Form>
             </Row>
