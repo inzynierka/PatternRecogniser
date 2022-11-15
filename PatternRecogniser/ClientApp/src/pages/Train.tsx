@@ -11,7 +11,7 @@ const { Title } = Typography;
 
 const TrainPage = () => {
     const [form] = Form.useForm();
-    const [selectedDistributionType, setSelectedDistributionType] = useState("train/test");
+    const [selectedDistributionType, setSelectedDistributionType] = useState("trainTest");
     const [train, setTrain] = useState(80);
     const [test, setTest] = useState(20);
     const [emptyfile, ] = useState<UploadFile>();
@@ -97,7 +97,7 @@ const TrainPage = () => {
                                             noStyle
                                             rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                         >
-                                            <Select style={{width: "29vh" }} onChange={distributionTypeChanged}>
+                                            <Select style={{width: "29vh" }} onChange={distributionTypeChanged} placeholder="podział train/test">
                                                 <Select.Option value="trainTest">podział train/test</Select.Option>
                                                 <Select.Option value="crossValidation">walidacja krzyżowa</Select.Option>
                                             </Select>
