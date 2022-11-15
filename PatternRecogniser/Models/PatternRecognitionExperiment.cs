@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +9,8 @@ namespace PatternRecogniser.Models
 {
     public class PatternRecognitionExperiment : Experiment
     {
-        public Bitmap testedPattern { get; set; }
-        public List<(Pattern, double)> recognisedPatterns;
+        public Bitmap[] testedPattern { get; set; }
+        public virtual ICollection<RecognizedPatterns> recognizedPatterns { get; set; } // albo json
 
         public override string GetResults()
         {
@@ -21,4 +22,14 @@ namespace PatternRecogniser.Models
             throw new NotImplementedException();
         }
     }
+
+    public  class RecognizedPatterns
+    {
+        [Key]
+        public int recognizedPatternsId { get; set; }
+        public int patternId { get; set; }
+        public double probability { get; set; }
+        public virtual Pattern pattern { get; set; }
+    }
+
 }

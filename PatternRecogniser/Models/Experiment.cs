@@ -5,12 +5,16 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Drawing;
+using System.ComponentModel.DataAnnotations;
 
 namespace PatternRecogniser.Models
 {
     public abstract class Experiment
     {
-        public ExtendedModel usedModel { get; set; }
+        [Key]
+        public int experimentId { get; set; }
+        public int extendedModelId { get; set; }
+        public virtual  ExtendedModel ExtendedModel { get; set; }
 
         public abstract string GetResults();
 
@@ -19,8 +23,12 @@ namespace PatternRecogniser.Models
 
     public class ExperimentList
     {
+        [Key]
+        public int experimentListId { get; set; }
         public string name { get; set; }
-        public List<Experiment> experiments;
+        public int userID { get; set; }
+        public virtual User User { get; set; }
+        public virtual ICollection<Experiment> Experiment { get; set; }
     }
 
 }
