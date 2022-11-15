@@ -16,14 +16,12 @@ export function NavMenu() {
 
   const getSelectedKeyFromPath = () => {
     let path = location.pathname;
-    if(path.includes('read')) return ['ReadBooks'];
-    if(path.includes('recommended')) return ['RecommendedBooks'];
-    if(path.includes('all')) return ['Books'];
+    if(path.includes('train')) return ['Train'];
     return ['None'];
   }
-  // const navigateTo_IfLoggedIn = (to : string) => {
-  //   return globalState.isUserAuthenticated ? to : "/login"
-  // }
+  const navigateTo_IfLoggedIn = (to : string) => {
+    return globalState.isUserAuthenticated ? to : "/login"
+  }
   const avatarClickHandle = () => {
     setAvatarClicked(!avatarClicked);
   }
@@ -36,16 +34,22 @@ export function NavMenu() {
   return (
     <Header >
        { globalState.isUserAuthenticated &&  
-        <div className="user-avatar">
-          <Button icon={<UserOutlined />} shape="circle" onClick={avatarClickHandle}/>
-        </div> }
+
+        <>
+          <div className="user-avatar">
+            <Button icon={<UserOutlined />} shape="circle" onClick={avatarClickHandle}/>
+          </div> 
      
-      <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()}>
-          {
-            globalState.isUserAuthenticated && avatarClicked &&
-              <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>
-          }
-      </Menu>
+          <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()}>
+              {
+                globalState.isUserAuthenticated && avatarClicked &&
+                  <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>
+              }
+              <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
+          </Menu>
+            </>
+        }
+        
       
     </Header>
   );

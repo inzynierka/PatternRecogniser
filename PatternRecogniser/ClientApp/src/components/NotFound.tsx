@@ -14,7 +14,7 @@ export default function NotFound() {
         <Result
             status="404"
             title="404"
-            subTitle="Sorry, the page you visited does not exist."
+            subTitle="Przepraszamy, nie znaleźliśmy takiej strony."
             extra={<Button type="primary" onClick={NavToHomeHandle}><Link to="/">Back Home</Link></Button>}
         />
     );

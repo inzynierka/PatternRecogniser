@@ -4,6 +4,7 @@ import NotFound from './NotFound';
 import { globalContext } from '../reducers/GlobalStore';
 import Login from '../pages/Login';
 import SignIn from '../pages/Signin';
+import TrainPage from '../pages/Train';
 
 
 export const AppRouter: React.FC = () => {
@@ -19,6 +20,7 @@ export const AppRouter: React.FC = () => {
             }
             <Route path='/login' element={<Login />}/>
             <Route path='/signin' element={<SignIn />}/>
+            <Route path='/train' element={<TrainPage />}/>
             <Route path='*' element={<NotFound />}/>
       </Routes>
   );
