@@ -2,8 +2,8 @@ import { useContext } from 'react';
 import { Route, Routes } from "react-router-dom";
 import NotFound from './NotFound';
 import { globalContext } from '../reducers/GlobalStore';
-import Login from '../components/Login';
-import SignIn from '../components/Signin';
+import Login from '../pages/Login';
+import SignIn from '../pages/Signin';
 
 
 export const AppRouter: React.FC = () => {
