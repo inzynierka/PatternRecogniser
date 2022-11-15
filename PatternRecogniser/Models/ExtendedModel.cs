@@ -19,8 +19,8 @@ namespace PatternRecogniser.Models
         public string name { get; set; }
         public DistributionType distribution { get; set; }
 
-        public virtual ICollection<Pattern> Pattern { get; set; }
-        public virtual ModelTrainingExperiment ModelTrainingExperiment { get; set; }
+        public virtual ICollection<Pattern> patterns { get; set; }
+        public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
 
         //private Model model; 
 

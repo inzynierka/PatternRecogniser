@@ -38,10 +38,10 @@ namespace PatternRecogniser.Models
         public int validationSetId { get; set; }
         public Bitmap testedPattern { get; set; }
         public int truePatternId { get; set; }
-        public int regognizedPatternId { get; set; }
+        public int recognisedPatternId { get; set; }
 
         public virtual Pattern truePattern { get; set; }
-        public virtual Pattern regognizedPattern { get; set; }
+        public virtual Pattern recognisedPattern { get; set; }
 
     }
 }

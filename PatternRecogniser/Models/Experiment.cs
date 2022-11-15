@@ -14,7 +14,7 @@ namespace PatternRecogniser.Models
         [Key]
         public int experimentId { get; set; }
         public int extendedModelId { get; set; }
-        public virtual  ExtendedModel ExtendedModel { get; set; }
+        public virtual  ExtendedModel extendedModel { get; set; }// usedModel w diagramie klas
 
         public abstract string GetResults();
 
@@ -27,8 +27,8 @@ namespace PatternRecogniser.Models
         public int experimentListId { get; set; }
         public string name { get; set; }
         public int userID { get; set; }
-        public virtual User User { get; set; }
-        public virtual ICollection<Experiment> Experiment { get; set; }
+        public virtual User user { get; set; }
+        public virtual ICollection<Experiment> experiments { get; set; }
     }
 
 }

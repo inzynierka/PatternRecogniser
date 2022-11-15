@@ -12,7 +12,7 @@ namespace PatternRecogniser.Models
         public int userId { get; set; }
         public string hashedToken { get; set; }
         
-        public virtual User User { get; set; }
+        public virtual User user { get; set; }
 
         public void LogIn(string name, string password) { }
 

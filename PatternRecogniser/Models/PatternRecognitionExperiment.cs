@@ -10,7 +10,7 @@ namespace PatternRecogniser.Models
     public class PatternRecognitionExperiment : Experiment
     {
         public Bitmap[] testedPattern { get; set; }
-        public virtual ICollection<RecognizedPatterns> recognizedPatterns { get; set; } // albo json
+        public virtual ICollection<RecognisedPatterns> recognisedPatterns { get; set; } // albo json
 
         public override string GetResults()
         {
@@ -23,10 +23,10 @@ namespace PatternRecogniser.Models
         }
     }
 
-    public  class RecognizedPatterns
+    public  class RecognisedPatterns
     {
         [Key]
-        public int recognizedPatternsId { get; set; }
+        public int recognisedPatternsId { get; set; }
         public int patternId { get; set; }
         public double probability { get; set; }
         public virtual Pattern pattern { get; set; }

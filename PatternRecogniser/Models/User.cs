@@ -21,32 +21,32 @@ namespace PatternRecogniser.Models
         public DateTime lastLog { get; set; }
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }
-        public virtual ICollection<ExperimentList> experimentList { get; set; }
+        public virtual ICollection<ExperimentList> experimentLists { get; set; }
 
-        //public void LoadTrainingSet() { }
+        public void LoadTrainingSet() { }
 
-        //public void LoadTestingImage() { }
+        public void LoadTestingImage() { }
 
-        //public void StartModelTraining() { }
+        public void StartModelTraining() { }
 
-        //public void StartRecognising() { }
+        public void StartRecognising() { }
 
-        //public void CreateExperimentList() { }
+        public void CreateExperimentList() { }
 
-        //public void AddExperiment(Experiment experiment, ExperimentList experimentList)
-        //{
-        //    foreach (ExperimentList list in experimentLists)
-        //    {
-        //        if (list == experimentList)
-        //        {
-        //            list.experiments.Add(experiment);
-        //            return;
-        //        }
-        //    }
-        //}
+        public void AddExperiment(Experiment experiment, ExperimentList experimentList)
+        {
+            foreach (ExperimentList list in experimentLists)
+            {
+                if (list == experimentList)
+                {
+                    list.experiments.Add(experiment);
+                    return;
+                }
+            }
+        }
 
-        //public void SaveResult(Experiment experiment) { }
+        public void SaveResult(Experiment experiment) { }
 
-        //public void SaveResultList(ExperimentList experimentList) { }
+        public void SaveResultList(ExperimentList experimentList) { }
     }
 }

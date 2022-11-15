@@ -16,7 +16,7 @@ namespace PatternRecogniser.Models
         public DbSet<Pattern> pattern { get; set; }
         public DbSet<PatternData> patternData { get; set; }
         public DbSet<PatternRecognitionExperiment> patternRecognitionExperiment { get; set; }
-        public DbSet<RecognizedPatterns> recognizedPatterns { get; set; }
+        public DbSet<RecognizedPatterns> recognisedPatterns { get; set; }
         public DbSet<User> user { get; set; }
 
     }
