@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,14 @@ namespace PatternRecogniser.Models
 
     public class ExtendedModel
     {
+        [Key]
+        public int extendedModelId { get; set; }
         public string name { get; set; }
-        public List<Pattern> patterns { get; set; }
-        public ModelTrainingExperiment statistics { get; set; }
         public DistributionType distribution { get; set; }
+
+        public virtual ICollection<Pattern> Pattern { get; set; }
+        public virtual ModelTrainingExperiment ModelTrainingExperiment { get; set; }
+
         //private Model model; 
 
         public void TrainModel(DistributionType distribution)

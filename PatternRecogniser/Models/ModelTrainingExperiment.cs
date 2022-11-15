@@ -8,17 +8,19 @@ namespace PatternRecogniser.Models
 {
     public class ModelTrainingExperiment : Experiment 
     {
-        public List<(Bitmap, Pattern, Pattern)> validationSet;
+        public int validationSetId;
         public double accuracy { get; set; }
         public double precision { get; set; }
         public double recall { get; set; }
         public double specificity { get; set; }
         public double missRate { get; set; }
         public int[,] confusionMatrix { get; set; }
-        private int TP;
-        private int TN;
-        private int FP;
-        private int FN;
+        private int TP { get; set; }
+        private int TN { get; set; }
+        private int FP { get; set; }
+        private int FN { get; set; }
+
+        public virtual ValidationSet validationSet { get; set; }
 
         public override string GetResults()
         {
@@ -29,5 +31,17 @@ namespace PatternRecogniser.Models
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class ValidationSet
+    {
+        public int validationSetId { get; set; }
+        public Bitmap testedPattern { get; set; }
+        public int truePatternId { get; set; }
+        public int regognizedPatternId { get; set; }
+
+        public virtual Pattern truePattern { get; set; }
+        public virtual Pattern regognizedPattern { get; set; }
+
     }
 }
