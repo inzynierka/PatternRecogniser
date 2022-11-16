@@ -117,7 +117,21 @@ namespace PatternRecogniser.Models
             }
         }
 
-        public void LoadTestingImage() { }
+        public void LoadTestingImage() 
+        { 
+            // też jakoś w kontrolerze
+            // na froncie otwieramy file explorer i wybieramy plik
+            // przekazujemy tutaj ścieżkę do pliku
+            // Bitmap img = OpenSingleImage(path);
+            // wywołujemy RecognisePattern z wybranego ExtendedModel
+        }
+
+        private Bitmap OpenSingleImage(string path)
+        {
+            Bitmap bmp = new Bitmap(path);
+
+            return bmp;
+        }
 
         public void StartModelTraining() { }
 
