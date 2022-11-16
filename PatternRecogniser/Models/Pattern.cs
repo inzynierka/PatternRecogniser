@@ -12,7 +12,7 @@ namespace PatternRecogniser.Models
         [Key]
         public int patternId { get; set; }
         public string name { get; set; }
-        public Bitmap picture { get; set; }
+        public byte[] picture { get; set; }
         public int extendedModelId { get; set; }
 
         public virtual ExtendedModel extendedModel { get; set; }
