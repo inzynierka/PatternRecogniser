@@ -49,10 +49,10 @@ const TrainPage = () => {
           .then(res => res.json())
           .then(() => {
             setFile(emptyfile);
-            message.success('upload successfully.');
+            message.success('Załadowano pomyślnie.');
           })
           .catch(() => {
-            message.error('upload failed.');
+            message.error('Nie udało się przesłać pliku.');
           })
           .finally(() => {
             setUploading(false);

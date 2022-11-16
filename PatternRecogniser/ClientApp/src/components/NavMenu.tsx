@@ -17,6 +17,7 @@ export function NavMenu() {
   const getSelectedKeyFromPath = () => {
     let path = location.pathname;
     if(path.includes('train')) return ['Train'];
+    if(path.includes('recognise')) return ['Recognise'];
     return ['None'];
   }
   const navigateTo_IfLoggedIn = (to : string) => {
@@ -46,6 +47,7 @@ export function NavMenu() {
                   <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>
               }
               <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
+              <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Trenuj model</NavLink></Menu.Item>
           </Menu>
             </>
         }
