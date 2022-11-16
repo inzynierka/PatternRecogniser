@@ -6,6 +6,7 @@ import Login from '../pages/Login';
 import SignIn from '../pages/Signin';
 import TrainPage from '../pages/Train';
 import RecognisePage from '../pages/Recognise';
+import MyModelsPage from '../pages/MyModels';
 
 
 export const AppRouter: React.FC = () => {
@@ -23,6 +24,7 @@ export const AppRouter: React.FC = () => {
             <Route path='/signin' element={<SignIn />}/>
             <Route path='/train' element={<TrainPage />}/>
             <Route path='/recognise' element={<RecognisePage />}/>
+            <Route path='/my_models' element={<MyModelsPage />}/>
             <Route path='*' element={<NotFound />}/>
       </Routes>
   );

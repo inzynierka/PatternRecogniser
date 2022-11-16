@@ -18,6 +18,7 @@ export function NavMenu() {
     let path = location.pathname;
     if(path.includes('train')) return ['Train'];
     if(path.includes('recognise')) return ['Recognise'];
+    if(path.includes('my_models')) return ['MyModels'];
     return ['None'];
   }
   const navigateTo_IfLoggedIn = (to : string) => {
@@ -47,7 +48,8 @@ export function NavMenu() {
                   <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>
               }
               <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
-              <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Trenuj model</NavLink></Menu.Item>
+              <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Rozpoznaj znak</NavLink></Menu.Item>
+              <Menu.Item key="MyModels" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/my_models")}>Moje modele</NavLink></Menu.Item>
           </Menu>
             </>
         }

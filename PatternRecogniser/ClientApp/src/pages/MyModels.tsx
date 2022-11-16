@@ -12,12 +12,11 @@ const MyModelsPage = () => {
 
     return (
         <div>
-
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
                     <div className="site-layout-content" style={{minHeight: "76vh" }}>
-                        <Row justify="space-around" align="middle">
-                            <Title>Rozpoznawanie znaku</Title>
+                        <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
+                            <Title>Moje modele</Title>
                         </Row>
 
                         Treść
