@@ -1,4 +1,4 @@
-import {Typography, Form, Space, Tooltip, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message } from "antd"
+import {Typography, Form, Space, Tooltip, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message, Card } from "antd"
 
 import React, { useState } from 'react';
 import 'antd/dist/antd.min.css';
@@ -81,97 +81,101 @@ const TrainPage = () => {
                         <Row justify="space-around" align="middle">
                             <Title>Trenowanie modelu</Title>
                         </Row>
+
                         <Row justify="space-around" align="middle">
-                                <Form 
-                                    layout='horizontal'
-                                    form={form}
-                                    name="train_options"
-                                    className="train-form"
-                                    onFinish={onFinish}
-                                >
-                                
-                                <Form.Item label="Sposób podziału danych: " style={{width: "50vh" }}>
-                                    <Space>
-                                        <Form.Item
-                                            name="distributionType"
-                                            noStyle
-                                            rules={[{ required: true, message: 'Pole jest wymagane' }]}
-                                        >
-                                            <Select style={{width: "29vh" }} onChange={distributionTypeChanged} placeholder="podział train/test">
-                                                <Select.Option value="trainTest">podział train/test</Select.Option>
-                                                <Select.Option value="crossValidation">walidacja krzyżowa</Select.Option>
-                                            </Select>
-                                        </Form.Item>
-                                        <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                        </Tooltip>
-                                    </Space>
-                                </Form.Item>
-
-                                {
-                                    selectedDistributionType.includes("trainTest") ? 
-                                    <Form.Item style={{width: "50vh" }}>
-                                        {/* gdy wybrano podział train/test */}
-                                        <Row justify="space-around" align="middle">
-                                            <Form.Item label="Podział ręczny">
-                                                <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
-                                            </Form.Item>
-
-                                            <Form.Item label="Train">
-                                                <InputNumber min={1} max={99} onChange={trainChanged} value={train} disabled={!customTrainTestValue}/> %
-                                            </Form.Item>
-
-                                            <Form.Item label="Test">
-                                                <InputNumber min={1} max={99} onChange={testChanged} value={test} disabled={!customTrainTestValue}/> %
-                                            </Form.Item>
-
-                                            <Form.Item>
+                            <Card bordered={true} style={{width: "70vh", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                                <Row justify="space-around" align="middle">
+                                    <Form 
+                                        layout='horizontal'
+                                        form={form}
+                                        name="train_options"
+                                        className="train-form"
+                                        onFinish={onFinish}
+                                    >                                    
+                                        <Form.Item label="Sposób podziału danych: " style={{width: "50vh" }}>
+                                            <Space>
+                                                <Form.Item
+                                                    name="distributionType"
+                                                    noStyle
+                                                    rules={[{ required: true, message: 'Pole jest wymagane' }]}
+                                                >
+                                                    <Select style={{width: "29vh" }} onChange={distributionTypeChanged} placeholder="podział train/test">
+                                                        <Select.Option value="trainTest">podział train/test</Select.Option>
+                                                        <Select.Option value="crossValidation">walidacja krzyżowa</Select.Option>
+                                                    </Select>
+                                                </Form.Item>
                                                 <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
                                                     <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                                 </Tooltip>
-                                            </Form.Item>
-                                        </Row>
-                                    </Form.Item>
-                                    :
-                                    <Form.Item>
-                                        {/* gdy wybrano walidację krzyżową */}
-                                        <Row justify="space-around" align="middle">
-                                            <Form.Item label="Podział ręczny">
-                                                    <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
-                                            </Form.Item>
-                                            <Form.Item label="Liczba podzbiorów">
-                                                <InputNumber min={1} max={50} defaultValue={5} disabled={!customTrainTestValue}/>
-                                            </Form.Item>
-
-                                            <Form.Item>
-                                                <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                                </Tooltip>
-                                            </Form.Item>
-                                        </Row>
-                                    </Form.Item>
-                                }
-
-                                <Row align="middle">
-                                    <Form.Item label="Zbiór symboli">
-                                        <Upload {...props} maxCount={1} accept='application/zip'>
-                                            <Button icon={<UploadOutlined />}>Załaduj plik</Button>
-                                        </Upload>
-                                        
-                                        <Form.Item>
-                                            <Button
-                                                type="primary"
-                                                onClick={handleUpload}
-                                                disabled={file === emptyfile}
-                                                loading={uploading}
-                                                style={{ marginTop: 16 }}
-                                            >
-                                                {uploading ? 'Wysyłanie' : 'Wyślij'}
-                                            </Button>
+                                            </Space>
                                         </Form.Item>
-                                    </Form.Item>
+
+                                        {
+                                            selectedDistributionType.includes("trainTest") ? 
+                                            <Form.Item style={{width: "50vh" }}>
+                                                {/* gdy wybrano podział train/test */}
+                                                <Row justify="space-around" align="middle">
+                                                    <Form.Item label="Podział ręczny">
+                                                        <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
+                                                    </Form.Item>
+
+                                                    <Form.Item label="Train">
+                                                        <InputNumber min={1} max={99} onChange={trainChanged} value={train} disabled={!customTrainTestValue}/> %
+                                                    </Form.Item>
+
+                                                    <Form.Item label="Test">
+                                                        <InputNumber min={1} max={99} onChange={testChanged} value={test} disabled={!customTrainTestValue}/> %
+                                                    </Form.Item>
+
+                                                    <Form.Item>
+                                                        <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
+                                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                        </Tooltip>
+                                                    </Form.Item>
+                                                </Row>
+                                            </Form.Item>
+                                            :
+                                            <Form.Item>
+                                                {/* gdy wybrano walidację krzyżową */}
+                                                <Row justify="space-around" align="middle">
+                                                    <Form.Item label="Podział ręczny">
+                                                            <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
+                                                    </Form.Item>
+                                                    <Form.Item label="Liczba podzbiorów">
+                                                        <InputNumber min={1} max={50} defaultValue={5} disabled={!customTrainTestValue}/>
+                                                    </Form.Item>
+
+                                                    <Form.Item>
+                                                        <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
+                                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                        </Tooltip>
+                                                    </Form.Item>
+                                                </Row>
+                                            </Form.Item>
+                                        }
+
+                                        <Row align="middle">
+                                            <Form.Item label="Zbiór symboli">
+                                                <Upload {...props} maxCount={1} accept='application/zip'>
+                                                    <Button icon={<UploadOutlined />}>Załaduj plik</Button>
+                                                </Upload>
+                                                
+                                                <Form.Item>
+                                                    <Button
+                                                        type="primary"
+                                                        onClick={handleUpload}
+                                                        disabled={file === emptyfile}
+                                                        loading={uploading}
+                                                        style={{ marginTop: 16 }}
+                                                    >
+                                                        {uploading ? 'Wysyłanie' : 'Wyślij'}
+                                                    </Button>
+                                                </Form.Item>
+                                            </Form.Item>
+                                        </Row>
+                                    </Form>
                                 </Row>
-                            </Form>
+                            </Card>
                         </Row>
                        
                     </div> 
