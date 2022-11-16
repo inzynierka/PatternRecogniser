@@ -16,7 +16,10 @@ export class AppLayout extends Component {
         <Content style={{ padding: '0 50px', flex: 1}}>
           {this.props.children}
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+        <Footer style={{ textAlign: 'center' }}>
+          Ant Design ©2018 Created by Ant UED <br /> <br />
+          Aplikacja opracowana w ramach pracy inżynierskiej.
+        </Footer>
       </Layout>
     );
   }

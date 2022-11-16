@@ -77,7 +77,7 @@ const TrainPage = () => {
 
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
-                    <div className="site-layout-content">
+                    <div className="site-layout-content" style={{minHeight: "74vh"}}>
                         <Row justify="space-around" align="middle">
                             <Title>Trenowanie modelu</Title>
                         </Row>

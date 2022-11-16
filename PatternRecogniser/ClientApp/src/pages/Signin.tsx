@@ -54,9 +54,9 @@ export default function SignIn(props : Props) {
                 valueAgain={passwordAgain}
                 messages={{
                     minLength: "Hasło zawiera więcej niż 8 znaków.",
-                    specialChar: "Hasło zawiera specjalne znaki.",
+                    specialChar: "Hasło zawiera znaki specjalne.",
                     number: "Hasło zawiera cyfrę.",
-                    capital: "Hasło zawiera wielka literę.",
+                    capital: "Hasło zawiera wielką literę.",
                     match: "Hasła są takie same.",
                 }}
             />
@@ -79,11 +79,11 @@ export default function SignIn(props : Props) {
                         rules={[
                             {
                                 required: true,
-                                message: 'Adres e-mail nie może być pusty!!',
+                                message: 'Adres e-mail nie może być pusty.',
                             },
                             {
                                 type: 'email',
-                                message: 'Proszę wprowadzić prawidłowy adres e-mail!'
+                                message: 'Proszę wprowadzić prawidłowy adres e-mail.'
                             },
                     ]}>
                         <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Adres e-mail" size="large" style={{ width: "60vh" }}/>
@@ -93,7 +93,7 @@ export default function SignIn(props : Props) {
                         rules={[
                             {
                                 required: true,
-                                message: 'Login nie może być pusty!',
+                                message: 'Login nie może być pusty.',
                             },
                     ]}>
                         <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
@@ -101,13 +101,13 @@ export default function SignIn(props : Props) {
 
                     <Form.Item label="Hasło" name="password" hasFeedback
                         rules={[ 
-                            {required: true, message: 'Proszę wprowadzić hasło!',},
+                            {required: true, message: 'Proszę wprowadzić hasło.',},
                             ( ) => ({
                                 validator(_, value) {
                                 if (!value || passwordValidate(value)) {
                                     return Promise.resolve();
                                 }
-                                return Promise.reject(new Error('Za słabe hasło!'));
+                                return Promise.reject(new Error('Za słabe hasło.'));
                                 },
                             }),
                         ]}
@@ -131,14 +131,14 @@ export default function SignIn(props : Props) {
                         rules={[
                         {
                             required: true,
-                            message: 'Proszę powtórzyć hasło!',
+                            message: 'Proszę powtórzyć hasło.',
                         },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
                             if (!value || getFieldValue('password') === value) {
                                 return Promise.resolve();
                             }
-                            return Promise.reject(new Error('Wprowadzone hasła nie są takie same!'));
+                            return Promise.reject(new Error('Wprowadzone hasła nie są takie same.'));
                             },
                         }),
                         ]}

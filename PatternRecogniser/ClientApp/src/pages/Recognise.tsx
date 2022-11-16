@@ -62,7 +62,7 @@ const RecognisePage = () => {
 
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
-                    <div className="site-layout-content">
+                    <div className="site-layout-content" style={{minHeight: "76vh" }}>
                         <Row justify="space-around" align="middle">
                             <Title>Rozpoznawanie znaku</Title>
                         </Row>
@@ -102,8 +102,7 @@ const RecognisePage = () => {
                                             <p className="ant-upload-text">Kliknij lub przeciągnij plik aby załadować</p>
                                             <p className="ant-upload-hint">
                                                 Załącz jeden plik graficzny ze wzorcem do rozpoznania. <br />
-                                                Nazwa pliku nie powinna zawierać spacji ani polskich liter. <br />
-                                                .jpg, .jpeg, .png, .bmp, .exif, .tiff.
+                                                Obsługiwane formaty: .jpg, .jpeg, .png, .bmp, .exif, .tiff.
                                             </p>
                                         </Dragger>
                                         </Row>
