@@ -103,7 +103,7 @@ const TrainPage = () => {
                                             </Select>
                                         </Form.Item>
                                         <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                            <Typography.Link href="#API"><QuestionCircleOutlined /></Typography.Link>
+                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
                                 </Form.Item>
@@ -111,6 +111,7 @@ const TrainPage = () => {
                                 {
                                     selectedDistributionType.includes("trainTest") ? 
                                     <Form.Item style={{width: "50vh" }}>
+                                        {/* gdy wybrano podział train/test */}
                                         <Row justify="space-around" align="middle">
                                             <Form.Item label="Podział ręczny">
                                                 <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
@@ -126,13 +127,14 @@ const TrainPage = () => {
 
                                             <Form.Item>
                                                 <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                                    <Typography.Link href="#API"><QuestionCircleOutlined /></Typography.Link>
+                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                                 </Tooltip>
                                             </Form.Item>
                                         </Row>
                                     </Form.Item>
                                     :
                                     <Form.Item>
+                                        {/* gdy wybrano walidację krzyżową */}
                                         <Row justify="space-around" align="middle">
                                             <Form.Item label="Podział ręczny">
                                                     <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
@@ -143,7 +145,7 @@ const TrainPage = () => {
 
                                             <Form.Item>
                                                 <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                                    <Typography.Link href="#API"><QuestionCircleOutlined /></Typography.Link>
+                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                                 </Tooltip>
                                             </Form.Item>
                                         </Row>
