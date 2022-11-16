@@ -1,7 +1,7 @@
 import {Typography, Card, Button } from "antd"
 
 import 'antd/dist/antd.min.css';
-import { Row, Col, message, Upload } from "antd";
+import { Row, Col } from "antd";
 import { DeleteOutlined } from '@ant-design/icons';
 import { Model } from "../classes/Model";
 
@@ -13,7 +13,7 @@ interface Props {
 
 const ModelListElement = (props: Props) => {
     const displaySymbolNumber = (num : number)  => {
-        if(num == 1) return num.toString() + " symbol"
+        if(num === 1) return num.toString() + " symbol"
         if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " symbole"
         return num.toString() + " symboli"
     }
