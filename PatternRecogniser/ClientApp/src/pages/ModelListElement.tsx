@@ -20,7 +20,7 @@ const ModelListElement = (props: Props) => {
 
 
     return (
-        <div>
+        <div key={"div_" + props.model.name}>
             <Card>
                 <Row justify="space-between" align="middle">
                     <Col>
@@ -29,10 +29,10 @@ const ModelListElement = (props: Props) => {
                     </Col>
                     <Col>
                         <Row justify="end">
-                            <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" >Szczegóły</Button>
+                            <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.model.name}>Szczegóły</Button>
                         </Row>
                         <Row justify="end">
-                            <Button type="default" shape="circle" icon={<DeleteOutlined />} size="large" />
+                            <Button type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.model.name} size="large" />
                         </Row>
                     </Col>
                 </Row>

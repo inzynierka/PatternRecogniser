@@ -9,23 +9,30 @@ import ModelListElement from "./ModelListElement";
 
 const { Title } = Typography;
 
+const exampleModels : Model[] = [
+    {
+        name: "Cyfry arabskie",
+        patternNum: 10
+    },
+    {
+        name: "Alfabet",
+        patternNum: 32
+    },
+    {
+        name: "Figury geometryczne",
+        patternNum: 56
+    }
+]
+
 const MyModelsPage = () => {
     const [form] = Form.useForm();
-
-    const exampleModels : Model[] = [
-        {
-            name: "Cyfry arabskie",
-            patternNum: 10
-        },
-        {
-            name: "Alfabet",
-            patternNum: 32
-        },
-        {
-            name: "Figury geometryczne",
-            patternNum: 56
-        }
-    ]
+    const [models, setModels] = useState(exampleModels)
+    
+    const filter = (e : any) => {
+        let searchName = e.target.defaultValue
+        console.log(searchName)
+        setModels(exampleModels.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
+    }
 
     return (
         <div>
@@ -37,19 +44,22 @@ const MyModelsPage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Row justify="space-between" align="middle" style={{width: "150vh", marginBottom: '20px'}}>
-                                <Col>
-                                    <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} />
-                                </Col>
+                            <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
+                                    <Space>
+                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
+                                        <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
+                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                        </Tooltip>
+                                    </Space>
                                 <Col>
                                     <Button type="default">Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
-                                <Card bordered={true} style={{width: "150vh"}}>
+                                <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        exampleModels.map((item: Model) => (<ModelListElement model={item}/> ))
+                                        models.map((item: Model) => (<ModelListElement model={item}/> ))
                                     }
                                 </Card>
                             </Row>
