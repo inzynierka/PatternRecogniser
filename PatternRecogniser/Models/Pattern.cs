@@ -16,6 +16,13 @@ namespace PatternRecogniser.Models
         public int extendedModelId { get; set; }
 
         public virtual ExtendedModel extendedModel { get; set; }
+
+        public Pattern(string name, Bitmap picture)
+        {
+            this.name = name;
+            this.picture = picture;
+        }
+        public Pattern() { }
     }
 
     public class PatternData 
@@ -38,6 +45,10 @@ namespace PatternRecogniser.Models
                     return;
                 }
             }
+
+            List<Pattern> newList = new List<Pattern>();
+            newList.Add(pattern);
+            patterns.Add(newList);
         }
     }
 }
