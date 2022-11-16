@@ -1,10 +1,11 @@
-import {Typography, Form, Card, Space, Select, Tooltip, UploadProps, Input, Button } from "antd"
+import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
 
 import 'antd/dist/antd.min.css';
-import { Row, Col, message, Upload } from "antd";
+import { Row, Col } from "antd";
 import { useState } from "react";
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Model } from "../classes/Model";
+import { useNavigate } from 'react-router-dom';
 import ModelListElement from "./ModelListElement";
 
 const { Title } = Typography;
@@ -25,13 +26,17 @@ const exampleModels : Model[] = [
 ]
 
 const MyModelsPage = () => {
-    const [form] = Form.useForm();
+    const navigate = useNavigate();
     const [models, setModels] = useState(exampleModels)
     
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
         console.log(searchName)
         setModels(exampleModels.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
+    }
+
+    const addNewModelHandler = () => {
+        navigate('/train', {replace: true});
     }
 
     return (
@@ -52,7 +57,7 @@ const MyModelsPage = () => {
                                         </Tooltip>
                                     </Space>
                                 <Col>
-                                    <Button type="default">Dodaj nowy model</Button>
+                                    <Button type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 

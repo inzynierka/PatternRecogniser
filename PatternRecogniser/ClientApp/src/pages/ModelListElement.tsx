@@ -1,4 +1,4 @@
-import {Typography, Form, Card, Space, Select, Tooltip, UploadProps, Input, Button } from "antd"
+import {Typography, Card, Button } from "antd"
 
 import 'antd/dist/antd.min.css';
 import { Row, Col, message, Upload } from "antd";
