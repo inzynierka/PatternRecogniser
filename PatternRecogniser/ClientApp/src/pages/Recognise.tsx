@@ -1,13 +1,57 @@
-import {Typography, Form, Card } from "antd"
+import {Typography, Form, Card, Space, Select, Tooltip, UploadProps } from "antd"
 
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
+import { Row, Col, message, Upload } from "antd";
+import { useState } from "react";
+import { QuestionCircleOutlined, InboxOutlined } from '@ant-design/icons';
 
+
+const { Dragger } = Upload;
 const { Title } = Typography;
 
+interface selectOption {
+    value : string,
+    label : string
+}
+
+const Models: selectOption[] = [
+    {
+        value: 'cyfry_arabskie',
+        label: 'Cyfry arabskie'
+    },
+    {
+        value: 'litery_alfabetu',
+        label: 'Litery alfabetu'
+    },
+    {
+        value: 'figury_geometryczne',
+        label: 'Figury geometryczne'
+    }
+]
+
+const props: UploadProps = {
+    name: 'file',
+    multiple: false,
+    action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (status === 'done') {
+        message.success(`Załadowano pomyślnie plik ${info.file.name}.`);
+      } else if (status === 'error') {
+        message.error(`Nie udało się przesłać pliku ${info.file.name}.`);
+      }
+    },
+    onDrop(e) {
+      console.log('Dropped files', e.dataTransfer.files);
+    },
+  };
 
 const RecognisePage = () => {
     const [form] = Form.useForm();
+    const [usedModel, setUsedModel] = useState("Cyfry arabskie");
 
     const onFinish = (values: any) => {
         console.log('Received values of form: ', values);
@@ -34,8 +78,35 @@ const RecognisePage = () => {
                                         onFinish={onFinish}
                                     >                                    
                                         
-                                    {/* POLA FORMULARZA */}
-
+                                        <Row justify="end" align="middle" style={{width: "auto"}}>
+                                            <Form.Item label="Używany model: ">
+                                                <Space>
+                                                    <Form.Item
+                                                        name="distributionType"
+                                                        noStyle
+                                                        rules={[{ required: true, message: 'Pole jest wymagane' }]}
+                                                    >
+                                                        <Select style={{width: "29vh" }} onChange={setUsedModel} placeholder="Wybierz model..." options={Models} />
+                                                    </Form.Item>
+                                                    <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
+                                                        <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                    </Tooltip>
+                                                </Space>
+                                            </Form.Item>
+                                        </Row>
+                                        <Row style={{width: "auto", marginBottom: "25px"}}>
+                                        <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "50vh"}}>
+                                            <p className="ant-upload-drag-icon">
+                                            <InboxOutlined />
+                                            </p>
+                                            <p className="ant-upload-text">Kliknij lub przeciągnij plik aby załadować</p>
+                                            <p className="ant-upload-hint">
+                                                Załącz jeden plik graficzny ze wzorcem do rozpoznania. <br />
+                                                Nazwa pliku nie powinna zawierać spacji ani polskich liter. <br />
+                                                .jpg, .jpeg, .png, .bmp, .exif, .tiff.
+                                            </p>
+                                        </Dragger>
+                                        </Row>
                                     </Form>
                                 </Row>
                             </Card>
