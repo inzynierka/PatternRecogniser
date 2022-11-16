@@ -63,7 +63,7 @@ const RecognisePage = () => {
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
                     <div className="site-layout-content" style={{minHeight: "76vh" }}>
-                        <Row justify="space-around" align="middle">
+                        <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
                             <Title>Rozpoznawanie znaku</Title>
                         </Row>
 
@@ -94,17 +94,17 @@ const RecognisePage = () => {
                                                 </Space>
                                             </Form.Item>
                                         </Row>
-                                        <Row style={{width: "auto", marginBottom: "25px"}}>
-                                        <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "50vh"}}>
-                                            <p className="ant-upload-drag-icon">
-                                            <InboxOutlined />
-                                            </p>
-                                            <p className="ant-upload-text">Kliknij lub przeciągnij plik aby załadować</p>
-                                            <p className="ant-upload-hint">
-                                                Załącz jeden plik graficzny ze wzorcem do rozpoznania. <br />
-                                                Obsługiwane formaty: .jpg, .jpeg, .png, .bmp, .exif, .tiff.
-                                            </p>
-                                        </Dragger>
+                                        <Row style={{width: "auto", marginBottom: "45px"}}>
+                                            <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "50vh"}}>
+                                                <p className="ant-upload-drag-icon">
+                                                <InboxOutlined />
+                                                </p>
+                                                <p className="ant-upload-text">Kliknij lub przeciągnij plik aby załadować</p>
+                                                <p className="ant-upload-hint">
+                                                    Załącz jeden plik graficzny ze wzorcem do rozpoznania. <br />
+                                                    Obsługiwane formaty: .jpg, .jpeg, .png, .bmp, .exif, .tiff.
+                                                </p>
+                                            </Dragger>
                                         </Row>
                                     </Form>
                                 </Row>
