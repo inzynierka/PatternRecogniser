@@ -43,7 +43,7 @@ const MyModelsPage = () => {
         <div>
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
-                    <div className="site-layout-content" style={{minHeight: "76vh" }}>
+                    <div className="site-layout-content" style={{minHeight: "75vh" }}>
                         <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
                             <Title>Moje modele</Title>
                         </Row>

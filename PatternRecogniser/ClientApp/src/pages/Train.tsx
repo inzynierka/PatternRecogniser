@@ -77,13 +77,13 @@ const TrainPage = () => {
 
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
-                    <div className="site-layout-content" style={{minHeight: "74vh"}}>
+                    <div className="site-layout-content" style={{minHeight: "73vh"}}>
                         <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
                             <Title>Trenowanie modelu</Title>
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: "70vh", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: "40vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'
@@ -92,14 +92,14 @@ const TrainPage = () => {
                                         className="train-form"
                                         onFinish={onFinish}
                                     >                                    
-                                        <Form.Item label="Sposób podziału danych: " style={{width: "50vh" }}>
+                                        <Form.Item label="Sposób podziału danych: " style={{width: "15vw" }}>
                                             <Space>
                                                 <Form.Item
                                                     name="distributionType"
                                                     noStyle
                                                     rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                                 >
-                                                    <Select style={{width: "29vh" }} onChange={distributionTypeChanged} placeholder="podział train/test">
+                                                    <Select style={{width: "15vw" }} onChange={distributionTypeChanged} placeholder="podział train/test">
                                                         <Select.Option value="trainTest">podział train/test</Select.Option>
                                                         <Select.Option value="crossValidation">walidacja krzyżowa</Select.Option>
                                                     </Select>
@@ -112,7 +112,7 @@ const TrainPage = () => {
 
                                         {
                                             selectedDistributionType.includes("trainTest") ? 
-                                            <Form.Item style={{width: "50vh" }}>
+                                            <Form.Item style={{width: "25vw" }}>
                                                 {/* gdy wybrano podział train/test */}
                                                 <Row justify="space-around" align="middle">
                                                     <Form.Item label="Podział ręczny">
@@ -155,7 +155,7 @@ const TrainPage = () => {
                                         }
 
                                         <Row align="middle">
-                                            <Form.Item label="Zbiór symboli" style={{width: "50vh" }}>
+                                            <Form.Item label="Zbiór symboli" style={{width: "22vw" }}>
                                                 <Upload {...props} maxCount={1} accept='application/zip'>
                                                     <Button icon={<UploadOutlined />}>Załaduj plik</Button>
                                                 </Upload>

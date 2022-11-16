@@ -60,7 +60,7 @@ export default function Login() {
                                 message: 'Login nie może być pusty!',
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
+                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "30vw" }}/>
                     </Form.Item>
 
                     <Form.Item label="Hasło" name="password" hasFeedback
@@ -71,15 +71,15 @@ export default function Login() {
                             type="password"
                             placeholder="Hasło"
                             size="large"
-                            style={{ width: "60vh" }}
+                            style={{ width: "30vw" }}
                         />
                     </Form.Item>
 
 
                     <Form.Item>
-                        <Row justify="space-between" style={{ width: "60vh" }}>
-                            <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "29vh" }}>Zarejestruj</Button>
-                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "29vh" }}>Zaloguj</Button>
+                        <Row justify="space-between" style={{ width: "30vw" }}>
+                            <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "13vw" }}>Zarejestruj</Button>
+                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "13vw" }}>Zaloguj</Button>
                         </Row>
                     </Form.Item>
                     

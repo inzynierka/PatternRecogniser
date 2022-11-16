@@ -86,7 +86,7 @@ export default function SignIn(props : Props) {
                                 message: 'Proszę wprowadzić prawidłowy adres e-mail.'
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Adres e-mail" size="large" style={{ width: "60vh" }}/>
+                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Adres e-mail" size="large" style={{ width: "30vw" }}/>
                     </Form.Item>
 
                     <Form.Item name="login" label="Login"
@@ -96,7 +96,7 @@ export default function SignIn(props : Props) {
                                 message: 'Login nie może być pusty.',
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "60vh" }}/>
+                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "30vw" }}/>
                     </Form.Item>
 
                     <Form.Item label="Hasło" name="password" hasFeedback
@@ -119,7 +119,7 @@ export default function SignIn(props : Props) {
                             placeholder="Hasło"
                             size="large"
                             onChange={e => setPassword(e.target.value)}
-                            style={{ width: "60vh" }}
+                            style={{ width: "30vw" }}
                         />
                     </Form.Item>
 
@@ -149,7 +149,7 @@ export default function SignIn(props : Props) {
                             placeholder="Powtórz hasło"
                             onChange={e => setPasswordAgain(e.target.value)}
                             size="large"
-                            style={{ width: "60vh" }}
+                            style={{ width: "30vw" }}
                         />
                     </Form.Item>
 
@@ -168,9 +168,9 @@ export default function SignIn(props : Props) {
                     <br />
 
                     <Form.Item>
-                        <Row justify="space-between" style={{ width: "60vh" }}>
-                            <Button type="default" className="login-form-button" onClick={() => cancelHandler()} style={{width: "29vh" }}>Anuluj</Button>
-                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "29vh" }}>Zarejestruj</Button>
+                        <Row justify="space-between" style={{ width: "30vw" }}>
+                            <Button type="default" className="login-form-button" onClick={() => cancelHandler()} style={{width: "13vw" }}>Anuluj</Button>
+                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "13vw"}}>Zarejestruj</Button>
                         </Row>
                     </Form.Item>
                                                

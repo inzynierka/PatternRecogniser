@@ -62,13 +62,13 @@ const RecognisePage = () => {
 
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
-                    <div className="site-layout-content" style={{minHeight: "76vh" }}>
+                    <div className="site-layout-content" style={{minHeight: "75vh" }}>
                         <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
                             <Title>Rozpoznawanie znaku</Title>
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: "70vh", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: "40vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'
@@ -86,7 +86,7 @@ const RecognisePage = () => {
                                                         noStyle
                                                         rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                                     >
-                                                        <Select style={{width: "29vh" }} onChange={setUsedModel} placeholder="Wybierz model..." options={Models} />
+                                                        <Select style={{width: "11vw" }} onChange={setUsedModel} placeholder="Wybierz model..." options={Models} />
                                                     </Form.Item>
                                                     <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
                                                         <Typography.Link><QuestionCircleOutlined /></Typography.Link>
@@ -95,7 +95,7 @@ const RecognisePage = () => {
                                             </Form.Item>
                                         </Row>
                                         <Row style={{width: "auto", marginBottom: "45px"}}>
-                                            <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "50vh"}}>
+                                            <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "30vw"}}>
                                                 <p className="ant-upload-drag-icon">
                                                 <InboxOutlined />
                                                 </p>
