@@ -9,6 +9,7 @@ const { Title } = Typography;
 
 interface Props {
     model: ModelClass
+    addingToList?: boolean
 }
 
 const ModelListElement = (props: Props) => {
@@ -18,7 +19,6 @@ const ModelListElement = (props: Props) => {
         return num.toString() + " symboli"
     }
 
-
     return (
         <div key={"div_" + props.model.name}>
             <Card>
@@ -27,14 +27,23 @@ const ModelListElement = (props: Props) => {
                         <Title level={3}>{props.model.name}</Title>
                         {displaySymbolNumber(props.model.patternNum)}
                     </Col>
-                    <Col>
-                        <Row justify="end">
-                            <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.model.name}>Szczegóły</Button>
-                        </Row>
-                        <Row justify="end">
-                            <Button type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.model.name} size="large" />
-                        </Row>
-                    </Col>
+                        {
+                            (props.addingToList === undefined || props.addingToList === false) ?
+                                <Col>
+                                    <Row justify="end">
+                                        <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.model.name}>Szczegóły</Button>
+                                    </Row>
+                                    <Row justify="end">
+                                        <Button type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.model.name} size="large" />
+                                    </Row>
+                                </Col>
+                                :
+                                <Col>
+                                    <Row justify="end">
+                                        <Button type="primary" style={{width: "150px", marginBottom: '10px'}} size="large" key={"addButton_" + props.model.name}>Dodaj do listy</Button>
+                                    </Row>
+                                </Col>
+                        }
                 </Row>
                 
             </Card>

@@ -8,6 +8,7 @@ import TrainPage from '../pages/Train';
 import RecognisePage from '../pages/Recognise';
 import MyModelsPage from '../pages/MyModels';
 import ComparisonPage from '../pages/ComparisonLists';
+import CreateComparisonListPage from '../pages/CreateComparisonList';
 
 
 export const AppRouter: React.FC = () => {
@@ -26,7 +27,10 @@ export const AppRouter: React.FC = () => {
             <Route path='/train' element={<TrainPage />}/>
             <Route path='/recognise' element={<RecognisePage />}/>
             <Route path='/my-models' element={<MyModelsPage />}/>
-            <Route path='/comparison-lists' element={<ComparisonPage />}/>
+            <Route path='comparison-lists' >
+              <Route path='create' element={<CreateComparisonListPage />}/>
+              <Route path='' element={<ComparisonPage />}/>
+            </Route>
             <Route path='*' element={<NotFound />}/>
       </Routes>
   );
