@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { NavLink } from 'reactstrap';
 import { useLocation, Link } from 'react-router-dom';
 import './NavMenu.css';
@@ -41,11 +41,11 @@ export function NavMenu() {
        { globalState.isUserAuthenticated &&  
 
         <Row justify="space-between" style={{width: "95vw"}}>
-              <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "50vw", height: '64px'}}>
+              <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "60vw", height: '64px'}}>
                   <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
                   <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Rozpoznaj znak</NavLink></Menu.Item>
                   <Menu.Item key="MyModels" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/my-models")}>Moje modele</NavLink></Menu.Item>
-                  <Menu.Item key="ComparisonLists" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/comparison-lists")}>Moje modele</NavLink></Menu.Item>
+                  <Menu.Item key="ComparisonLists" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/comparison-lists")}>Porównywarka</NavLink></Menu.Item>
               </Menu>
 
               <div className="user-avatar">
