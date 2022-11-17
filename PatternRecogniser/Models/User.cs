@@ -122,7 +122,6 @@ namespace PatternRecogniser.Models
 
         private Bitmap OpenSingleImage(string path)
         {
-            // zostawiam tu Bitmap, skoro tego nie zapisujemy w bazie
             Bitmap bmp = new Bitmap(path);
 
             return bmp;
