@@ -1,7 +1,7 @@
 import { GlobalStateInterface } from "./Types";
 
 export const initialState: GlobalStateInterface = {
-  persistenceType: 'sessionStorage',
+  persistenceType: 'localStorage',
   isUserAuthenticated: false,
   loggedUser: '',
   token: ''
