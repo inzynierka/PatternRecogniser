@@ -16,6 +16,8 @@ namespace PatternRecogniser.Models
         public int extendedModelId { get; set; }
         public virtual  ExtendedModel extendedModel { get; set; }// usedModel w diagramie klas
 
+        public virtual ICollection<ExperimentList> experimentLists { get; set; }
+
         public abstract string GetResults();
 
         public abstract void SaveResult();

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace PatternRecogniser.Models
 {
+    [Table("ModelTrainingExperiment")]
     public class ModelTrainingExperiment : Experiment 
     {
         public int validationSetId;
@@ -14,7 +17,7 @@ namespace PatternRecogniser.Models
         public double recall { get; set; }
         public double specificity { get; set; }
         public double missRate { get; set; }
-        public int[,] confusionMatrix { get; set; }
+        public int[] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
         private int TP { get; set; }
         private int TN { get; set; }
         private int FP { get; set; }
@@ -36,7 +39,7 @@ namespace PatternRecogniser.Models
     public class ValidationSet
     {
         public int validationSetId { get; set; }
-        public Bitmap testedPattern { get; set; }
+        public byte[] testedPattern { get; set; }
         public int truePatternId { get; set; }
         public int recognisedPatternId { get; set; }
 

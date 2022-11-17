@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace PatternRecogniser.Models
 {
+    [Table("PatternRecognitionExperiment")]
     public class PatternRecognitionExperiment : Experiment
     {
-        public Bitmap[] testedPattern { get; set; }
+        public byte[] testedPattern { get; set; }
         public virtual ICollection<RecognisedPatterns> recognisedPatterns { get; set; } // albo json
 
         public override string GetResults()
@@ -22,6 +24,7 @@ namespace PatternRecogniser.Models
             throw new NotImplementedException();
         }
     }
+
 
     public  class RecognisedPatterns
     {

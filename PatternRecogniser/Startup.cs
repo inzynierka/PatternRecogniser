@@ -25,8 +25,8 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddControllers();
 
             var connectionString = Configuration["DbContextSettings:ConnectionString"];
             services.AddDbContext<PatternRecogniserDBContext>(
@@ -57,6 +57,9 @@ namespace PatternRecogniser
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }
