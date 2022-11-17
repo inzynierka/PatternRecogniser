@@ -11,10 +11,10 @@ namespace PatternRecogniser.Controllers
     public class UserController : ControllerBase
     {
         PatternRecogniserDBContext _context;
-    public UserController(PatternRecogniserDBContext context)
-    {
-        _context = context;
-    }
+        public UserController(PatternRecogniserDBContext context)
+        {
+            _context = context;
+        }
         public IEnumerable<User> Get()
         {
             return _context.user.ToList();
