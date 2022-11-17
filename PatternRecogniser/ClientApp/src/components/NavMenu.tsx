@@ -5,12 +5,11 @@ import './NavMenu.css';
 import 'antd/dist/antd.min.css';
 import { UserOutlined } from '@ant-design/icons';
 
-import { Button, Layout, Menu, message, Row } from 'antd';
+import { Button, Dropdown, Layout, Menu, message, Row } from 'antd';
 import { globalContext } from '../reducers/GlobalStore';
 const { Header } = Layout;
 
 export function NavMenu() {
-  const [avatarClicked, setAvatarClicked] = useState(false);
   const location = useLocation(); 
   const { globalState, dispatch } = useContext(globalContext);
 
@@ -25,14 +24,17 @@ export function NavMenu() {
   const navigateTo_IfLoggedIn = (to : string) => {
     return globalState.isUserAuthenticated ? to : "/login"
   }
-  const avatarClickHandle = () => {
-    setAvatarClicked(!avatarClicked);
-  }
   const logout = () => {
     dispatch({ type: 'AUTHENTICATE_USER', payload: false });
-    setAvatarClicked(false);
     message.success('Logged out succesfully!');
   }
+
+  const accountMenu = (
+    <Menu theme="dark" mode="vertical">
+        <Menu.Item key="MyAccount"><NavLink tag={Link} to={"/my-account/" + globalState.loggedUser}>Moje konto</NavLink></Menu.Item>
+        <Menu.Item key="Logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>             
+    </Menu>
+  );
 
   return (
     <Header >
@@ -47,14 +49,9 @@ export function NavMenu() {
               </Menu>
 
               <div className="user-avatar">
-                  <Button icon={<UserOutlined />} shape="circle" onClick={avatarClickHandle}/>
-                {
-                  globalState.isUserAuthenticated && avatarClicked &&
-                  <Menu theme="dark" mode="vertical">
-                      <Menu.Item key="logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>            
-                  </Menu>
-                }
-                
+                <Dropdown overlay={accountMenu} placement="bottomRight" trigger={['click']}>
+                  <Button icon={<UserOutlined />} shape="circle"/>
+                </Dropdown>
               </div> 
           </Row>
         }
