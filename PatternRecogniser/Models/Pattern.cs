@@ -17,7 +17,7 @@ namespace PatternRecogniser.Models
 
         public virtual ExtendedModel extendedModel { get; set; }
 
-        public Pattern(string name, Bitmap picture)
+        public Pattern(string name, byte[] picture)
         {
             this.name = name;
             this.picture = picture;

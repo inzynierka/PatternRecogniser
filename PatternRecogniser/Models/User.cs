@@ -56,23 +56,17 @@ namespace PatternRecogniser.Models
                         // etykieta pattern - nazwa folderu - FullName do /
                         string patternName = name.Substring(0, name.IndexOf('/'));
 
-                        // bitmap patternu - byte array zawartości sprowadzony do bitmap
-                        Bitmap bmp;
+                        // obrazek patternu - byte array zawartości
+                        byte[] array = new byte[maxBitmapSize];
                         using (Stream stream = entry.Open())
                         {
-                            byte[] array = new byte[maxBitmapSize];
                             int read = stream.Read(array, 0, maxBitmapSize);
                             if (read <= 0)
                                 return new PatternData(); // był jakiś błąd, nie odczytaliśmy poprawnie pliku
-
-                            using (MemoryStream ms = new MemoryStream(array))
-                            {
-                                bmp = new Bitmap(ms);
-                            }
                         }
 
                         // stwórz Pattern
-                        Pattern pattern = new Pattern(patternName, bmp);
+                        Pattern pattern = new Pattern(patternName, array);
 
                         // dodaj do PatternData
                         data.AddPattern(pattern);
