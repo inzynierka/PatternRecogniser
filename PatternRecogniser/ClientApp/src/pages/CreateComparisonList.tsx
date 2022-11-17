@@ -3,10 +3,10 @@ import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
 import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { useState } from "react";
-import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, SearchOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { ModelClass } from "../classes/Model";
-import { useNavigate } from 'react-router-dom';
 import ModelListElement from "./ModelListElement";
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
@@ -25,7 +25,7 @@ const exampleModels : ModelClass[] = [
     }
 ]
 
-const MyModelsPage = () => {
+const CreateComparisonListPage = () => {
     const navigate = useNavigate();
     const [models, setModels] = useState(exampleModels)
     
@@ -35,8 +35,8 @@ const MyModelsPage = () => {
         setModels(exampleModels.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
-    const addNewModelHandler = () => {
-        navigate('/train', {replace: true});
+    const goBackHandler = () => {
+        navigate('/comparison-lists', {replace: true});
     }
 
     return (
@@ -44,27 +44,28 @@ const MyModelsPage = () => {
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
                     <div className="site-layout-content" style={{minHeight: "75vh" }}>
-                        <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
-                            <Title>Moje modele</Title>
+                        <Button onClick={goBackHandler} icon={<ArrowLeftOutlined style={{fontSize: '2em'}}/>} size="large" shape="circle" type="text" style={{marginLeft: '20px', marginTop: '15px'}}/>
+                        <Row justify="space-around" align="middle" style={{marginBottom: "30px", marginTop: "-55px"}}>
+                            <Title>Stwórz nową listę</Title>
                         </Row>
 
                         <Row justify="space-around" align="middle">
                             <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
+                                    <p></p>
+                                <Col>
                                     <Space>
                                         <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
                                         <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
-                                <Col>
-                                    <Button type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelClass) => (<ModelListElement model={item}/> ))
+                                        models.map((item: ModelClass) => (<ModelListElement model={item} addingToList={true}/> ))
                                     }
                                 </Card>
                             </Row>
@@ -76,4 +77,4 @@ const MyModelsPage = () => {
     );
 }
 
-export default MyModelsPage;
+export default CreateComparisonListPage;
