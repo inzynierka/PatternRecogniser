@@ -1,6 +1,7 @@
 import { Dispatch } from 'react';
 
 export interface GlobalStateInterface {
+  persistenceType: string;
   isUserAuthenticated: boolean;
   loggedUser: string;
   token: string;
