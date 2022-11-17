@@ -9,6 +9,7 @@ import RecognisePage from '../pages/Recognise';
 import MyModelsPage from '../pages/MyModels';
 import ComparisonPage from '../pages/ComparisonLists';
 import CreateComparisonListPage from '../pages/CreateComparisonList';
+import MyAccountPage from '../pages/MyAccount';
 
 
 export const AppRouter: React.FC = () => {
@@ -31,6 +32,7 @@ export const AppRouter: React.FC = () => {
               <Route path='create' element={<CreateComparisonListPage />}/>
               <Route path='' element={<ComparisonPage />}/>
             </Route>
+            <Route path='/my-account/:accountName' element={<MyAccountPage />}/>
             <Route path='*' element={<NotFound />}/>
       </Routes>
   );
