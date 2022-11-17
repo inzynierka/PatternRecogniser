@@ -6,6 +6,7 @@ import { useState } from 'react';
 import 'antd/dist/antd.min.css';
 import { globalContext } from '../reducers/GlobalStore';
 import { Typography } from 'antd';
+import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
 
@@ -14,6 +15,7 @@ export default function Login() {
     const { dispatch } = useContext(globalContext);
     const navigate = useNavigate();
     const [userNotFound, setUserNotFound] = useState(false);
+    const isOrientationVertical  = useWindowDimensions();
 
     const successfullLogIn = (user : any, token : string) => {
         setUserNotFound(false);
@@ -60,7 +62,7 @@ export default function Login() {
                                 message: 'Login nie może być pusty!',
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: "30vw" }}/>
+                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}/>
                     </Form.Item>
 
                     <Form.Item label="Hasło" name="password" hasFeedback
@@ -71,15 +73,15 @@ export default function Login() {
                             type="password"
                             placeholder="Hasło"
                             size="large"
-                            style={{ width: "30vw" }}
+                            style={{ width: isOrientationVertical ? "30vw" : "50vw" }}
                         />
                     </Form.Item>
 
 
                     <Form.Item>
-                        <Row justify="space-between" style={{ width: "30vw" }}>
-                            <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: "13vw" }}>Zarejestruj</Button>
-                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: "13vw" }}>Zaloguj</Button>
+                        <Row justify="space-between" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}>
+                            <Button type="default" className="login-form-button" onClick={() => signInHandler()} style={{width: isOrientationVertical ? "13vw" : "23vw" }}>Zarejestruj</Button>
+                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: isOrientationVertical ? "13vw" : "23vw" }}>Zaloguj</Button>
                         </Row>
                     </Form.Item>
                     

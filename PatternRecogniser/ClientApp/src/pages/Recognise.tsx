@@ -4,6 +4,7 @@ import 'antd/dist/antd.min.css';
 import { Row, Col, message, Upload } from "antd";
 import { useState } from "react";
 import { QuestionCircleOutlined, InboxOutlined } from '@ant-design/icons';
+import useWindowDimensions from '../UseWindowDimensions';
 
 
 const { Dragger } = Upload;
@@ -51,7 +52,8 @@ const props: UploadProps = {
 
 const RecognisePage = () => {
     const [form] = Form.useForm();
-    const [usedModel, setUsedModel] = useState("Cyfry arabskie");
+    const isOrientationVertical  = useWindowDimensions();
+    const [ , setUsedModel] = useState("Cyfry arabskie");
 
     const onFinish = (values: any) => {
         console.log('Received values of form: ', values);
@@ -68,7 +70,7 @@ const RecognisePage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: "40vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'
@@ -95,7 +97,7 @@ const RecognisePage = () => {
                                             </Form.Item>
                                         </Row>
                                         <Row style={{width: "auto", marginBottom: "45px"}}>
-                                            <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: "30vw"}}>
+                                            <Dragger {...props} maxCount={1} accept='image/png, image/jpeg, image/jpg, image/bmp, image/exif, image/tiff' style={{width: isOrientationVertical ? "30vw" : "50vw"}}>
                                                 <p className="ant-upload-drag-icon">
                                                 <InboxOutlined />
                                                 </p>
