@@ -16,13 +16,16 @@ export const AppRouter: React.FC = () => {
   const { globalState } = useContext(globalContext);
 
   return (
-      <Routes>
-            { !globalState.isUserAuthenticated && 
-              <>
-                <Route path='/signin' element={<SignIn />}/>
-                <Route path='*' element={<Login />}/> 
-              </>  
-            }
+    <>
+      { !globalState.isUserAuthenticated && 
+        <Routes>
+          <Route path='/signin' element={<SignIn />}/>  
+          <Route path='*' element={<Login />}/>  
+        </Routes>    
+      }
+      {
+        globalState.isUserAuthenticated &&
+        <Routes>
             <Route path='/login' element={<Login />}/>
             <Route path='/signin' element={<SignIn />}/>
             <Route path='/train' element={<TrainPage />}/>
@@ -34,6 +37,8 @@ export const AppRouter: React.FC = () => {
             </Route>
             <Route path='/my-account/:accountName' element={<MyAccountPage />}/>
             <Route path='*' element={<NotFound />}/>
-      </Routes>
+        </Routes>
+      }
+    </>
   );
 }
