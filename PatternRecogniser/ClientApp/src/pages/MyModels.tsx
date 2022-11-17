@@ -4,13 +4,13 @@ import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { useState } from "react";
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Model } from "../classes/Model";
+import { ModelClass } from "../classes/Model";
 import { useNavigate } from 'react-router-dom';
 import ModelListElement from "./ModelListElement";
 
 const { Title } = Typography;
 
-const exampleModels : Model[] = [
+const exampleModels : ModelClass[] = [
     {
         name: "Cyfry arabskie",
         patternNum: 10
@@ -64,7 +64,7 @@ const MyModelsPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: Model) => (<ModelListElement model={item}/> ))
+                                        models.map((item: ModelClass) => (<ModelListElement model={item}/> ))
                                     }
                                 </Card>
                             </Row>

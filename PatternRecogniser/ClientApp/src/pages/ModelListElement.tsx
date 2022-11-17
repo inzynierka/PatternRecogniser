@@ -3,12 +3,12 @@ import {Typography, Card, Button } from "antd"
 import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { DeleteOutlined } from '@ant-design/icons';
-import { Model } from "../classes/Model";
+import { ModelClass } from "../classes/Model";
 
 const { Title } = Typography;
 
 interface Props {
-    model: Model
+    model: ModelClass
 }
 
 const ModelListElement = (props: Props) => {
