@@ -4,7 +4,6 @@ import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { useState } from "react";
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import { ComparisonListClass } from "../classes/ComparisonList";
 import ComparisonList from "./ComparisonList";
 

@@ -15,7 +15,7 @@ const ComparisonList = (props: Props) => {
     const displayElementNumber = ()  => {
         let num = props.list.elementNum
         let list = props.list
-        if(list.usedModel?.valueOf != undefined) {
+        if(list.usedModel?.valueOf !== undefined) {
             if(num === 1) return num.toString() + " znak"
             if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " znaki"
             return num.toString() + " znaków"
@@ -37,7 +37,7 @@ const ComparisonList = (props: Props) => {
                         <Title level={3}>{props.list.name}</Title>
                         {displayElementNumber()}
                         {
-                            props.list.usedModel?.valueOf != undefined &&
+                            props.list.usedModel?.valueOf !== undefined &&
                             <p style={{marginTop: "20px", fontSize: '1.1em', marginBottom: '0px'}}>Model: {props.list.usedModel}</p>
                         }
                     </Col>
