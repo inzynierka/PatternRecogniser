@@ -73,7 +73,7 @@ namespace PatternRecogniser.Services
         }
     }
 
-    // busiywaiting przy zdejmowaniu z kolejki ( potencjalnie można to rozwiązać poprzez zmergowanie z Channel,
+    // busy waiting przy zdejmowaniu z kolejki ( potencjalnie można to rozwiązać poprzez zmergowanie z Channel,
     // możemy dopisywać wartości do ConcurrentQueue i chanel i jednocześnie robić na nim operacje
     //
     // trzeba sprytnie usuwać z kolejki ( można by zapisywać w bazie kiedy użytkownik wysłał ostatnie 
