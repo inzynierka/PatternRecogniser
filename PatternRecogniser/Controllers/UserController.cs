@@ -22,6 +22,7 @@ namespace PatternRecogniser.Controllers
             _context = context;
             _trainingQueue = backgroundJobs;
         }
+        [HttpGet]
         public IEnumerable<User> Get()
         {
             return _context.user.ToList();
