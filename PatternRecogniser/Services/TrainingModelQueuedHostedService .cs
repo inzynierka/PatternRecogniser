@@ -40,26 +40,32 @@ namespace PatternRecogniser.Services
 
         private async void BackgroundProcessing(CancellationToken stoppingToken)
         {
+            // z jakiegoś powodu bez tego nie działa blockingCollection
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 var info =
-                    await _backgroundJobs.DequeueAsync(stoppingToken);
+                     _backgroundJobs.Dequeue(stoppingToken);
 
                 
-                    await Train(info.userId, info.trainingSet, stoppingToken, _serviceScopeFactory);
+                    await Train(info, stoppingToken, _serviceScopeFactory);
                 
                 
             }
         }
 
-        private async Task Train(int userId, byte[] trainingSet, CancellationToken stoppingToken, IServiceScopeFactory serviceScopeFactory)
+        private async Task Train(TrainingInfo info,  CancellationToken stoppingToken, IServiceScopeFactory serviceScopeFactory)
         {
+            ExtendedModel extendedModel = new ExtendedModel();
+            //extendedModel.TrainModel();
+            // tutaj byśmy zapisywali wyniki trenowania
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
-                _logger.LogInformation($"request of user {dbContext.user.First(a => a.userId == userId).login} is processing");
+                _logger.LogInformation($"request of user {dbContext.user.First(a => a.userId == info.userId).login} is processing {info.modelName}\n");
             }
-            await Task.Delay(TimeSpan.FromSeconds(100), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
     }
 }

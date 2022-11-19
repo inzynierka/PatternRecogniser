@@ -28,11 +28,8 @@ namespace PatternRecogniser
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
-            // odkomentowujecie wybrany
-            services.AddSingleton<IBackgroundTaskQueue>(a =>  
-            //new BackgroundQueueBlockingCollection()
-            //new BackgroundQueueChannel()
-            new BackgroundQueueConcurrentQueue()
+            services.AddSingleton<IBackgroundTaskQueue>(a =>
+            new BackgroundQueueBlockingCollection()
             );
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
@@ -60,6 +57,7 @@ namespace PatternRecogniser
             app.UseStaticFiles();
 
             app.UseRouting();
+            
 
             app.UseAuthorization();
 

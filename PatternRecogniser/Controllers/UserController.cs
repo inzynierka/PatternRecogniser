@@ -26,29 +26,6 @@ namespace PatternRecogniser.Controllers
         {
             return _context.user.ToList();
         }
-
-        [Route("{userId}/train-Model/modelName={modelName}&distributionType={distributionType}")]
-        public async Task<ActionResult<int>> StartTrainingModel([FromRoute] int userId, [FromRoute] string modelName, [FromRoute] DistributionType distributionType /*, [FromBody] byte[] trainingSet*/)
-        {
-            await _trainingQueue.AddAsync(new TrainingInfo(userId, null));
-            return _trainingQueue.Count;
-            
-        }
-
-        [HttpGet]
-        public ActionResult Cancel([FromRoute] int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        [HttpGet]
-        [Route("{userId}/PlaceIntheQueue")]
-        public ActionResult<int> PlaceIntheQueue([FromRoute] int userId)
-        {
-            return _trainingQueue.PlaceInQueue(userId);
-        }
-
         
     }
 }
