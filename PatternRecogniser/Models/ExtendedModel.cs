@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
@@ -12,13 +13,16 @@ namespace PatternRecogniser.Models
         TrainTest, CrossValidation
     }
 
+    [Index(nameof(userId), nameof(name), IsUnique = true)] 
     public class ExtendedModel
     {
         [Key]
         public int extendedModelId { get; set; }
+        public int userId { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
 
+        public virtual User user { get; set; }
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
 

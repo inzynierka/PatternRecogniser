@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System;
-using PatternRecogniser.Services;
 using System.Collections;
+using PatternRecogniser.ThreadsComunication;
 
 namespace PatternRecogniser.Controllers
 {

@@ -9,7 +9,7 @@ using System.IO.Compression;
 using Microsoft.AspNetCore.Http;
 //using CSharpTest.Net.Collections;
 
-namespace PatternRecogniser.Services
+namespace PatternRecogniser.ThreadsComunication
 {
 
     public class TrainingInfo
@@ -32,7 +32,7 @@ namespace PatternRecogniser.Services
         int Count { get; }
         public void Enqueue(TrainingInfo item);
 
-        public  TrainingInfo Dequeue(
+        public TrainingInfo Dequeue(
             CancellationToken cancellationToken);
 
         public int NumberInQueue(int userId);

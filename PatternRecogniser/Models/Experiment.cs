@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Drawing;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace PatternRecogniser.Models
 {
@@ -23,12 +19,13 @@ namespace PatternRecogniser.Models
         public abstract void SaveResult();
     }
 
+    [Index(nameof(userId), nameof(name), IsUnique = true)]
     public class ExperimentList
     {
         [Key]
         public int experimentListId { get; set; }
         public string name { get; set; }
-        public int userID { get; set; }
+        public int userId { get; set; }
         public virtual User user { get; set; }
         public virtual ICollection<Experiment> experiments { get; set; }
     }

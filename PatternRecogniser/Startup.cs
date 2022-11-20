@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
+using PatternRecogniser.ThreadsComunication;
 
 namespace PatternRecogniser
 {
@@ -37,7 +38,7 @@ namespace PatternRecogniser
                 {
                     Version = "v1",
                     Title = "Pattern Recofniser Api",
-                    Description = "Fajny opis",
+                    Description = "Design and create by Ewa, Piotr and Micha³ ",
                     //TermsOfService = new Uri("https://example.com/terms"),
                     //Contact = new OpenApiContact
                     //{
@@ -58,6 +59,7 @@ namespace PatternRecogniser
             services.AddSingleton<IBackgroundTaskQueue>(a =>
             new BackgroundQueueBlockingCollection()
             );
+            services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
             var connectionString = Configuration["DbContextSettings:ConnectionString"];

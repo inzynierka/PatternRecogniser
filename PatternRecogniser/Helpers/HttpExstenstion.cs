@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PatternRecogniser.Helpers
 {
@@ -8,5 +9,6 @@ namespace PatternRecogniser.Helpers
         {
             return file.ContentType == "application/zip";
         }
+
     }
 }

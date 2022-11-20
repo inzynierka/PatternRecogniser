@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using PatternRecogniser.Helpers;
 using PatternRecogniser.Models;
-using PatternRecogniser.Services;
+using PatternRecogniser.ThreadsComunication;
 using System;
 using System.IO.Compression;
 using System.Linq;
@@ -13,12 +14,14 @@ namespace PatternRecogniser.Controllers
     public class TrainModelController : ControllerBase
     {
 
-        private readonly IBackgroundTaskQueue _trainingQueue;
+        private readonly IBackgroundTaskQueue _trainInfoQueue;
+        private readonly ITrainingUpdate _traningUpdate;
         private PatternRecogniserDBContext _context;
-        public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue backgroundJobs)
+        public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate traningUpdate)
         {
             _context = context;
-            _trainingQueue = backgroundJobs;
+            _trainInfoQueue = trainInfoQueue;
+            _traningUpdate = traningUpdate;
         }
 
 
@@ -26,20 +29,24 @@ namespace PatternRecogniser.Controllers
         /// Dodaj rządanie trenowania do kolejki.
         /// Plik jest wysyłany za pomocą "multipart/form-data"
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// 200:
+        /// int
+        /// 404:
+        /// string
+        /// </returns>
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Route("{userId}/TrainModel")]
-        public IActionResult StartTrainingModel([FromRoute] int userId, [FromRoute] string modelName, [FromRoute] DistributionType distributionType)
+        public IActionResult TrainModel([FromRoute] int userId, [FromRoute] string modelName, 
+            [FromRoute] DistributionType distributionType, IFormFile trainingSet)
         {
             try
             {
-               // pobieranie zipa
-                var trainingSet = Request.Form.Files.FirstOrDefault();
                 if (!HttpExtraOperations.IsZip(trainingSet))
                     throw new Exception("zły format pliku"); 
 
-                _trainingQueue.Enqueue(new TrainingInfo(userId, trainingSet, modelName));
+                _trainInfoQueue.Enqueue(new TrainingInfo(userId, trainingSet, modelName));
 
                 return NumberInQueue(userId);
             }
@@ -55,12 +62,17 @@ namespace PatternRecogniser.Controllers
         /// <summary>
         /// Sprawdź miejsce w kolejce danego użytkownika
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// 200:
+        /// int
+        /// 404:
+        /// string
+        /// </returns>
         [HttpGet]
         [Route("{userId}/TrainingModel/NumberInQueue")]
         public IActionResult NumberInQueue([FromRoute] int userId)
         {
-            int numberInQueue = _trainingQueue.Count;
+            int numberInQueue = _trainInfoQueue.Count;
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
             else
@@ -70,16 +82,58 @@ namespace PatternRecogniser.Controllers
         /// <summary>
         /// Usuwanie z kolejki
         /// </summary>
-        /// <returns></returns>
+        /// <returns> 
+        /// string
+        /// 
+        /// </returns>
         [HttpDelete]
         [Route("{userId}/Cancel")]
         public IActionResult Cancel([FromRoute] int userId)
         {
-            bool deleted = _trainingQueue.Remove(userId);
+            bool deleted = _trainInfoQueue.Remove(userId);
             if (deleted) 
                 return Ok("usunięto");
             else
                 return  NotFound("nie udało się usunąć");
         }
+
+        /// <summary>
+        /// Pobiera dane gdy model jest w trakcie trenowania. 
+        /// Czy powiniśmy zapisywać dane w bazie dla ostatniego trenowania ?
+        /// </summary>
+        /// <description></description>
+        /// <returns>
+        /// string
+        /// </returns>
+        [HttpGet]
+        [Route("{userId}/TrainUpdate")]
+        public IActionResult TrainUpdate([FromRoute] int userId, [FromRoute] string modelName)
+        {
+            var info = _traningUpdate.ActualInfo(userId, modelName);
+            if (string.IsNullOrEmpty(info))
+                return NotFound();
+            else
+                return Ok(info);
+        }
+
+        /// <summary>
+        /// Pobiera Statystyki modelu
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{userId}/ModelStatistics")]
+        public IActionResult ModelStatistics([FromRoute] int userId, [FromRoute] string modelName)
+        {
+            var statistics = _context.extendedModel.Where(
+                model => model.userId == userId && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;
+            if (statistics == null)
+                return Ok(statistics);
+            else
+                return NotFound();
+        }
+
+
+
     }
 }

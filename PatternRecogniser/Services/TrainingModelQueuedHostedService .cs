@@ -7,25 +7,31 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using PatternRecogniser.ThreadsComunication;
 
 namespace PatternRecogniser.Services
 {
     public class TrainingModelQueuedHostedService : BackgroundService
     {
-        private const int _maxTasks = 3; 
-        private int _taskCount = 0;
+        // potencjalnie możemy pracować na raz na x wątkach by trenować. Wtedy będzie potrzebny
+        // słownik w implementacji trainingUpdate
+        //private const int _maxTasks = 3; 
+        //private int _taskCount = 0;
         private readonly ILogger<TrainingModelQueuedHostedService> _logger;
-        private IBackgroundTaskQueue _backgroundJobs;
+        private IBackgroundTaskQueue _trainInfoQueue;
         private IServiceScopeFactory _serviceScopeFactory;
+        private ITrainingUpdate _trainingUpdate;
 
         public TrainingModelQueuedHostedService(
             ILogger<TrainingModelQueuedHostedService> logger,
             IBackgroundTaskQueue backgroundJobs,
-            IServiceScopeFactory serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            ITrainingUpdate trainingUpdate)
         {
             _logger = logger;
-            _backgroundJobs = backgroundJobs;
+            _trainInfoQueue = backgroundJobs;
             _serviceScopeFactory = serviceScopeFactory;
+            _trainingUpdate = trainingUpdate;
         }
 
         
@@ -46,19 +52,28 @@ namespace PatternRecogniser.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var info =
-                     _backgroundJobs.Dequeue(stoppingToken);
+                     _trainInfoQueue.Dequeue(stoppingToken);
 
+               
                 
-                    await Train(info, stoppingToken, _serviceScopeFactory);
+                    await Train(info, stoppingToken);
                 
                 
             }
         }
 
-        private async Task Train(TrainingInfo info,  CancellationToken stoppingToken, IServiceScopeFactory serviceScopeFactory)
+        private async Task Train(TrainingInfo info,  CancellationToken stoppingToken)
         {
+
+            _trainingUpdate.SetNewUserModel(info.userId, info.modelName);
+
             ExtendedModel extendedModel = new ExtendedModel();
             //extendedModel.TrainModel();
+            for(int i = 0; i < 5; i++)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                _trainingUpdate.Update($"info dla usera {info.userId}: {DateTime.Now}\n"); // zapisuje info
+            }
             // tutaj byśmy zapisywali wyniki trenowania
             using (var scope = _serviceScopeFactory.CreateScope())
             {
