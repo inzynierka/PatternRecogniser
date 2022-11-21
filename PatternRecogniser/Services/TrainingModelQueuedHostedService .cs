@@ -78,6 +78,12 @@ namespace PatternRecogniser.Services
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+                dbContext.extendedModel.Add(new ExtendedModel()
+                {
+                    name = info.modelName,
+                    userId = info.userId,
+
+                });
                 _logger.LogInformation($"request of user {dbContext.user.First(a => a.userId == info.userId).login} is processing {info.modelName}\n");
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);

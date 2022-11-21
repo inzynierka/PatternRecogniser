@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
-    [Route("")]
+    [Route("{userId}")]
     public class TrainModelController : ControllerBase
     {
 
@@ -35,18 +35,17 @@ namespace PatternRecogniser.Controllers
         /// 404:
         /// string
         /// </returns>
-        [HttpPost]
+        [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
-        [Route("{userId}/TrainModel")]
-        public IActionResult TrainModel([FromRoute] int userId, [FromRoute] string modelName, 
-            [FromRoute] DistributionType distributionType, IFormFile trainingSet)
+        public IActionResult TrainModel([FromRoute] int userId, string modelName,
+            DistributionType distributionType, IFormFile trainingSet)
         {
             try
             {
                 if (!HttpExtraOperations.IsZip(trainingSet))
-                    throw new Exception("zły format pliku"); 
+                    throw new Exception("zły format pliku");
 
-                _trainInfoQueue.Enqueue(new TrainingInfo(userId, trainingSet, modelName));
+                _trainInfoQueue.Enqueue(new TrainingInfo(userId, trainingSet, modelName, distributionType));
 
                 return NumberInQueue(userId);
             }
@@ -54,7 +53,7 @@ namespace PatternRecogniser.Controllers
             {
                 return BadRequest(e.Message);
             }
-            
+
 
         }
 
@@ -68,11 +67,10 @@ namespace PatternRecogniser.Controllers
         /// 404:
         /// string
         /// </returns>
-        [HttpGet]
-        [Route("{userId}/TrainingModel/NumberInQueue")]
+        [HttpGet("TrainingModel/NumberInQueue")]
         public IActionResult NumberInQueue([FromRoute] int userId)
         {
-            int numberInQueue = _trainInfoQueue.Count;
+            int numberInQueue = _trainInfoQueue.NumberInQueue(userId);
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
             else
@@ -86,15 +84,14 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpDelete]
-        [Route("{userId}/Cancel")]
+        [HttpDelete("Cancel")]
         public IActionResult Cancel([FromRoute] int userId)
         {
             bool deleted = _trainInfoQueue.Remove(userId);
-            if (deleted) 
+            if (deleted)
                 return Ok("usunięto");
             else
-                return  NotFound("nie udało się usunąć");
+                return NotFound("nie udało się usunąć");
         }
 
         /// <summary>
@@ -105,9 +102,8 @@ namespace PatternRecogniser.Controllers
         /// <returns>
         /// string
         /// </returns>
-        [HttpGet]
-        [Route("{userId}/TrainUpdate")]
-        public IActionResult TrainUpdate([FromRoute] int userId, [FromRoute] string modelName)
+        [HttpGet("TrainUpdate")]
+        public IActionResult TrainUpdate([FromRoute] int userId, string modelName)
         {
             var info = _traningUpdate.ActualInfo(userId, modelName);
             if (string.IsNullOrEmpty(info))
@@ -121,9 +117,8 @@ namespace PatternRecogniser.Controllers
         /// </summary>
         /// <description></description>
         /// <returns></returns>
-        [HttpGet]
-        [Route("{userId}/ModelStatistics")]
-        public IActionResult ModelStatistics([FromRoute] int userId, [FromRoute] string modelName)
+        [HttpGet("ModelStatistics")]
+        public IActionResult ModelStatistics([FromRoute] int userId, string modelName)
         {
             var statistics = _context.extendedModel.Where(
                 model => model.userId == userId && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;

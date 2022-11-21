@@ -17,6 +17,7 @@ namespace PatternRecogniser.Models
         public abstract string GetResults();
 
         public abstract void SaveResult();
+        public abstract bool IsItMe(string experimentType);
     }
 
     [Index(nameof(userId), nameof(name), IsUnique = true)]
@@ -25,6 +26,7 @@ namespace PatternRecogniser.Models
         [Key]
         public int experimentListId { get; set; }
         public string name { get; set; }
+        public string experimentType { get; set; }
         public int userId { get; set; }
         public virtual User user { get; set; }
         public virtual ICollection<Experiment> experiments { get; set; }

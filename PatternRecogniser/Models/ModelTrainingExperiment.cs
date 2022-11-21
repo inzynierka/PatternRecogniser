@@ -34,6 +34,11 @@ namespace PatternRecogniser.Models
         {
             throw new NotImplementedException();
         }
+
+        public override bool IsItMe(string experimentType)
+        {
+            return experimentType == "ModelTrainingExperiment";
+        }
     }
 
     public class ValidationSet

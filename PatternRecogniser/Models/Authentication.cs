@@ -11,13 +11,17 @@ namespace PatternRecogniser.Models
         [Key]
         public int userId { get; set; }
         public string hashedToken { get; set; }
+        public string lastSeed { get; set; } // chyba potrzebuejmy tego by dodać do hasła by sprawdzić czy zgadza się z ostatnim
         
         public virtual User user { get; set; }
+        
 
         public void LogIn(string name, string password) { }
 
         public void LogOut(User user) { }
 
         public void SignIn(string email, string name, string password) { }
+
+        
     }
 }

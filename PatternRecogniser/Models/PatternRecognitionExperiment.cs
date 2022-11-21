@@ -19,6 +19,11 @@ namespace PatternRecogniser.Models
             throw new NotImplementedException();
         }
 
+        public override bool IsItMe(string experimentType)
+        {
+            return "PatternRecognitionExperiment"==experimentType;
+        }
+
         public override void SaveResult()
         {
             throw new NotImplementedException();

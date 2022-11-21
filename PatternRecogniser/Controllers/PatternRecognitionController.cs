@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace PatternRecogniser.Controllers
 {
-    [Route("[Controller]")]
+    [Route("{userId}/[Controller]")]
     public class PatternRecognitionController : ControllerBase
     {
         private PatternRecogniserDBContext _context;
@@ -17,9 +17,9 @@ namespace PatternRecogniser.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        [HttpPut]
         [Consumes("multipart/form-data")]
-        public IActionResult Recognize([FromRoute] int userId, [FromRoute] string modelName, IFormFile pattern)
+        public IActionResult Recognize([FromRoute] int userId, string modelName, IFormFile pattern)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace PatternRecogniser.Controllers
                 else
                     return NotFound();
             }
-            catch(Exception e )
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
