@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PatternRecogniser.Models;
+using PatternRecogniser.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,10 @@ namespace PatternRecogniser
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddSingleton<IBackgroundTaskQueue>(a =>
+            new BackgroundQueueBlockingCollection()
+            );
+            services.AddHostedService<TrainingModelQueuedHostedService>();
 
             var connectionString = Configuration["DbContextSettings:ConnectionString"];
             services.AddDbContext<PatternRecogniserDBContext>(
@@ -52,6 +57,7 @@ namespace PatternRecogniser
             app.UseStaticFiles();
 
             app.UseRouting();
+            
 
             app.UseAuthorization();
 
