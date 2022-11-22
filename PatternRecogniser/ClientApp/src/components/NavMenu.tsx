@@ -30,7 +30,7 @@ export function NavMenu() {
   }
 
   const accountMenu = (
-    <Menu theme="dark" mode="vertical">
+    <Menu theme="dark" mode="vertical" data-testid="account-menu">
         <Menu.Item key="MyAccount"><NavLink tag={Link} to={"/my-account/" + globalState.loggedUser}>Moje konto</NavLink></Menu.Item>
         <Menu.Item key="Logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>             
     </Menu>
@@ -38,23 +38,23 @@ export function NavMenu() {
 
   return (
     <Header >
-       { globalState.isUserAuthenticated &&  
+      { globalState.isUserAuthenticated &&  
 
-        <Row justify="space-between" style={{width: "95vw"}}>
-              <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "60vw", height: '64px'}}>
-                  <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
-                  <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Rozpoznaj znak</NavLink></Menu.Item>
-                  <Menu.Item key="MyModels" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/my-models")}>Moje modele</NavLink></Menu.Item>
-                  <Menu.Item key="ComparisonLists" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/comparison-lists")}>Porównywarka</NavLink></Menu.Item>
-              </Menu>
+        <Row justify="space-between" style={{width: "95vw"}} data-testid="main-menu">
+            <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "60vw", height: '64px'}}>
+                <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
+                <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Rozpoznaj znak</NavLink></Menu.Item>
+                <Menu.Item key="MyModels" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/my-models")}>Moje modele</NavLink></Menu.Item>
+                <Menu.Item key="ComparisonLists" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/comparison-lists")}>Porównywarka</NavLink></Menu.Item>
+            </Menu>
 
-              <div className="user-avatar">
-                <Dropdown overlay={accountMenu} placement="bottomRight" trigger={['click']}>
-                  <Button icon={<UserOutlined />} shape="circle"/>
-                </Dropdown>
-              </div> 
-          </Row>
-        }
+            <div className="user-avatar">
+              <Dropdown overlay={accountMenu} placement="bottomRight" trigger={['click']}>
+                <Button icon={<UserOutlined />} shape="circle"/>
+              </Dropdown>
+            </div> 
+        </Row>
+      }
     </Header>
   );
 }

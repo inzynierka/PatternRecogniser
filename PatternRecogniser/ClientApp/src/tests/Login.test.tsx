@@ -35,7 +35,7 @@ function renderLogin() {
 describe("LoginPanel", () => {
     it("renders login panel", () => {
         renderLogin();
-        
+        expect(screen.getByText("Logowanie")).toBeInTheDocument();
     });
     it("should display blank login form", async () => {
         const { findByTestId } = renderLogin();
@@ -158,5 +158,11 @@ describe("LoginPanel", () => {
         fireEvent.click(loginButton);
 
         expect(loginHandlerCalled).toBe(1);
+    })
+
+    it("no menu items are displayed", async () => {
+        const { findByTestId } = renderLogin();
+        const menuItems = await findByTestId("main-menu").catch(() => { return null; });
+        expect(menuItems).toBe(null);
     })
 })
