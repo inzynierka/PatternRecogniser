@@ -41,7 +41,7 @@ namespace PatternRecogniser.Controllers
 
         // trzeba dokończyć
         [HttpPut("addExperiment")]
-        public IActionResult Add([FromRoute] int userId,  string experimentListName,  string experimentType, [FromBody] Experiment Experyment)
+        public IActionResult Add([FromRoute] int userId,  string experimentListName,  string experimentType, [FromBody] Experiment Experiment)
         {
             if (! IsExperimentListExsist(userId, experimentListName))
                 return BadRequest("Lista nie istnieje");
