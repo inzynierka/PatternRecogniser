@@ -1,9 +1,10 @@
 import '@testing-library/jest-dom';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { Menu } from 'react-bootstrap/lib/Dropdown';
 
 import Login from '../pages/Login';
+import { allowsTypingIn, mockedUseNavigate, reactsOnClicking, renderComponentWithRouter, requiresNotEmpty } from './util';
 
 window.matchMedia = window.matchMedia || function() {
     return {
@@ -12,109 +13,44 @@ window.matchMedia = window.matchMedia || function() {
         removeListener: function() {}
     };
 };
-
-
-// mock useNavigate
-const mockedUseNavigate = jest.fn()
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: () => mockedUseNavigate,
-  })
-);
-
-function renderLogin() {
-    return render(
-        <BrowserRouter>
-            <Login />
-        </BrowserRouter>,
-    );
-  }
   
 describe("LoginPanel", () => {
     it("renders login panel", () => {
-        renderLogin();
+        renderComponentWithRouter(<Login />);
         expect(screen.getByText("Logowanie")).toBeInTheDocument();
     });
     it("should display blank login form", async () => {
-        const { findByTestId } = renderLogin();
+        const { findByTestId } = renderComponentWithRouter(<Login/>);
         const loginForm = await findByTestId("login-form");
       
         expect(loginForm).toHaveFormValues({
             "login-input": "",
             "password-input": ""
         });
-    })
+    });
+   
+    test("no menu items are displayed", async () => {
+        const { findByTestId } = renderComponentWithRouter(<Login/>);
+        const menuItems = await findByTestId("main-menu").catch(() => { return null; });
+        expect(menuItems).toBe(null);
+    });
 
     it("allows typing in login", async () => {
-        const { findByTestId } = renderLogin();
-        const loginForm = await findByTestId("login-form");
-        const loginInput = await findByTestId("login-input");
-      
-        expect(loginForm).toHaveFormValues({
-            "login-input": "",
-            "password-input": ""
-        });
-      
-        fireEvent.change(loginInput, { target: { value: "abc" } });
-      
-        expect(loginForm).toHaveFormValues({
-            "login-input": "abc",
-            "password-input": ""
-        });
-    })
+        allowsTypingIn("login-input", <Login />);
+    });
     it("allows typing in password", async () => {
-        const { findByTestId } = renderLogin();
-        const loginForm = await findByTestId("login-form");
-        const passwordInput = await findByTestId("password-input");
-      
-        expect(loginForm).toHaveFormValues({
-            "login-input": "",
-            "password-input": ""
-        });
-      
-        fireEvent.change(passwordInput, { target: { value: "abc" } });
-      
-        expect(loginForm).toHaveFormValues({
-            "login-input": "",
-            "password-input": "abc"
-        });
-    })
+        allowsTypingIn("password-input", <Login />);
+    });
 
     it("requires login", async () => {
-        const { findByTestId } = renderLogin();
-        const loginForm = await findByTestId("login-form");
-        const passwordInput = await findByTestId("password-input");
-
-        fireEvent.change(passwordInput, { target: { value: "abc" } });
-
-        expect(loginForm).toHaveFormValues({
-            "login-input": "",
-            "password-input": "abc"
-        });
-
-        fireEvent.submit(loginForm);
-
-        await waitFor(() => { expect(mockedUseNavigate).toHaveBeenCalledTimes(0); });
-    })
+        requiresNotEmpty("login-input", "login-form", <Login/>)
+    });
     it("requires password", async () => {
-        const { findByTestId } = renderLogin();
-        const loginForm = await findByTestId("login-form");
-        const loginInput = await findByTestId("login-input");
-
-        fireEvent.change(loginInput, { target: { value: "abc" } });
-      
-        expect(loginForm).toHaveFormValues({
-            "login-input": "abc",
-            "password-input": ""
-        });
-
-        fireEvent.submit(loginForm);
-
-        await waitFor(() => { expect(mockedUseNavigate).toHaveBeenCalledTimes(0); });
-    })
+        requiresNotEmpty("password-input", "login-form", <Login/>)
+    });
 
     it("invalid user can't log in", async () => {
-        const { findByTestId } = renderLogin();
+        const { findByTestId } = renderComponentWithRouter(<Login/>);
         const loginForm = await findByTestId("login-form");
         const loginInput = await findByTestId("login-input");
         const passwordInput = await findByTestId("password-input");
@@ -133,34 +69,12 @@ describe("LoginPanel", () => {
             expect(mockedUseNavigate).toHaveBeenCalledTimes(0);
             expect(screen.getByText("Niepoprawne dane")).toBeInTheDocument();
         });
-    })
+    });
 
-    it("signin button reacts to clicking", async () => {
-        const { findByTestId } = renderLogin();
-        const signinButton = await findByTestId("signin-button");
-        let signInHandlerCalled = 0;
-
-        signinButton.addEventListener('click', () => { signInHandlerCalled++; });
-
-        fireEvent.click(signinButton);
-
-        expect(signInHandlerCalled).toBe(1);
-    })
+    it("signin button reacts on clicking", async () => {
+        reactsOnClicking("signin-button", <Login/>);
+    });
     it("login button reacts to clicking", async () => {
-        const { findByTestId } = renderLogin();
-        const loginButton = await findByTestId("login-button");
-        let loginHandlerCalled = 0;
-
-        loginButton.addEventListener('click', () => { loginHandlerCalled++; });
-
-        fireEvent.click(loginButton);
-
-        expect(loginHandlerCalled).toBe(1);
-    })
-
-    it("no menu items are displayed", async () => {
-        const { findByTestId } = renderLogin();
-        const menuItems = await findByTestId("main-menu").catch(() => { return null; });
-        expect(menuItems).toBe(null);
-    })
+        reactsOnClicking("login-button", <Login/>);
+    });
 })

@@ -42,7 +42,7 @@ export function NavMenu() {
     <Header >
       { globalState.isUserAuthenticated &&  
 
-        <Row justify="space-between" style={{width: "95vw"}} data-testid="main-menu">
+        <Row className='mainMenu' justify="space-between" style={{width: "95vw"}} data-testid="main-menu">
             <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "60vw", height: '64px'}}>
                 <Menu.Item key="Train" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/train")}>Trenuj model</NavLink></Menu.Item>
                 <Menu.Item key="Recognise" ><NavLink tag={Link} to={navigateTo_IfLoggedIn("/recognise")}>Rozpoznaj znak</NavLink></Menu.Item>
