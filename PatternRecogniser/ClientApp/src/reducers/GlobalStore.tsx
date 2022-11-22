@@ -1,7 +1,8 @@
 import { createContext, ReactElement, ReactNode, useEffect, useReducer, useRef } from 'react';
+
+import { initialState } from './initial';
 import Reducer from './Reducer';
 import { ContextType } from './Types';
-import { initialState }  from './initial';
 
 /**
  * React Context-based Global Store with a reducer

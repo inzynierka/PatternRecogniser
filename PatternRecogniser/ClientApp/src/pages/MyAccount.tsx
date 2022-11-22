@@ -1,8 +1,9 @@
-import {Typography, Card, Button } from "antd"
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
+
+import { Button, Card, Col, Row, Typography } from 'antd';
+import { useContext } from 'react';
+
 import { globalContext } from '../reducers/GlobalStore';
-import { useContext } from "react";
 import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;

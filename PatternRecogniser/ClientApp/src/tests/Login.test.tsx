@@ -1,11 +1,9 @@
-import {fireEvent, getByText, render, screen, waitFor, waitForElement} from "@testing-library/react";
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+
 import Login from '../pages/Login';
-import { BrowserRouter, Navigate } from 'react-router-dom';
-import { Urls } from "../types/Urls";
-import { Result } from "antd";
-import { createSecureContext } from "tls";
-import { useNavigate } from 'react-router';
 
 window.matchMedia = window.matchMedia || function() {
     return {

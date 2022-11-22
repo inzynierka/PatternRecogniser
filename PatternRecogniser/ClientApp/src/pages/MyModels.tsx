@@ -1,13 +1,13 @@
-import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
-import { useState } from "react";
+
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { ModelType } from "../types/ModelType";
+import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ModelListElement from "./ModelListElement";
-import { Urls } from "../types/Urls";
+
+import { ModelType } from '../types/ModelType';
+import { Urls } from '../types/Urls';
+import ModelListElement from './ModelListElement';
 
 const { Title } = Typography;
 

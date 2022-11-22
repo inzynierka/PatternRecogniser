@@ -1,9 +1,9 @@
-import {Typography, Card, Button } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
+
 import { DeleteOutlined } from '@ant-design/icons';
-import { ComparisonListType } from "../types/ComparisonType";
+import { Button, Card, Col, Row, Typography } from 'antd';
+
+import { ComparisonListType } from '../types/ComparisonType';
 
 const { Title } = Typography;
 

@@ -1,13 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom';
 import 'antd/dist/antd.min.css';
-import { Result, Button } from 'antd';
+
+import { Button, Result } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 export default function NotFound() {
     const navigate = useNavigate();
 
     const NavToHomeHandle = () => {
-        navigate('/books/all', {replace: true});
+        navigate('/train', {replace: true});
     }
 
     return (
@@ -15,7 +16,7 @@ export default function NotFound() {
             status="404"
             title="404"
             subTitle="Przepraszamy, nie znaleźliśmy takiej strony."
-            extra={<Button type="primary" onClick={NavToHomeHandle}><Link to="/">Back Home</Link></Button>}
+            extra={<Button type="primary" onClick={NavToHomeHandle}><Link to="/">Przenieś mnie do <b>Trenuj model</b></Link></Button>}
         />
     );
 }

@@ -1,13 +1,14 @@
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Row, Button, Input, Form, message, Alert } from 'antd';
-import { useContext } from 'react';
-import { useNavigate } from 'react-router';
-import { useState } from 'react';
 import 'antd/dist/antd.min.css';
+
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
+import { useContext } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+
 import { globalContext } from '../reducers/GlobalStore';
-import { Typography } from 'antd';
-import useWindowDimensions from '../UseWindowDimensions';
 import { Urls } from '../types/Urls';
+import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
 

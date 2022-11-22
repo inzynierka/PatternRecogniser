@@ -1,5 +1,5 @@
+import { initialState } from './initial';
 import { ActionType } from './Types';
-import { initialState }  from './initial';
 
 const Reducer = (state = initialState, action: ActionType): any => {
   switch (action.type) {

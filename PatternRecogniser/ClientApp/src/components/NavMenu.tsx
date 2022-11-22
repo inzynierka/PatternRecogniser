@@ -1,12 +1,14 @@
-import { useContext } from 'react';
-import { NavLink } from 'reactstrap';
-import { useLocation, Link } from 'react-router-dom';
 import './NavMenu.css';
 import 'antd/dist/antd.min.css';
-import { UserOutlined } from '@ant-design/icons';
 
+import { UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Layout, Menu, message, Row } from 'antd';
+import { useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'reactstrap';
+
 import { globalContext } from '../reducers/GlobalStore';
+
 const { Header } = Layout;
 
 export function NavMenu() {

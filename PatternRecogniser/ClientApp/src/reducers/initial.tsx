@@ -1,4 +1,4 @@
-import { GlobalStateInterface } from "./Types";
+import { GlobalStateInterface } from './Types';
 
 export const initialState: GlobalStateInterface = {
   persistenceType: 'localStorage',

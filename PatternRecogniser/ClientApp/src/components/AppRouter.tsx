@@ -1,16 +1,17 @@
 import { useContext } from 'react';
-import { Route, Routes } from "react-router-dom";
-import NotFound from './NotFound';
-import { globalContext } from '../reducers/GlobalStore';
-import Login from '../pages/Login';
-import SignIn from '../pages/Signin';
-import TrainPage from '../pages/Train';
-import RecognisePage from '../pages/Recognise';
-import MyModelsPage from '../pages/MyModels';
+import { Route, Routes } from 'react-router-dom';
+
 import ComparisonPage from '../pages/ComparisonLists';
 import CreateComparisonListPage from '../pages/CreateComparisonList';
+import Login from '../pages/Login';
 import MyAccountPage from '../pages/MyAccount';
+import MyModelsPage from '../pages/MyModels';
+import RecognisePage from '../pages/Recognise';
+import SignIn from '../pages/Signin';
+import TrainPage from '../pages/Train';
+import { globalContext } from '../reducers/GlobalStore';
 import { Urls } from '../types/Urls';
+import NotFound from './NotFound';
 
 
 export const AppRouter: React.FC = () => {

@@ -1,10 +1,25 @@
-import {Typography, Form, Space, Tooltip, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message, Card } from "antd"
-
-import React, { useState } from 'react';
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
+
 import { QuestionCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import {
+    Button,
+    Card,
+    Checkbox,
+    Col,
+    Form,
+    InputNumber,
+    message,
+    Row,
+    Select,
+    Space,
+    Tooltip,
+    Typography,
+    Upload,
+    UploadProps,
+} from 'antd';
+import { RcFile, UploadFile } from 'antd/lib/upload/interface';
+import React, { useState } from 'react';
+
 import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
