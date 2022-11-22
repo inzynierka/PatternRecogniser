@@ -3,12 +3,12 @@ import {Typography, Card, Button } from "antd"
 import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { DeleteOutlined } from '@ant-design/icons';
-import { ComparisonListClass } from "../classes/ComparisonList";
+import { ComparisonListType } from "../types/ComparisonType";
 
 const { Title } = Typography;
 
 interface Props {
-    list: ComparisonListClass
+    list: ComparisonListType
 }
 
 const ComparisonList = (props: Props) => {

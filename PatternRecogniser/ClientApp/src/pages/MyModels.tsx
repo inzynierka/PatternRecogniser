@@ -4,13 +4,14 @@ import 'antd/dist/antd.min.css';
 import { Row, Col } from "antd";
 import { useState } from "react";
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { ModelClass } from "../classes/Model";
+import { ModelType } from "../types/ModelType";
 import { useNavigate } from 'react-router-dom';
 import ModelListElement from "./ModelListElement";
+import { Urls } from "../types/Urls";
 
 const { Title } = Typography;
 
-const exampleModels : ModelClass[] = [
+const exampleModels : ModelType[] = [
     {
         name: "Cyfry arabskie",
         patternNum: 10
@@ -36,7 +37,7 @@ const MyModelsPage = () => {
     }
 
     const addNewModelHandler = () => {
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     return (
@@ -64,7 +65,7 @@ const MyModelsPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelClass) => (<ModelListElement model={item}/> ))
+                                        models.map((item: ModelType) => (<ModelListElement model={item}/> ))
                                     }
                                 </Card>
                             </Row>

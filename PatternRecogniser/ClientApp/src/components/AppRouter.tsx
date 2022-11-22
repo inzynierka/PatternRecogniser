@@ -10,6 +10,7 @@ import MyModelsPage from '../pages/MyModels';
 import ComparisonPage from '../pages/ComparisonLists';
 import CreateComparisonListPage from '../pages/CreateComparisonList';
 import MyAccountPage from '../pages/MyAccount';
+import { Urls } from '../types/Urls';
 
 
 export const AppRouter: React.FC = () => {
@@ -26,11 +27,11 @@ export const AppRouter: React.FC = () => {
       {
         globalState.isUserAuthenticated &&
         <Routes>
-            <Route path='/login' element={<Login />}/>
-            <Route path='/signin' element={<SignIn />}/>
-            <Route path='/train' element={<TrainPage />}/>
-            <Route path='/recognise' element={<RecognisePage />}/>
-            <Route path='/my-models' element={<MyModelsPage />}/>
+            <Route path={Urls.LogIn} element={<Login />}/>
+            <Route path={Urls.SignIn} element={<SignIn />}/>
+            <Route path={Urls.Train} element={<TrainPage />}/>
+            <Route path={Urls.Recognise} element={<RecognisePage />}/>
+            <Route path={Urls.MyModels} element={<MyModelsPage />}/>
             <Route path='comparison-lists' >
               <Route path='create' element={<CreateComparisonListPage />}/>
               <Route path='' element={<ComparisonPage />}/>

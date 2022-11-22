@@ -8,6 +8,7 @@ import { globalContext } from '../reducers/GlobalStore';
 import { Typography } from 'antd';
 import PasswordChecklist from "react-password-checklist"
 import useWindowDimensions from '../UseWindowDimensions';
+import { Urls } from '../types/Urls';
 
 const { Title } = Typography;
 
@@ -28,16 +29,16 @@ export default function SignIn(props : Props) {
         dispatch({ type: 'SET_TOKEN', payload: token });
         dispatch({ type: 'SET_USER', payload: user.login });
         message.success('Logged in succesfully!');
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     const signinHandler = (user : any) => {
         successfullSignIn(user,"Bearer ");
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     const cancelHandler = () => {
-        navigate('/login', {replace: true});
+        navigate(Urls.LogIn, {replace: true});
     }
 
     const passwordValidate = (password : string) => {
