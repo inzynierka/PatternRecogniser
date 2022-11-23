@@ -31,16 +31,16 @@ const ModelListElement = (props: Props) => {
                             (props.addingToList === undefined || props.addingToList === false) ?
                                 <Col>
                                     <Row justify="end">
-                                        <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.model.name}>Szczegóły</Button>
+                                        <Button data-testid="details-button" type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.model.name}>Szczegóły</Button>
                                     </Row>
                                     <Row justify="end">
-                                        <Button type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.model.name} size="large" />
+                                        <Button data-testid="delete-button" type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.model.name} size="large" />
                                     </Row>
                                 </Col>
                                 :
                                 <Col>
                                     <Row justify="end">
-                                        <Button type="primary" style={{width: "150px", marginBottom: '10px'}} size="large" key={"addButton_" + props.model.name}>Dodaj do listy</Button>
+                                        <Button data-testid="add-to-list-button" type="primary" style={{width: "150px", marginBottom: '10px'}} size="large" key={"addButton_" + props.model.name}>Dodaj do listy</Button>
                                     </Row>
                                 </Col>
                         }

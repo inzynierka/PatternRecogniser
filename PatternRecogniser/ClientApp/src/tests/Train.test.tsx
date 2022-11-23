@@ -1,11 +1,8 @@
 import '@testing-library/jest-dom';
 
-import { fireEvent, getByText, render, screen, waitFor, waitForElement } from '@testing-library/react';
-import selectEvent from 'react-select-event'
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 
 import TrainPage from '../pages/Train';
-import { renderComponentWithRouter } from './util';
 
 window.matchMedia = window.matchMedia || function() {
     return {
@@ -20,7 +17,6 @@ describe("TrainPanel", () => {
         render(<TrainPage />);
         expect(screen.getByText("Trenowanie modelu")).toBeInTheDocument();
     });
-
 
     it("displays train form", async () => {
         const { findByTestId } = render(<TrainPage />);

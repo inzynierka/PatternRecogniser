@@ -34,19 +34,19 @@ const ComparisonList = (props: Props) => {
             <Card>
                 <Row justify="space-between" align="middle">
                     <Col>
-                        <Title level={3}>{props.list.name}</Title>
+                        <Title data-testid="conjugatable-text" level={3}>{props.list.name}</Title>
                         {displayElementNumber()}
                         {
                             props.list.usedModel?.valueOf !== undefined &&
-                            <p style={{marginTop: "20px", fontSize: '1.1em', marginBottom: '0px'}}>Model: {props.list.usedModel}</p>
+                            <p data-testid="model-name" style={{marginTop: "20px", fontSize: '1.1em', marginBottom: '0px'}}>Model: {props.list.usedModel}</p>
                         }
                     </Col>
                     <Col>
                         <Row justify="end">
-                            <Button type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.list.name}>Szczegóły</Button>
+                            <Button data-testid="details-button" type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.list.name}>Szczegóły</Button>
                         </Row>
                         <Row justify="end">
-                            <Button type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.list.name} size="large" />
+                            <Button data-testid="delete-button" type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.list.name} size="large" />
                         </Row>
                     </Col>
                 </Row>

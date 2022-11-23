@@ -52,18 +52,18 @@ const MyModelsPage = () => {
                         <Row justify="space-around" align="middle">
                             <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
                                     <Space>
-                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
+                                        <Input data-testid="search-input" placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
                                         <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
                                 <Col>
-                                    <Button type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
+                                    <Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
-                                <Card bordered={true} style={{width: "80vw"}}>
+                                <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
                                         models.map((item: ModelType) => (<ModelListElement model={item}/> ))
                                     }
