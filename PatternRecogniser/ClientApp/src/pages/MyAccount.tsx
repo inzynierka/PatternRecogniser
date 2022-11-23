@@ -3,14 +3,12 @@ import 'antd/dist/antd.min.css';
 import { Button, Card, Col, Row, Typography } from 'antd';
 import { useContext } from 'react';
 
-import { globalContext } from '../reducers/GlobalStore';
 import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
 
 
 const MyAccountPage = () => {
-    const { globalState, } = useContext(globalContext);
     const isOrientationVertical  = useWindowDimensions();
 
     return (
@@ -36,10 +34,10 @@ const MyAccountPage = () => {
                                     </Col>
                                     <Col>
                                         <Row justify="space-around" align="middle">
-                                            <p style={{fontSize: "1.5em"}}>{globalState.loggedUser+"@email.com"}</p>
+                                            <p style={{fontSize: "1.5em"}}>{localStorage.getItem('email')}</p>
                                         </Row>
                                         <Row justify="space-around" align="middle">
-                                            <p style={{fontSize: "1.5em"}}>{globalState.loggedUser}</p>
+                                            <p style={{fontSize: "1.5em"}}>{localStorage.getItem('userId')}</p>
                                         </Row>
                                     </Col>
                                 </Row>

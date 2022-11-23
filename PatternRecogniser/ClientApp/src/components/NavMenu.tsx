@@ -7,13 +7,11 @@ import { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from 'reactstrap';
 
-import { globalContext } from '../reducers/GlobalStore';
-
 const { Header } = Layout;
 
 export function NavMenu() {
   const location = useLocation(); 
-  const { globalState, dispatch } = useContext(globalContext);
+  let isUserAuthenticated = localStorage.getItem('token') !== null;
 
   const getSelectedKeyFromPath = () => {
     let path = location.pathname;
@@ -24,23 +22,23 @@ export function NavMenu() {
     return ['None'];
   }
   const navigateTo_IfLoggedIn = (to : string) => {
-    return globalState.isUserAuthenticated ? to : "/login"
+    return isUserAuthenticated ? to : "/login"
   }
   const logout = () => {
-    dispatch({ type: 'AUTHENTICATE_USER', payload: false });
+    localStorage.clear();
     message.success('Logged out succesfully!');
   }
 
   const accountMenu = (
     <Menu theme="dark" mode="vertical" data-testid="account-menu">
-        <Menu.Item key="MyAccount"><NavLink tag={Link} to={"/my-account/" + globalState.loggedUser}>Moje konto</NavLink></Menu.Item>
+        <Menu.Item key="MyAccount"><NavLink tag={Link} to={"/my-account/" + localStorage.getItem('userId')}>Moje konto</NavLink></Menu.Item>
         <Menu.Item key="Logout" onClick={logout}><NavLink tag={Link} to="/login">Wyloguj</NavLink></Menu.Item>             
     </Menu>
   );
 
   return (
     <Header >
-      { globalState.isUserAuthenticated &&  
+      { isUserAuthenticated &&  
 
         <Row className='mainMenu' justify="space-between" style={{width: "95vw"}} data-testid="main-menu">
             <Menu theme="dark" mode="horizontal" selectedKeys={getSelectedKeyFromPath()} style={{width: "60vw", height: '64px'}}>

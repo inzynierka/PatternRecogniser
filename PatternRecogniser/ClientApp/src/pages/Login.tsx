@@ -2,11 +2,9 @@ import 'antd/dist/antd.min.css';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
-import { useContext } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { globalContext } from '../reducers/GlobalStore';
 import { Urls } from '../types/Urls';
 import useWindowDimensions from '../UseWindowDimensions';
 
@@ -14,20 +12,20 @@ const { Title } = Typography;
 
 export default function Login() {
     const [form] = Form.useForm();
-    const { dispatch } = useContext(globalContext);
     const navigate = useNavigate();
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
 
     const successfullLogIn = (user : any, token : string) => {
         setUserNotFound(false);
-        dispatch({ type: 'AUTHENTICATE_USER', payload: true });
-        dispatch({ type: 'SET_TOKEN', payload: token });
-        dispatch({ type: 'SET_USER', payload: user.login });
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', user.login);
+        localStorage.setItem('email', user.email);
         message.success('Logged in succesfully!');
         navigate(Urls.Train, {replace: true});
     }
     const demoLogin = async (user : any) => {
+        user.email = "admin@patrec.com";
         return (user.login === "admin" && user.password === "admin") 
     }
     const loginHandler = (user : any) => {
