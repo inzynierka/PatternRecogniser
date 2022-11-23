@@ -1,11 +1,11 @@
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 
 export function  renderComponentWithRouter(component : JSX.Element) {
     return render(
-        <BrowserRouter>
+        <MemoryRouter>
             {component}
-        </BrowserRouter>,
+        </MemoryRouter>,
     );
 }
 
@@ -16,6 +16,19 @@ jest.mock('react-router-dom', () => ({
     useNavigate: () => mockedUseNavigate,
   })
 );
+
+// mock useDispatch
+export const mockUseDispatch = jest.fn();
+jest.mock('react-redux', () => ({
+  useDispatch: () => mockUseDispatch
+}));
+
+// mock useContext
+export const mockUseContext = jest.fn();
+jest.mock('react', () => ({
+    ...jest.requireActual('react'),
+    useContext: () => mockUseContext,
+}));
 
 export const allowsTypingIn = async (inputTestId : string, component : JSX.Element) => {
     const { findByTestId } = renderComponentWithRouter(component);
@@ -28,16 +41,21 @@ export const allowsTypingIn = async (inputTestId : string, component : JSX.Eleme
     expect(input).toHaveValue("abc");
 }
 
-export const requiresNotEmpty = async (inputTestId : string, formTestId : string, component : JSX.Element) => {
+export const requiresNotEmpty = async (inputTestId : string, otherElements : Record<string, unknown>, formTestId : string, component : JSX.Element) => {
     const { findByTestId } = renderComponentWithRouter(component);
     const loginForm = await findByTestId(formTestId);
     const input = await findByTestId(inputTestId);
   
     expect(input).toHaveValue("");
 
+    let coutner = 0;
+    loginForm.addEventListener("submit", () => {
+        coutner++
+    });
+
     fireEvent.submit(loginForm);
 
-    await waitFor(() => { expect(mockedUseNavigate).toHaveBeenCalledTimes(0); });
+    await waitFor(() => { expect(coutner).toBe(0); });
 }
 
 export const reactsOnClicking = async (buttonTestId : string, component : JSX.Element) => {
