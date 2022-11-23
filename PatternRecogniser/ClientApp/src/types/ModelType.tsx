@@ -1,4 +1,4 @@
-export interface ModelClass {
+export interface ModelType {
     name: string,
     patternNum: number
 }

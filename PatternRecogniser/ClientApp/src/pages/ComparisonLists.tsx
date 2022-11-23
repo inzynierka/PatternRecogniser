@@ -1,16 +1,17 @@
-import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
-import { useState } from "react";
+
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { ComparisonListClass } from "../classes/ComparisonList";
+import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ComparisonList from "./ComparisonList";
+
+import { ComparisonListType } from '../types/ComparisonType';
+import { Urls } from '../types/Urls';
+import ComparisonList from './ComparisonList';
 
 const { Title } = Typography;
 
-const exampleLists : ComparisonListClass[] = [
+const exampleLists : ComparisonListType[] = [
     {
         name: "Modele z alfabetami",
         elementNum: 3
@@ -33,7 +34,7 @@ const ComparisonPage = () => {
     }
 
     const createNewListHandler = () => {
-        navigate('/comparison-lists/create', {replace: true});
+        navigate(Urls.ComparisonListsCreate, {replace: true});
     }
 
     return (
@@ -61,7 +62,7 @@ const ComparisonPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        lists.map((item: ComparisonListClass) => ( <ComparisonList list={item} /> ))
+                                        lists.map((item: ComparisonListType) => ( <ComparisonList list={item} /> ))
                                     }
                                 </Card>
                             </Row>

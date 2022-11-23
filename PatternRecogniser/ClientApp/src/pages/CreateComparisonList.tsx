@@ -1,16 +1,17 @@
-import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
-import { useState } from "react";
-import { QuestionCircleOutlined, SearchOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import { ModelClass } from "../classes/Model";
-import ModelListElement from "./ModelListElement";
+
+import { ArrowLeftOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { ModelType } from '../types/ModelType';
+import { Urls } from '../types/Urls';
+import ModelListElement from './ModelListElement';
 
 const { Title } = Typography;
 
-const exampleModels : ModelClass[] = [
+const exampleModels : ModelType[] = [
     {
         name: "Cyfry arabskie",
         patternNum: 10
@@ -36,7 +37,7 @@ const CreateComparisonListPage = () => {
     }
 
     const goBackHandler = () => {
-        navigate('/comparison-lists', {replace: true});
+        navigate(Urls.ComparisonLists, {replace: true});
     }
 
     return (
@@ -65,7 +66,7 @@ const CreateComparisonListPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelClass) => (<ModelListElement model={item} addingToList={true}/> ))
+                                        models.map((item: ModelType) => (<ModelListElement model={item} addingToList={true}/> ))
                                     }
                                 </Card>
                             </Row>

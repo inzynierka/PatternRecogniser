@@ -1,16 +1,17 @@
-import {Typography, Card, Space, Tooltip, Input, Button } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
-import { useState } from "react";
+
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { ModelClass } from "../classes/Model";
+import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ModelListElement from "./ModelListElement";
+
+import { ModelType } from '../types/ModelType';
+import { Urls } from '../types/Urls';
+import ModelListElement from './ModelListElement';
 
 const { Title } = Typography;
 
-const exampleModels : ModelClass[] = [
+const exampleModels : ModelType[] = [
     {
         name: "Cyfry arabskie",
         patternNum: 10
@@ -36,7 +37,7 @@ const MyModelsPage = () => {
     }
 
     const addNewModelHandler = () => {
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     return (
@@ -51,20 +52,20 @@ const MyModelsPage = () => {
                         <Row justify="space-around" align="middle">
                             <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
                                     <Space>
-                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
+                                        <Input data-testid="search-input" placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
                                         <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
                                 <Col>
-                                    <Button type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
+                                    <Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
-                                <Card bordered={true} style={{width: "80vw"}}>
+                                <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelClass) => (<ModelListElement model={item}/> ))
+                                        models.map((item: ModelType) => (<ModelListElement model={item}/> ))
                                     }
                                 </Card>
                             </Row>

@@ -5,6 +5,7 @@ export interface GlobalStateInterface {
   isUserAuthenticated: boolean;
   loggedUser: string;
   token: string;
+  user? : any;
 }
 
 export type ActionType = {

@@ -1,12 +1,12 @@
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Row, Button, Input, Form, message, Alert } from 'antd';
-import { useContext } from 'react';
-import {useNavigate} from 'react-router-dom';
-import { useState } from 'react';
 import 'antd/dist/antd.min.css';
-import { globalContext } from '../reducers/GlobalStore';
-import { Typography } from 'antd';
-import PasswordChecklist from "react-password-checklist"
+
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
+import { useState } from 'react';
+import PasswordChecklist from 'react-password-checklist';
+import { useNavigate } from 'react-router-dom';
+
+import { Urls } from '../types/Urls';
 import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
@@ -19,25 +19,24 @@ export default function SignIn(props : Props) {
 	const [passwordAgain, setPasswordAgain] = useState("")
     const [correctPassword, setCorrectPassword] = useState(true);
     const [form] = Form.useForm();
-    const { dispatch } = useContext(globalContext);
     const navigate = useNavigate();
     const isOrientationVertical  = useWindowDimensions();
 
     const successfullSignIn = (user : any, token : string) => {
-        dispatch({ type: 'AUTHENTICATE_USER', payload: true });
-        dispatch({ type: 'SET_TOKEN', payload: token });
-        dispatch({ type: 'SET_USER', payload: user.login });
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', user.login);
+        localStorage.setItem('email', user.email);
         message.success('Logged in succesfully!');
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     const signinHandler = (user : any) => {
         successfullSignIn(user,"Bearer ");
-        navigate('/train', {replace: true});
+        navigate(Urls.Train, {replace: true});
     }
 
     const cancelHandler = () => {
-        navigate('/login', {replace: true});
+        navigate(Urls.LogIn, {replace: true});
     }
 
     const passwordValidate = (password : string) => {
@@ -71,8 +70,9 @@ export default function SignIn(props : Props) {
                 <Form 
                     layout='vertical'
                     form={form}
-                    name="normal_signin"
+                    name="normal-signin"
                     className="signin-form"
+                    data-testid="signin-form"
                     onFinish={signinHandler}
                 >
                     <Title>Rejestracja</Title>
@@ -88,7 +88,7 @@ export default function SignIn(props : Props) {
                                 message: 'Proszę wprowadzić prawidłowy adres e-mail.'
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Adres e-mail" size="large" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}/>
+                        <Input data-testid="email-input" name="email-input" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Adres e-mail" size="large" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}/>
                     </Form.Item>
 
                     <Form.Item name="login" label="Login"
@@ -98,7 +98,7 @@ export default function SignIn(props : Props) {
                                 message: 'Login nie może być pusty.',
                             },
                     ]}>
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}/>
+                        <Input data-testid="login-input" name="login-input" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Login" size="large" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}/>
                     </Form.Item>
 
                     <Form.Item label="Hasło" name="password" hasFeedback
@@ -120,7 +120,10 @@ export default function SignIn(props : Props) {
                             type="password"
                             placeholder="Hasło"
                             size="large"
+                            data-testid="password-input"
+                            name="password-input"
                             onChange={e => setPassword(e.target.value)}
+                            maxLength={32}
                             style={{ width: isOrientationVertical ? "30vw" : "50vw" }}
                         />
                     </Form.Item>
@@ -151,6 +154,9 @@ export default function SignIn(props : Props) {
                             placeholder="Powtórz hasło"
                             onChange={e => setPasswordAgain(e.target.value)}
                             size="large"
+                            data-testid="password-confirm-input"
+                            name="password-confirm-input"
+                            maxLength={32}
                             style={{ width: isOrientationVertical ? "30vw" : "50vw" }}
                         />
                     </Form.Item>
@@ -169,8 +175,8 @@ export default function SignIn(props : Props) {
 
                     <Form.Item>
                         <Row justify="space-between" style={{ width: isOrientationVertical ? "30vw" : "50vw" }}>
-                            <Button type="default" className="login-form-button" onClick={() => cancelHandler()} style={{width: isOrientationVertical ? "13vw" : "23vw"}}>Anuluj</Button>
-                            <Button type="primary" htmlType="submit" className="login-form-button" style={{width: isOrientationVertical ? "13vw" : "23vw"}}>Zarejestruj</Button>
+                            <Button data-testid="cancel-button" type="default" className="login-form-button" onClick={() => cancelHandler()} style={{width: isOrientationVertical ? "13vw" : "23vw"}}>Anuluj</Button>
+                            <Button data-testid="signin-button" type="primary" htmlType="submit" className="login-form-button" style={{width: isOrientationVertical ? "13vw" : "23vw"}}>Zarejestruj</Button>
                         </Row>
                     </Form.Item>
                                                

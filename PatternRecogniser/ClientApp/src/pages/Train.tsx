@@ -1,10 +1,25 @@
-import {Typography, Form, Space, Tooltip, Select, Checkbox, InputNumber, Upload, Button, UploadProps, message, Card } from "antd"
-
-import React, { useState } from 'react';
 import 'antd/dist/antd.min.css';
-import { Row, Col } from "antd";
+
 import { QuestionCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import {
+    Button,
+    Card,
+    Checkbox,
+    Col,
+    Form,
+    InputNumber,
+    message,
+    Row,
+    Select,
+    Space,
+    Tooltip,
+    Typography,
+    Upload,
+    UploadProps,
+} from 'antd';
+import { RcFile, UploadFile } from 'antd/lib/upload/interface';
+import React, { useState } from 'react';
+
 import useWindowDimensions from '../UseWindowDimensions';
 
 const { Title } = Typography;
@@ -19,6 +34,7 @@ const TrainPage = () => {
     const [emptyfile, ] = useState<UploadFile>();
     const [file, setFile] = useState<UploadFile>();
     const [uploading, setUploading] = useState(false);
+    const [uploadSuccessful, setUploadSuccessful] = useState(false);
 
     const [customTrainTestValue, setCustomTrainTestValue] = useState(false);;
 
@@ -50,16 +66,22 @@ const TrainPage = () => {
         })
           .then(res => res.json())
           .then(() => {
-            setFile(emptyfile);
             message.success('Załadowano pomyślnie.');
+            setUploadSuccessful(true);
           })
           .catch(() => {
             message.error('Nie udało się przesłać pliku.');
+            setFile(emptyfile);
+            setUploadSuccessful(false);
           })
           .finally(() => {
             setUploading(false);
           });
       };
+
+    const handleTrain = () => {
+        console.log('Train');
+    };
 
     const props: UploadProps = {
         onChange: info => {
@@ -85,13 +107,14 @@ const TrainPage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', paddingTop: '20px' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'
                                         form={form}
                                         name="train_options"
                                         className="train-form"
+                                        data-testid="train-form"
                                         onFinish={onFinish}
                                     >                                    
                                         <Form.Item label="Sposób podziału danych: " style={{width: isOrientationVertical ? "15vw" : "40vw" }}>
@@ -101,12 +124,17 @@ const TrainPage = () => {
                                                     noStyle
                                                     rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                                 >
-                                                    <Select style={{width: "15vw" }} onChange={distributionTypeChanged} placeholder="podział train/test">
-                                                        <Select.Option value="trainTest">podział train/test</Select.Option>
-                                                        <Select.Option value="crossValidation">walidacja krzyżowa</Select.Option>
+                                                    <Select 
+                                                        style={{width: "15vw" }} 
+                                                        onChange={distributionTypeChanged} 
+                                                        defaultValue="trainTest"
+                                                        data-testid="distribution-type-select"
+                                                    >
+                                                        <Select.Option data-testid="trainTest" value="trainTest">podział train/test</Select.Option>
+                                                        <Select.Option data-testid="crossValidation" value="crossValidation">walidacja krzyżowa</Select.Option>
                                                     </Select>
                                                 </Form.Item>
-                                                <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
+                                                <Tooltip title="Tu wyświetla się instrukcja dla użytkownika." data-testid="distribution-tooltip">
                                                     <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                                 </Tooltip>
                                             </Space>
@@ -118,23 +146,52 @@ const TrainPage = () => {
                                                 <Form.Item style={{width: "25vw"}}>
                                                     {/* gdy wybrano podział train/test */}
                                                     <Row justify="space-around" align="middle">
-                                                        <Form.Item label="Podział ręczny">
-                                                            <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
-                                                        </Form.Item>
+                                                        <Col>
+                                                            <Form.Item label="Podział ręczny">
+                                                                <Checkbox 
+                                                                    value="customTrainTest"
+                                                                    checked={customTrainTestValue}
+                                                                    onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}
+                                                                    data-testid="custom-checkbox"
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                       
+                                                        <Col style={{marginRight: "-40px" }}>
+                                                            <Form.Item label="Train" style={{marginLeft: "-5px" }}>
+                                                                <InputNumber 
+                                                                    min={1} 
+                                                                    max={99} 
+                                                                    onChange={trainChanged} 
+                                                                    value={train} 
+                                                                    disabled={!customTrainTestValue}
+                                                                    style={{width: "10vw" }}
+                                                                    data-testid="train-input"
+                                                                /> %
+                                                            </Form.Item>
 
-                                                        <Form.Item label="Train">
-                                                            <InputNumber min={1} max={99} onChange={trainChanged} value={train} disabled={!customTrainTestValue}/> %
-                                                        </Form.Item>
+                                                            <Row>
+                                                                <Form.Item label="Test" style={{marginRight: "10px" }}>
+                                                                    <InputNumber 
+                                                                        min={1} 
+                                                                        max={99} 
+                                                                        onChange={testChanged} 
+                                                                        value={test} 
+                                                                        disabled={!customTrainTestValue}
+                                                                        style={{width: "10vw" }}
+                                                                        data-testid="test-input"
+                                                                    /> %
+                                                                </Form.Item>
+                                                            </Row>
+                                                        </Col>
 
-                                                        <Form.Item label="Test">
-                                                            <InputNumber min={1} max={99} onChange={testChanged} value={test} disabled={!customTrainTestValue}/> %
-                                                        </Form.Item>
-
-                                                        <Form.Item>
-                                                            <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                                                <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                                            </Tooltip>
-                                                        </Form.Item>
+                                                        <Col>
+                                                            <Form.Item>
+                                                                <Tooltip title="Tu wyświetla się instrukcja dla użytkownika." data-testid="train-test-tooltip">
+                                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                                </Tooltip>
+                                                            </Form.Item>
+                                                        </Col>
                                                     </Row>
                                                 </Form.Item>
                                             :
@@ -143,42 +200,73 @@ const TrainPage = () => {
                                                     <Row justify="space-around" align="top">
                                                         <Col>
                                                             <Form.Item label="Podział ręczny">
-                                                                <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
+                                                                <Checkbox 
+                                                                    value="customTrainTest" 
+                                                                    checked={customTrainTestValue} 
+                                                                    onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}
+                                                                    data-testid="custom-checkbox"
+                                                                />
                                                             </Form.Item>
                                                         </Col>
                                                        
                                                         <Col>
                                                             <Form.Item label="Train" style={{marginLeft: "-5px" }}>
-                                                                <InputNumber min={1} max={99} onChange={trainChanged} value={train} disabled={!customTrainTestValue}/> %
+                                                                <InputNumber
+                                                                    min={1}
+                                                                    max={99} 
+                                                                    onChange={trainChanged} 
+                                                                    value={train} 
+                                                                    disabled={!customTrainTestValue}
+                                                                    data-testid="train-input"
+                                                                /> %
                                                             </Form.Item>
 
                                                             <Row>
                                                                 <Form.Item label="Test" style={{marginRight: "10px" }}>
-                                                                    <InputNumber min={1} max={99} onChange={testChanged} value={test} disabled={!customTrainTestValue}/> %
-                                                                </Form.Item>
-
-                                                                <Form.Item>
-                                                                    <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
-                                                                        <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                                                    </Tooltip>
+                                                                    <InputNumber 
+                                                                        min={1} 
+                                                                        max={99} 
+                                                                        onChange={testChanged} 
+                                                                        value={test} 
+                                                                        disabled={!customTrainTestValue}
+                                                                        data-testid="test-input"
+                                                                    /> %
                                                                 </Form.Item>
                                                             </Row>
+                                                        </Col>
+                                                        <Col>
+                                                            <Form.Item>
+                                                                <Tooltip title="Tu wyświetla się instrukcja dla użytkownika." data-testid="train-test-tooltip">
+                                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                                </Tooltip>
+                                                            </Form.Item>
                                                         </Col>
                                                     </Row>
                                                 </Form.Item>
                                             ):
-                                            <Form.Item>
+                                            <Form.Item style={{width: "25vw"}}>
                                                 {/* gdy wybrano walidację krzyżową */}
                                                 <Row justify="space-around" align="middle">
                                                     <Form.Item label="Podział ręczny">
-                                                            <Checkbox value="customTrainTest" checked={customTrainTestValue} onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}/>
+                                                            <Checkbox 
+                                                                value="customTrainTest" 
+                                                                checked={customTrainTestValue} 
+                                                                onChange={() => {setCustomTrainTestValue(!customTrainTestValue)}}
+                                                                data-testid="custom-checkbox"
+                                                            />
                                                     </Form.Item>
                                                     <Form.Item label="Liczba podzbiorów">
-                                                        <InputNumber min={1} max={50} defaultValue={5} disabled={!customTrainTestValue}/>
+                                                        <InputNumber 
+                                                            min={1} 
+                                                            max={50} 
+                                                            defaultValue={5} 
+                                                            disabled={!customTrainTestValue}
+                                                            data-testid="subset-input"
+                                                        />
                                                     </Form.Item>
 
                                                     <Form.Item>
-                                                        <Tooltip title="Tu wyświetla się instrukcja dla użytkownika.">
+                                                        <Tooltip title="Tu wyświetla się instrukcja dla użytkownika." data-testid="cross-validation-tooltip">
                                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                                         </Tooltip>
                                                     </Form.Item>
@@ -189,7 +277,7 @@ const TrainPage = () => {
                                         <Row align="middle">
                                             <Form.Item label="Zbiór symboli" style={{width: "22vw" }}>
                                                 <Upload {...props} maxCount={1} accept='application/zip'>
-                                                    <Button icon={<UploadOutlined />}>Załaduj plik</Button>
+                                                    <Button data-testid="choose-file-button" icon={<UploadOutlined />}>Wybierz plik</Button>
                                                 </Upload>
                                                 
                                                 <Form.Item>
@@ -198,18 +286,32 @@ const TrainPage = () => {
                                                         onClick={handleUpload}
                                                         disabled={file === emptyfile}
                                                         loading={uploading}
-                                                        style={{ marginTop: 16 }}
+                                                        data-testid="send-button"
+                                                        style={{ marginTop: 16, marginBottom: -20 }}
                                                     >
                                                         {uploading ? 'Wysyłanie' : 'Wyślij'}
                                                     </Button>
                                                 </Form.Item>
                                             </Form.Item>
                                         </Row>
+
+                                        <Row justify='end' align="middle">
+                                            <Form.Item>
+                                                <Button
+                                                    type="primary"
+                                                    onClick={handleTrain}
+                                                    data-testid="train-button"
+                                                    disabled={!uploadSuccessful || file === emptyfile}
+                                                    style={{ marginTop: '-10' }}
+                                                >
+                                                    Rozpocznij uczenie
+                                                </Button>
+                                            </Form.Item>
+                                        </Row>
                                     </Form>
                                 </Row>
                             </Card>
                         </Row>
-                       
                     </div> 
                     <br />            
                 </Col>

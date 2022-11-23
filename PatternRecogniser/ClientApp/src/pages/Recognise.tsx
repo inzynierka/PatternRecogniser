@@ -1,9 +1,9 @@
-import {Typography, Form, Card, Space, Select, Tooltip, UploadProps } from "antd"
-
 import 'antd/dist/antd.min.css';
-import { Row, Col, message, Upload } from "antd";
-import { useState } from "react";
-import { QuestionCircleOutlined, InboxOutlined } from '@ant-design/icons';
+
+import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Card, Col, Form, message, Row, Select, Space, Tooltip, Typography, Upload, UploadProps } from 'antd';
+import { useState } from 'react';
+
 import useWindowDimensions from '../UseWindowDimensions';
 
 
@@ -70,7 +70,7 @@ const RecognisePage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', paddingTop: '20px' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'

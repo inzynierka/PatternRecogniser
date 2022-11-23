@@ -1,9 +1,11 @@
-import { Component } from 'react';
-import { NavMenu } from './NavMenu';
+import '.././custom.css';
 import 'antd/dist/antd.min.css';
 
-import '.././custom.css';
 import { Layout } from 'antd';
+import { Component } from 'react';
+
+import { NavMenu } from './NavMenu';
+
 const { Content, Footer } = Layout;
 
 export class AppLayout extends Component {
