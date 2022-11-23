@@ -70,7 +70,7 @@ const RecognisePage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)' }}>
+                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', paddingTop: '20px' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'

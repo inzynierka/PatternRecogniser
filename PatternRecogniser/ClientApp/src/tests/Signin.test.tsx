@@ -13,13 +13,12 @@ window.matchMedia = window.matchMedia || function() {
     };
 };
 
-//export const mockedUseNavigate = jest.fn()
+
 jest.mock('react-password-checklist', () => ({
     ...jest.mock('react-password-checklist'),
     PasswordChecklist : () => <div />
   })
 );
-
 
   
 describe("SigninPanel", () => {

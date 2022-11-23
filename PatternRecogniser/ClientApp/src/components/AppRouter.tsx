@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import ComparisonPage from '../pages/ComparisonLists';

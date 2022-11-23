@@ -2,7 +2,6 @@ import 'antd/dist/antd.min.css';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
-import { useContext } from 'react';
 import { useState } from 'react';
 import PasswordChecklist from 'react-password-checklist';
 import { useNavigate } from 'react-router-dom';

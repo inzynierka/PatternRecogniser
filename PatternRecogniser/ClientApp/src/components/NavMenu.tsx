@@ -3,7 +3,6 @@ import 'antd/dist/antd.min.css';
 
 import { UserOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Layout, Menu, message, Row } from 'antd';
-import { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from 'reactstrap';
 

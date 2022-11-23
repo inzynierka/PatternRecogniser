@@ -1,7 +1,6 @@
 import 'antd/dist/antd.min.css';
 
 import { Button, Card, Col, Row, Typography } from 'antd';
-import { useContext } from 'react';
 
 import useWindowDimensions from '../UseWindowDimensions';
 
