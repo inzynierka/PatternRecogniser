@@ -23,11 +23,11 @@ namespace PatternRecogniser.Controllers
         private readonly IBackgroundTaskQueue _trainInfoQueue;
         private readonly ITrainingUpdate _traningUpdate;
         private PatternRecogniserDBContext _context;
-        public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate traningUpdate)
+        public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate trainingUpdate)
         {
             _context = context;
             _trainInfoQueue = trainInfoQueue;
-            _traningUpdate = traningUpdate;
+            _traningUpdate = trainingUpdate;
         }
 
 
