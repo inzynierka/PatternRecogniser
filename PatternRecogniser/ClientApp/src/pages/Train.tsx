@@ -98,7 +98,6 @@ const TrainPage = () => {
 
     return (
         <div>
-
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
                     <div className="site-layout-content" style={{paddingBottom: "100px"}}>
