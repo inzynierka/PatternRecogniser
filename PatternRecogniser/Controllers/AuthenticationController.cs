@@ -29,26 +29,22 @@ namespace PatternRecogniser.Controllers
                     email = info.email
                 });
 
-                await _context.SaveChangesAsync(); // koniecznie trzeba używać loginu jako klucza bo 2 razy powtarzamy savechanges ale co wy o tym myślicie?
-
-                int userId = _context.user.Where(user => user.login == info.login).First().userId;
 
                 var authentication = new Authentication()
                 {
-                    userId = userId,
+                    userLogin = info.login,
                     lastSeed = "ziarno", // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + "ziarno") 
+                    hashedToken = CreatedToken(info.password + "ziarno")
                 };
                 _context.authentication.Add(authentication);
 
                 await _context.SaveChangesAsync();
                 return Ok(new Respond()
                 {
-                    userId = authentication.userId,
                     accessToken = authentication.hashedToken
                 });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -60,19 +56,19 @@ namespace PatternRecogniser.Controllers
             try
             {
 
-                int? userId = _context.user.Where(user => user.login == info.login).FirstOrDefault()?.userId;
-                if (userId == null)
+                string login = _context.user.Where(user => user.login == info.login).FirstOrDefault()?.login;
+                if (login == null)
                     NotFound("użytkownik nie istnieje");
 
 
-                var authorization = _context.authentication.Where(authentication => authentication.userId == userId).First();
+                var authorization = _context.authentication.Where(authentication => authentication.userLogin == info.login).First();
 
                 if (!CheckIfPasswordIsCorrect(info.password, authorization))
                     return BadRequest("Niepoprawne hasło");
 
                 var newAuthenticationData = new Authentication()
                 {
-                    userId = (int)userId, 
+                    userLogin = login,
                     lastSeed = "ziarno", // tutaj jakaś funkcja losowa 
                     hashedToken = CreatedToken(info.password + "ziarno")
                 };
@@ -83,7 +79,6 @@ namespace PatternRecogniser.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new Respond()
                 {
-                    userId = newAuthenticationData.userId,
                     accessToken = newAuthenticationData.hashedToken
                 });
             }

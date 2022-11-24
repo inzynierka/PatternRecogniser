@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
+using Microsoft.EntityFrameworkCore;
 
 namespace PatternRecogniser.Services
 {
@@ -65,28 +66,34 @@ namespace PatternRecogniser.Services
         private async Task Train(TrainingInfo info,  CancellationToken stoppingToken)
         {
 
-            _trainingUpdate.SetNewUserModel(info.userId, info.modelName);
+            _trainingUpdate.SetNewUserModel(info.login, info.modelName);
 
             ExtendedModel extendedModel = new ExtendedModel();
             //extendedModel.TrainModel();
             for(int i = 0; i < 5; i++)
             {
                 await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
-                _trainingUpdate.Update($"info dla usera {info.userId}: {DateTime.Now}\n"); // zapisuje info
+                _trainingUpdate.Update($"info dla usera {info.login}: {DateTime.Now}\n"); // zapisuje info
             }
             // tutaj byśmy zapisywali wyniki trenowania
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
-                dbContext.extendedModel.Add(new ExtendedModel()
+                var model = new ExtendedModel()
                 {
                     name = info.modelName,
-                    userId = info.userId,
+                    userLogin = info.login,
+                    distribution = info.distributionType
+                };
+                var experyment = new ModelTrainingExperiment();
 
-                });
-                _logger.LogInformation($"request of user {dbContext.user.First(a => a.userId == info.userId).login} is processing {info.modelName}\n");
+                dbContext.extendedModel.Add(model);
+
+                await dbContext.SaveChangesAsync();
+                _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            _trainingUpdate.SetNewUserModel(null, null);
         }
     }
 }

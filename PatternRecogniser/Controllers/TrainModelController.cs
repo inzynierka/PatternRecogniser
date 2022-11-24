@@ -1,16 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PatternRecogniser.Helpers;
+using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
-using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
-    [Route("{userId}")]
+    public enum ModelStatus
+    {
+        InQueue,
+        Training,
+        TrainingComplite,
+        NotFound
+    }
+
+    [Route("{login}")]
     public class TrainModelController : ControllerBase
     {
 
@@ -27,7 +33,6 @@ namespace PatternRecogniser.Controllers
 
         /// <summary>
         /// Dodaj rządanie trenowania do kolejki.
-        /// Plik jest wysyłany za pomocą "multipart/form-data"
         /// </summary>
         /// <returns>
         /// 200:
@@ -37,24 +42,26 @@ namespace PatternRecogniser.Controllers
         /// </returns>
         [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
-        public IActionResult TrainModel([FromRoute] int userId, string modelName,
+        public IActionResult TrainModel([FromRoute] string login, string modelName,
             DistributionType distributionType, IFormFile trainingSet)
         {
             try
             {
-                if (!HttpExtraOperations.IsZip(trainingSet))
-                    throw new Exception("zły format pliku");
+                if (GetStatus(login, modelName) != ModelStatus.NotFound)
+                    return BadRequest("Model już istnieje");
 
-                _trainInfoQueue.Enqueue(new TrainingInfo(userId, trainingSet, modelName, distributionType));
+                if ( ! (trainingSet.FileName.EndsWith(".zip")) )
+                    throw new Exception("Zły format pliku");
 
-                return NumberInQueue(userId);
+
+                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
+
+                return NumberInQueue(login);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
-
-
         }
 
 
@@ -68,9 +75,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// </returns>
         [HttpGet("TrainingModel/NumberInQueue")]
-        public IActionResult NumberInQueue([FromRoute] int userId)
+        public IActionResult NumberInQueue([FromRoute] string login)
         {
-            int numberInQueue = _trainInfoQueue.NumberInQueue(userId);
+            int numberInQueue = _trainInfoQueue.NumberInQueue(login);
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
             else
@@ -85,9 +92,9 @@ namespace PatternRecogniser.Controllers
         /// 
         /// </returns>
         [HttpDelete("Cancel")]
-        public IActionResult Cancel([FromRoute] int userId)
+        public IActionResult Cancel([FromRoute] string login)
         {
-            bool deleted = _trainInfoQueue.Remove(userId);
+            bool deleted = _trainInfoQueue.Remove(login);
             if (deleted)
                 return Ok("usunięto");
             else
@@ -96,16 +103,15 @@ namespace PatternRecogniser.Controllers
 
         /// <summary>
         /// Pobiera dane gdy model jest w trakcie trenowania. 
-        /// Czy powiniśmy zapisywać dane w bazie dla ostatniego trenowania ?
         /// </summary>
         /// <description></description>
         /// <returns>
         /// string
         /// </returns>
         [HttpGet("TrainUpdate")]
-        public IActionResult TrainUpdate([FromRoute] int userId, string modelName)
+        public IActionResult TrainUpdate([FromRoute] string login, string modelName)
         {
-            var info = _traningUpdate.ActualInfo(userId, modelName);
+            var info = _traningUpdate.ActualInfo(login, modelName);
             if (string.IsNullOrEmpty(info))
                 return NotFound();
             else
@@ -117,18 +123,74 @@ namespace PatternRecogniser.Controllers
         /// </summary>
         /// <description></description>
         /// <returns></returns>
-        [HttpGet("ModelStatistics")]
-        public IActionResult ModelStatistics([FromRoute] int userId, string modelName)
+        [HttpGet("GetModelStatistics")]
+        public IActionResult GetModelStatistics([FromRoute] string login, string modelName)
         {
-            var statistics = _context.extendedModel.Where(
-                model => model.userId == userId && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;
+            var statistics = _context.extendedModel.Include(model => model.modelTrainingExperiment ).Where(
+                model => model.userLogin == login && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;
             if (statistics == null)
-                return Ok(statistics);
-            else
                 return NotFound();
+            else
+                return Ok(statistics);
+        }
+
+        /// <summary>
+        /// Pobiera modele
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpGet("GetModels")]
+        public IActionResult GetModels(string login)
+        {
+            var models = _context.extendedModel.Where(model => model.userLogin == login);
+
+            if (models == null)
+                return NotFound();
+            else
+                return Ok(models);
         }
 
 
+        /// <summary>
+        /// Pobiera aktualny status modelu
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpGet("GetModelStatus")]
+        public IActionResult GetModelStatus([FromRoute] string login, string modelName)
+        {
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(modelName))
+                return BadRequest("Nie podano nazwy lub loginu");
+
+            var status = GetStatus( login,  modelName);
+
+            if (status == ModelStatus.InQueue)
+                return Ok("Model jest w kolejce");
+
+            if (status == ModelStatus.Training)
+                return Ok("Model jest trenowany");
+
+            if (status == ModelStatus.TrainingComplite)
+                return Ok("Model jest wytrenowany (znajduje się w zakładce \"Moje Modele\")");
+
+            return NotFound();
+        }
+
+
+        private ModelStatus GetStatus(string login, string modelName)
+        {
+
+            if (_trainInfoQueue.IsUserModelInQueue(login, modelName))
+                return ModelStatus.InQueue;
+
+            if (_traningUpdate.IsUserModelInTraining(login, modelName))
+                return ModelStatus.Training;
+
+            if (_context.extendedModel.Where(model => model.userLogin == login && model.name == modelName).Count() > 0)
+                return ModelStatus.TrainingComplite;
+
+            return ModelStatus.NotFound;
+        }
 
     }
 }

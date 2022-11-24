@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,12 +14,16 @@ namespace PatternRecogniser.Models
         TrainTest, CrossValidation
     }
 
-    [Index(nameof(userId), nameof(name), IsUnique = true)] 
+    
+
+    [Index(nameof(userLogin), nameof(name), IsUnique = true)] 
     public class ExtendedModel
     {
         [Key]
         public int extendedModelId { get; set; }
-        public int userId { get; set; }
+        [Required]
+        [ForeignKey("User")]
+        public string userLogin { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
 
@@ -37,9 +42,9 @@ namespace PatternRecogniser.Models
 
         public void TrainModelCrossValidation(PatternData data, int n) { }
 
-        public string RecognisePattern(Bitmap picture)
+        public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
         {
-            return ""; // returns a string that follows json formatting
+            return new List<RecognisedPatterns>(); // returns a string that follows json formatting
         }
 
         private void TrainIndividualModel(PatternData train, PatternData test) { }

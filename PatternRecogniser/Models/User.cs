@@ -11,15 +11,13 @@ using System.Threading.Tasks;
 namespace PatternRecogniser.Models
 {
     [Index(nameof(email), IsUnique = true)]
-    [Index(nameof(login), IsUnique = true)]
     public class User
     {
         [Key]
-        public int userId { get; set; }
+        public string login { get; set; }
         [Required]
         public string email { get; set; }
-        [Required]
-        public string login { get; set; }
+        
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
 

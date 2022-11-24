@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using PatternRecogniser.ThreadsComunication;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace PatternRecogniser
 {
@@ -30,7 +31,10 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+            .AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
             {

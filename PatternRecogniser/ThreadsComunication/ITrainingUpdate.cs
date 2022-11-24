@@ -7,32 +7,34 @@ namespace PatternRecogniser.ThreadsComunication
         // Dopisuje nowe info
         public void Update(string update);
         // Pobiera najnowsze info
-        public string ActualInfo(int userId, string modelName);
+        public string ActualInfo(string login, string modelName);
         // Ustalamy dla kogo jest komunikat
-        public void SetNewUserModel(int userId, string modelName);
+        public void SetNewUserModel(string login, string modelName);
+
+        public bool IsUserModelInTraining(string login, string modelName);
     }
 
     public class SimpleComunicationOneToMany: ITrainingUpdate
     {
-        private int  _userId { get; set; }
+        private string  _login { get; set; }
         private string _modelName;
         private StringBuilder _infoMaker = new StringBuilder();
         private string _infoPublisher;
 
-        public string ActualInfo(int userId ,string modelName)
+        public string ActualInfo(string login ,string modelName)
         {
-            if(userId == this._userId)
+            if(login == this._login)
                 return _infoPublisher;
             else
                 return string.Empty;
         }
 
-        public void SetNewUserModel(int userId, string modelName)
+        public void SetNewUserModel(string login, string modelName)
         {
             // lokuje by nikt nie dostał nie swoje info, potencjalnie nie potrzebne
             lock (this) 
             { 
-                _userId = userId;
+                _login = login;
                 _modelName = modelName;
                 _infoMaker.Clear();
                 _infoPublisher = string.Empty;
@@ -45,6 +47,11 @@ namespace PatternRecogniser.ThreadsComunication
             _infoMaker.Append(update);
             // bezpiecznie bo zmieniamy tylko referencje 
             _infoPublisher = _infoMaker.ToString();
+        }
+
+        public bool IsUserModelInTraining(string login, string modelName)
+        {
+            return _login == login && _modelName == modelName;
         }
     }
 }
