@@ -17,7 +17,9 @@ namespace PatternRecogniser.Models
         public string login { get; set; }
         [Required]
         public string email { get; set; }
-        
+        public bool ExsistUnsavePatternRecognitionExperiment { get; set; } = false;
+
+
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
 
@@ -25,6 +27,7 @@ namespace PatternRecogniser.Models
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }
         public virtual ICollection<ExperimentList> experimentLists { get; set; }
+        public virtual PatternRecognitionExperiment lastPatternRecognitionExperiment { get; set; }
 
         public void LoadTrainingSet() 
         { 
@@ -146,5 +149,10 @@ namespace PatternRecogniser.Models
         public void SaveResult(Experiment experiment) { }
 
         public void SaveResultList(ExperimentList experimentList) { }
+
+        public bool IsAbbleToAddPatternRecognitionExperiment()
+        {
+            return ExsistUnsavePatternRecognitionExperiment && lastPatternRecognitionExperiment != null;
+        }
     }
 }

@@ -30,6 +30,7 @@ namespace PatternRecogniser.Models
         public virtual User user { get; set; }
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
+        public virtual ICollection<Experiment> experiments { get; set; }
 
         //private Model model; 
 

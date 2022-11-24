@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
@@ -21,21 +22,39 @@ namespace PatternRecogniser.Controllers
 
         [HttpPut]
         [Consumes("multipart/form-data")]
-        public IActionResult Recognize([FromRoute] string login, string modelName, IFormFile pattern)
+        public async  Task<IActionResult> Recognize([FromRoute] string login, string modelName, IFormFile pattern)
         {
             try
             {
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
-                var result = _context.extendedModel.Where(model => model.userLogin == login && model.name == modelName)
-                    .FirstOrDefault()?.RecognisePattern(picture);
+                var model = _context.extendedModel.Where(model => model.userLogin == login && model.name == modelName)
+                    .FirstOrDefault();
+
+                if(model == null)
+                    return NotFound("Model którego chcesz użyć nie istnieje");
+
+                var result = model.RecognisePattern(picture);
 
                 // zapisujemy rezultat
                 PatternRecognitionExperiment pre = new PatternRecognitionExperiment()
                 {
                     testedPattern = ReadAllByte(pattern.OpenReadStream()),
-                    recognisedPatterns = result
+                    recognisedPatterns = result,
+                    extendedModel = model
 
                 };
+
+
+                var user = _context.user.Where(user => user.login == login).First();
+                if (user.IsAbbleToAddPatternRecognitionExperiment())
+                    _context.patternRecognitionExperiment.Remove(user.lastPatternRecognitionExperiment);
+
+                user.lastPatternRecognitionExperiment = pre;
+                user.ExsistUnsavePatternRecognitionExperiment = true;
+
+                _context.patternRecognitionExperiment.Add(pre);
+                await _context.SaveChangesAsync();
+
 
                 if (pre == null)
                     return NotFound();

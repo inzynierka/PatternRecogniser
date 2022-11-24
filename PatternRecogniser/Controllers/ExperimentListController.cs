@@ -68,14 +68,33 @@ namespace PatternRecogniser.Controllers
 
         [HttpPut("addPatternRecognitionExperiment")]
         [Consumes("multipart/form-data")]
-        public IActionResult AddPatternRecognitionExperiment([FromRoute] string login, string experimentListName, IFormFile pattern, PatternRecognitionExperimentInfo info)
+        public IActionResult AddPatternRecognitionExperiment([FromRoute] string login, string experimentListName)
         {
-            if (!IsExperimentListExsist(login, experimentListName))
-                return BadRequest("Lista nie istnieje");
-            var list = _context.experimentList.Include(list => list.experiments).Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment").FirstOrDefault();
-
             try
             {
+
+                var list = _context.experimentList.Include(list => list.experiments).Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment").FirstOrDefault();
+
+                if (list == null)
+                    return BadRequest("Lista nie istnieje");
+
+                var user = _context.user.Include(user => user.lastPatternRecognitionExperiment).Where(user => user.login == login).FirstOrDefault();
+
+                if (user == null)
+                    BadRequest();
+
+                if(user.IsAbbleToAddPatternRecognitionExperiment())
+                {
+                    list.experiments.Add(user.lastPatternRecognitionExperiment);
+                    user.ExsistUnsavePatternRecognitionExperiment = false;
+                }
+                else
+                {
+                    return NotFound("Nie masz żadnych eksperymentów możliwych do dodania"); 
+                }
+
+
+
                 return Ok();
             }
             catch (Exception e)

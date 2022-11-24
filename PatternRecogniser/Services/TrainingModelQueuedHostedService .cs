@@ -72,24 +72,34 @@ namespace PatternRecogniser.Services
             //extendedModel.TrainModel();
             for(int i = 0; i < 5; i++)
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
                 _trainingUpdate.Update($"info dla usera {info.login}: {DateTime.Now}\n"); // zapisuje info
             }
             // tutaj byśmy zapisywali wyniki trenowania
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+
                 var model = new ExtendedModel()
                 {
                     name = info.modelName,
                     userLogin = info.login,
                     distribution = info.distributionType
                 };
-                var experyment = new ModelTrainingExperiment();
+                
 
-                dbContext.extendedModel.Add(model);
+
+                var experyment = new ModelTrainingExperiment()
+                {
+                    extendedModel = model
+                };
+                model.modelTrainingExperiment = experyment;
+
+                dbContext.Add(model);
+
 
                 await dbContext.SaveChangesAsync();
+
                 _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);

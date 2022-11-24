@@ -112,8 +112,8 @@ namespace PatternRecogniser.Controllers
         public IActionResult TrainUpdate([FromRoute] string login, string modelName)
         {
             var info = _traningUpdate.ActualInfo(login, modelName);
-            if (string.IsNullOrEmpty(info))
-                return NotFound();
+            if (GetStatus(login, modelName) != ModelStatus.Training)
+                return NotFound("Model nie jest trenowany");
             else
                 return Ok(info);
         }
