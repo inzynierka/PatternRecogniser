@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PatternRecogniser.Messages.PatternRecognition;
 using PatternRecogniser.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace PatternRecogniser.Controllers
     public class PatternRecognitionController : ControllerBase
     {
         private PatternRecogniserDBContext _context;
+        private PatternRecognitionStringMessages _messages = new PatternRecognitionStringMessages();
         public PatternRecognitionController(PatternRecogniserDBContext context)
         {
             _context = context;
@@ -35,7 +37,7 @@ namespace PatternRecogniser.Controllers
                     .FirstOrDefault();
 
                 if(model == null)
-                    return NotFound("Model którego chcesz użyć nie istnieje");
+                    return NotFound(_messages.modelNotFound);
 
                 var result = model.RecognisePattern(picture);
 

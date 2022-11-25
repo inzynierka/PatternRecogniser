@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.Messages.ExperimentList;
 using PatternRecogniser.Models;
 using System;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace PatternRecogniser.Controllers
     public class ExperimentListController : ControllerBase
     {
         private PatternRecogniserDBContext _context;
+        private ExperimentListStringMesseges _messeges = new ExperimentListStringMesseges();
         public ExperimentListController(PatternRecogniserDBContext context)
         {
             _context = context;
@@ -27,7 +29,7 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> Create([FromRoute] string login, string experimentListName, string experimentType)
         {
             if (IsExperimentListExsist(login, experimentListName))
-                return BadRequest("Lista już istnieje");
+                return BadRequest(_messeges.listAlreadyExist);
 
             try
             {
@@ -60,7 +62,7 @@ namespace PatternRecogniser.Controllers
                 var list = _context.experimentList.Include(list => list.experiments). Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "ModelTrainingExperiment").FirstOrDefault();
                 var experiment = _context.modelTrainingExperiment.Include(e => e.extendedModel).Where(experiment => experiment.experimentId == experimentId && experiment.extendedModel.userLogin == login).FirstOrDefault();
                 if (experiment == null || list == null)
-                    return BadRequest("Lista lub eksperyment nie istnieje");
+                    return BadRequest(_messeges.listOrExperimentDontExist);
                 else
                 {
                     list.experiments.Add(experiment);
@@ -89,7 +91,7 @@ namespace PatternRecogniser.Controllers
                 var list = _context.experimentList.Include(list => list.experiments).Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment").FirstOrDefault();
 
                 if (list == null)
-                    return BadRequest("Lista nie istnieje");
+                    return BadRequest(_messeges.listDontExisit);
 
                 var user = _context.user.Include(user => user.lastPatternRecognitionExperiment).Where(user => user.login == login).FirstOrDefault();
 
@@ -103,7 +105,7 @@ namespace PatternRecogniser.Controllers
                 }
                 else
                 {
-                    return NotFound("Nie masz żadnych eksperymentów możliwych do dodania"); 
+                    return NotFound(_messeges.notFoundExperimentsToAdd); 
                 }
 
 

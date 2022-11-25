@@ -11,6 +11,7 @@ namespace PatternRecogniser.Controllers
     public class AuthenticationController : ControllerBase
     {
         private PatternRecogniserDBContext _context;
+        private AuthenticationStringMesseges _message = new AuthenticationStringMesseges();
         public AuthenticationController(PatternRecogniserDBContext context)
         {
             _context = context;
@@ -27,6 +28,16 @@ namespace PatternRecogniser.Controllers
         {
             try
             {
+                bool isLoginTaken = _context.user.Where(user => user.login == info.login).FirstOrDefault() != null;
+                bool isEmailTaken = _context.user.Where(user => user.email == info.email).FirstOrDefault() != null;
+                if (isLoginTaken)
+                    return BadRequest(_message.loginIsTaken);
+                
+
+                if (isEmailTaken)
+                    return BadRequest(_message.emailIsTaken);
+
+
                 _context.user.Add(new User()
                 {
                     createDate = DateTime.Now,
@@ -46,7 +57,7 @@ namespace PatternRecogniser.Controllers
                 _context.authentication.Add(authentication);
 
                 await _context.SaveChangesAsync();
-                return Ok(new Respond()
+                return Ok(new Token()
                 {
                     accessToken = authentication.hashedToken
                 });
@@ -71,13 +82,13 @@ namespace PatternRecogniser.Controllers
 
                 var user = _context.user.Where(user => user.login == info.login).FirstOrDefault();
                 if (user == null)
-                    NotFound("użytkownik nie istnieje");
+                    NotFound(_message.userNotFound);
 
 
                 var authorization = _context.authentication.Where(authentication => authentication.userLogin == info.login).First();
 
                 if (!CheckIfPasswordIsCorrect(info.password, authorization))
-                    return BadRequest("Niepoprawne hasło");
+                    return BadRequest(_message.incorectPassword);
 
 
                 string seed = CreateSeed();
@@ -92,7 +103,7 @@ namespace PatternRecogniser.Controllers
                 _context.authentication.Add(newAuthenticationData);
 
                 await _context.SaveChangesAsync();
-                return Ok(new Respond()
+                return Ok(new Token()
                 {
                     accessToken = newAuthenticationData.hashedToken
                 });

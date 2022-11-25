@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.Messages.TrainModel;
 using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
@@ -13,8 +14,8 @@ namespace PatternRecogniser.Controllers
     {
         InQueue,
         Training,
-        TrainingComplite,
-        TrainFailed,
+        TrainingComplete,
+        TrainingFailed,
         NotFound,
 
     }
@@ -26,6 +27,7 @@ namespace PatternRecogniser.Controllers
         private readonly IBackgroundTaskQueue _trainInfoQueue;
         private readonly ITrainingUpdate _traningUpdate;
         private PatternRecogniserDBContext _context;
+        public TrainModelStringMessages _messages = new TrainModelStringMessages();
         public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate trainingUpdate)
         {
             _context = context;
@@ -51,10 +53,10 @@ namespace PatternRecogniser.Controllers
             try
             {
                 if (GetStatus(login, modelName) != ModelStatus.NotFound)
-                    return BadRequest("Model już istnieje");
+                    return BadRequest(_messages.modelAlreadyExist);
 
                 if ( ! (trainingSet.FileName.EndsWith(".zip")) )
-                    throw new Exception("Zły format pliku");
+                    throw new Exception(_messages.incorectFileFormat);
 
 
                 _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
@@ -88,7 +90,7 @@ namespace PatternRecogniser.Controllers
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
             else
-                return NotFound("Nie ma cię w kolejce");
+                return NotFound(_messages.youAreNotInQueue);
         }
 
         /// <summary>
@@ -103,9 +105,9 @@ namespace PatternRecogniser.Controllers
         {
             bool deleted = _trainInfoQueue.Remove(login);
             if (deleted)
-                return Ok("usunięto");
+                return Ok(_messages.deletedFromQueue);
             else
-                return NotFound("nie udało się usunąć");
+                return NotFound(_messages.failedToDelete);
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace PatternRecogniser.Controllers
         {
             var info = _traningUpdate.ActualInfo(login, modelName);
             if (GetStatus(login, modelName) != ModelStatus.Training)
-                return NotFound("Model nie jest trenowany");
+                return NotFound(_messages.modelIsTrained);
             else
                 return Ok(info);
         }
@@ -150,11 +152,7 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetModels(string login)
         {
             var models = _context.extendedModel.Where(model => model.userLogin == login);
-
-            if (models == null)
-                return NotFound();
-            else
-                return Ok(models);
+            return Ok(models);
         }
 
 
@@ -172,16 +170,16 @@ namespace PatternRecogniser.Controllers
             var status = GetStatus( login,  modelName);
 
             if (status == ModelStatus.InQueue)
-                return Ok("Model jest w kolejce");
+                return Ok(_messages.modelIsInQueue);
 
             if (status == ModelStatus.Training)
-                return Ok("Model jest trenowany");
+                return Ok(_messages.modelIsTrained);
 
-            if (status == ModelStatus.TrainingComplite)
-                return Ok("Model jest wytrenowany (znajduje się w zakładce \"Moje Modele\")");
+            if (status == ModelStatus.TrainingComplete)
+                return Ok(_messages.modelTrainingComplete);
 
-            if (status == ModelStatus.TrainFailed)
-                return Ok("Nie udało się wytrenować modelu");
+            if (status == ModelStatus.TrainingFailed)
+                return Ok(_messages.modelTrainingFailed);
 
             return NotFound();
         }
@@ -197,12 +195,12 @@ namespace PatternRecogniser.Controllers
                 return ModelStatus.Training;
 
             if (_context.extendedModel.Where(model => model.userLogin == login && model.name == modelName).Count() > 0)
-                return ModelStatus.TrainingComplite;
+                return ModelStatus.TrainingComplete;
 
             var user = _context.user.Where(a => a.login == login).FirstOrDefault();
 
             if (user != null && user.lastTrainModelName == modelName)
-                return ModelStatus.TrainFailed;
+                return ModelStatus.TrainingFailed;
 
             return ModelStatus.NotFound;
         }
