@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PatternRecogniser.Models
@@ -34,9 +36,28 @@ namespace PatternRecogniser.Models
 
         //private Model model; 
 
-        public void TrainModel(DistributionType distribution)
+        // tymczasowo asynchroniczna w celu testowania
+        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken) // nie potrzebne CancellationToken w późniejszym programie
         {
+
             this.distribution = distribution;
+            // trenowanie 
+            for (int i = 0; i < 3; i++)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                trainingUpdate.Update($"info dla usera {userLogin}: {DateTime.Now}\n"); // zapisuje info
+            }
+            // trenowanie
+
+            //validaja
+            await Task.Delay(TimeSpan.FromSeconds(3));
+            trainingUpdate.Update($"info dla usera {userLogin}: start validacji {DateTime.Now}\n"); // zapisuje info
+            var experyment = new ModelTrainingExperiment()
+            {
+                extendedModel = this
+            };
+            modelTrainingExperiment = experyment;
+            //validacja
         }
 
         public void TrainModelTrainTest(PatternData data, int train, int test) { }

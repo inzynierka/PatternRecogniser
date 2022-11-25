@@ -16,6 +16,12 @@ namespace PatternRecogniser.Controllers
             _context = context;
         }
 
+
+        /// <summary>
+        /// Rejestracja 
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp([FromBody] SignUp info)
         {
@@ -50,7 +56,13 @@ namespace PatternRecogniser.Controllers
             }
         }
 
-        [HttpPost("SignIn")]
+
+        /// <summary>
+        /// Logowanie
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] LogIn info)
         {
             try

@@ -68,39 +68,33 @@ namespace PatternRecogniser.Services
 
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
 
-            ExtendedModel extendedModel = new ExtendedModel();
-            //extendedModel.TrainModel();
-            for(int i = 0; i < 5; i++)
+            var model = new ExtendedModel()
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-                _trainingUpdate.Update($"info dla usera {info.login}: {DateTime.Now}\n"); // zapisuje info
+                name = info.modelName,
+                userLogin = info.login,
+                distribution = info.distributionType
+            };
+            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken);
+
+            if (new Random().NextDouble() > 0.5)
+            {
+                // tutaj byśmy zapisywali wyniki trenowania
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+
+                    dbContext.Add(model);
+
+
+                    await dbContext.SaveChangesAsync();
+
+                    _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
+                }
             }
-            // tutaj byśmy zapisywali wyniki trenowania
-            using (var scope = _serviceScopeFactory.CreateScope())
+            else
             {
-                var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+                _trainingUpdate.Update($"request traininf failed {info.modelName}\n");
 
-                var model = new ExtendedModel()
-                {
-                    name = info.modelName,
-                    userLogin = info.login,
-                    distribution = info.distributionType
-                };
-                
-
-
-                var experyment = new ModelTrainingExperiment()
-                {
-                    extendedModel = model
-                };
-                model.modelTrainingExperiment = experyment;
-
-                dbContext.Add(model);
-
-
-                await dbContext.SaveChangesAsync();
-
-                _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
             }
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             _trainingUpdate.SetNewUserModel(null, null);

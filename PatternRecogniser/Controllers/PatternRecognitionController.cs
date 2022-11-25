@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PatternRecogniser.Helpers;
 using PatternRecogniser.Models;
 using System;
 using System.Collections.Generic;
@@ -20,6 +19,11 @@ namespace PatternRecogniser.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Rozpoznawanie znaku
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
         [HttpPut]
         [Consumes("multipart/form-data")]
         public async  Task<IActionResult> Recognize([FromRoute] string login, string modelName, IFormFile pattern)
@@ -50,7 +54,7 @@ namespace PatternRecogniser.Controllers
                     _context.patternRecognitionExperiment.Remove(user.lastPatternRecognitionExperiment);
 
                 user.lastPatternRecognitionExperiment = pre;
-                user.ExsistUnsavePatternRecognitionExperiment = true;
+                user.exsistUnsavePatternRecognitionExperiment = true;
 
                 _context.patternRecognitionExperiment.Add(pre);
                 await _context.SaveChangesAsync();

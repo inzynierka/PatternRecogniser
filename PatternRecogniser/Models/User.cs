@@ -17,8 +17,8 @@ namespace PatternRecogniser.Models
         public string login { get; set; }
         [Required]
         public string email { get; set; }
-        public bool ExsistUnsavePatternRecognitionExperiment { get; set; } = false;
-
+        public bool exsistUnsavePatternRecognitionExperiment { get; set; } = false;
+        public string lastTrainModelName { get; set; }
 
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
@@ -152,7 +152,7 @@ namespace PatternRecogniser.Models
 
         public bool IsAbbleToAddPatternRecognitionExperiment()
         {
-            return ExsistUnsavePatternRecognitionExperiment && lastPatternRecognitionExperiment != null;
+            return exsistUnsavePatternRecognitionExperiment && lastPatternRecognitionExperiment != null;
         }
     }
 }

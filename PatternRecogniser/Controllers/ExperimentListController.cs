@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PatternRecogniser.Messages.ExperimentList.Recive;
 using PatternRecogniser.Models;
 using System;
 using System.Linq;
@@ -18,6 +17,12 @@ namespace PatternRecogniser.Controllers
             _context = context;
         }
 
+
+        /// <summary>
+        /// Tworzenie listy
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
         [HttpPut("createExperimentList")]
         public async Task<IActionResult> Create([FromRoute] string login, string experimentListName, string experimentType)
         {
@@ -42,7 +47,11 @@ namespace PatternRecogniser.Controllers
         }
 
 
-        // trzeba dokończyć
+        /// <summary>
+        /// Dodawanie eksperymentu trenowania
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
         [HttpPut("addModelTrainingExperiment")]
         public async Task<IActionResult> AddModelTrainingExperiment([FromRoute] string login, string experimentListName, int experimentId)
         {
@@ -65,7 +74,11 @@ namespace PatternRecogniser.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Dodawania eksperymentu rozpoznawania znaku
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
         [HttpPut("addPatternRecognitionExperiment")]
         [Consumes("multipart/form-data")]
         public IActionResult AddPatternRecognitionExperiment([FromRoute] string login, string experimentListName)
@@ -86,7 +99,7 @@ namespace PatternRecogniser.Controllers
                 if(user.IsAbbleToAddPatternRecognitionExperiment())
                 {
                     list.experiments.Add(user.lastPatternRecognitionExperiment);
-                    user.ExsistUnsavePatternRecognitionExperiment = false;
+                    user.exsistUnsavePatternRecognitionExperiment = false;
                 }
                 else
                 {

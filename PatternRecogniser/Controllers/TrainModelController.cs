@@ -5,6 +5,7 @@ using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
@@ -13,7 +14,9 @@ namespace PatternRecogniser.Controllers
         InQueue,
         Training,
         TrainingComplite,
-        NotFound
+        TrainFailed,
+        NotFound,
+
     }
 
     [Route("{login}")]
@@ -42,7 +45,7 @@ namespace PatternRecogniser.Controllers
         /// </returns>
         [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
-        public IActionResult TrainModel([FromRoute] string login, string modelName,
+        public async Task<IActionResult> TrainModel([FromRoute] string login, string modelName,
             DistributionType distributionType, IFormFile trainingSet)
         {
             try
@@ -55,6 +58,10 @@ namespace PatternRecogniser.Controllers
 
 
                 _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
+                var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+                user.lastTrainModelName = modelName;
+
+                await _context.SaveChangesAsync();
 
                 return NumberInQueue(login);
             }
@@ -173,6 +180,9 @@ namespace PatternRecogniser.Controllers
             if (status == ModelStatus.TrainingComplite)
                 return Ok("Model jest wytrenowany (znajduje się w zakładce \"Moje Modele\")");
 
+            if (status == ModelStatus.TrainFailed)
+                return Ok("Nie udało się wytrenować modelu");
+
             return NotFound();
         }
 
@@ -188,6 +198,11 @@ namespace PatternRecogniser.Controllers
 
             if (_context.extendedModel.Where(model => model.userLogin == login && model.name == modelName).Count() > 0)
                 return ModelStatus.TrainingComplite;
+
+            var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+
+            if (user != null && user.lastTrainModelName == modelName)
+                return ModelStatus.TrainFailed;
 
             return ModelStatus.NotFound;
         }
