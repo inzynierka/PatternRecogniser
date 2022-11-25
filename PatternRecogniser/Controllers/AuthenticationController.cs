@@ -36,11 +36,12 @@ namespace PatternRecogniser.Controllers
                 });
 
 
+                string seed = CreateSeed();
                 var authentication = new Authentication()
                 {
                     userLogin = info.login,
-                    lastSeed = "ziarno", // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + "ziarno")
+                    lastSeed = seed, // tutaj jakaś funkcja losowa 
+                    hashedToken = CreatedToken(info.password + seed)
                 };
                 _context.authentication.Add(authentication);
 
@@ -68,8 +69,8 @@ namespace PatternRecogniser.Controllers
             try
             {
 
-                string login = _context.user.Where(user => user.login == info.login).FirstOrDefault()?.login;
-                if (login == null)
+                var user = _context.user.Where(user => user.login == info.login).FirstOrDefault();
+                if (user == null)
                     NotFound("użytkownik nie istnieje");
 
 
@@ -78,11 +79,13 @@ namespace PatternRecogniser.Controllers
                 if (!CheckIfPasswordIsCorrect(info.password, authorization))
                     return BadRequest("Niepoprawne hasło");
 
+
+                string seed = CreateSeed();
                 var newAuthenticationData = new Authentication()
                 {
-                    userLogin = login,
-                    lastSeed = "ziarno", // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + "ziarno")
+                    userLogin = info.login,
+                    lastSeed = seed, // tutaj jakaś funkcja losowa 
+                    hashedToken = CreatedToken(info.password + seed)
                 };
 
                 _context.authentication.Remove(authorization);
@@ -103,6 +106,11 @@ namespace PatternRecogniser.Controllers
         private string CreatedToken(string password)
         {
             return password; // tutaj będziemy kodować hasło
+        }
+
+        private string CreateSeed()
+        {
+            return "ziarno";
         }
 
         public bool CheckIfPasswordIsCorrect(string password, Authentication authentication)
