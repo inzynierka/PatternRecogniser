@@ -164,8 +164,8 @@ namespace PatternRecogniser.Controllers
         [HttpGet("GetModelStatus")]
         public IActionResult GetModelStatus([FromRoute] string login, string modelName)
         {
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(modelName))
-                return BadRequest("Nie podano nazwy lub loginu");
+            if (string.IsNullOrEmpty(modelName))
+                modelName = _context.user.Where(user => user.login == login).FirstOrDefault()?.lastTrainModelName;
 
             var status = GetStatus( login,  modelName);
 
