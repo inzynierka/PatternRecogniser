@@ -181,7 +181,7 @@ namespace PatternRecogniser.Controllers
             if (status == ModelStatus.TrainingFailed)
                 return Ok(_messages.modelTrainingFailed);
 
-            return NotFound();
+            return NotFound(_messages.modelNotFound);
         }
 
 

@@ -12,5 +12,6 @@
         public string modelIsInQueue => "Model jest w kolejce";
         public string modelTrainingComplete => "Model jest wytrenowany (znajduje się w zakładce \"Moje Modele\")";
         public string modelTrainingFailed => "Nie udało się wytrenować modelu";
+        public string modelNotFound => "Nie znaleziono podanego modelu";
     }
 }
