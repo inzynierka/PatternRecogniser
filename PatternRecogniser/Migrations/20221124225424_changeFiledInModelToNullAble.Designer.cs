@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
@@ -9,9 +10,10 @@ using PatternRecogniser.Models;
 namespace PatternRecogniser.Migrations
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
-    partial class PatternRecogniserDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221124225424_changeFiledInModelToNullAble")]
+    partial class changeFiledInModelToNullAble
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,24 +178,13 @@ namespace PatternRecogniser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("exsistUnsavePatternRecognitionExperiment")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("lastLog")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("lastPatternRecognitionExperimentexperimentId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("lastTrainModelName")
-                        .HasColumnType("text");
 
                     b.HasKey("login");
 
                     b.HasIndex("email")
                         .IsUnique();
-
-                    b.HasIndex("lastPatternRecognitionExperimentexperimentId");
 
                     b.ToTable("user");
                 });
@@ -350,15 +341,6 @@ namespace PatternRecogniser.Migrations
                         .IsRequired();
 
                     b.Navigation("pattern");
-                });
-
-            modelBuilder.Entity("PatternRecogniser.Models.User", b =>
-                {
-                    b.HasOne("PatternRecogniser.Models.PatternRecognitionExperiment", "lastPatternRecognitionExperiment")
-                        .WithMany()
-                        .HasForeignKey("lastPatternRecognitionExperimentexperimentId");
-
-                    b.Navigation("lastPatternRecognitionExperiment");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.ValidationSet", b =>

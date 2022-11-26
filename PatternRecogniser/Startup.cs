@@ -11,6 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
+using PatternRecogniser.ThreadsComunication;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace PatternRecogniser
 {
@@ -26,11 +31,39 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+            .AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddRazorPages();
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Pattern Recofniser Api",
+                    Description = "Design and create by Ewa, Piotr and Micha³ ",
+                    //TermsOfService = new Uri("https://example.com/terms"),
+                    //Contact = new OpenApiContact
+                    //{
+                    //    Name = "Example Contact",
+                    //    Url = new Uri("https://example.com/contact")
+                    //},
+                    //License = new OpenApiLicense
+                    //{
+                    //    Name = "Example License",
+                    //    Url = new Uri("https://example.com/license")
+                    //}
+
+            });
+
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
             services.AddSingleton<IBackgroundTaskQueue>(a =>
             new BackgroundQueueBlockingCollection()
             );
+            services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
             var connectionString = Configuration["DbContextSettings:ConnectionString"];
@@ -45,6 +78,12 @@ namespace PatternRecogniser
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    options.RoutePrefix = string.Empty;
+                });
             }
             else
             {

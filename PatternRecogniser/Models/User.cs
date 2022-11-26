@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 namespace PatternRecogniser.Models
 {
     [Index(nameof(email), IsUnique = true)]
-    [Index(nameof(login), IsUnique = true)]
     public class User
     {
         [Key]
-        public int userId { get; set; }
+        public string login { get; set; }
         [Required]
         public string email { get; set; }
-        [Required]
-        public string login { get; set; }
+        public bool exsistUnsavePatternRecognitionExperiment { get; set; } = false;
+        public string lastTrainModelName { get; set; }
+
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
 
@@ -27,6 +27,7 @@ namespace PatternRecogniser.Models
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }
         public virtual ICollection<ExperimentList> experimentLists { get; set; }
+        public virtual PatternRecognitionExperiment lastPatternRecognitionExperiment { get; set; }
 
         public void LoadTrainingSet() 
         { 
@@ -148,5 +149,10 @@ namespace PatternRecogniser.Models
         public void SaveResult(Experiment experiment) { }
 
         public void SaveResultList(ExperimentList experimentList) { }
+
+        public bool IsAbbleToAddPatternRecognitionExperiment()
+        {
+            return exsistUnsavePatternRecognitionExperiment && lastPatternRecognitionExperiment != null;
+        }
     }
 }

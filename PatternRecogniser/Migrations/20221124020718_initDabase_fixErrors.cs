@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace PatternRecogniser.Migrations
 {
-    public partial class init : Migration
+    public partial class initDabase_fixErrors : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -25,16 +25,38 @@ namespace PatternRecogniser.Migrations
                 name: "user",
                 columns: table => new
                 {
-                    userId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    email = table.Column<string>(type: "text", nullable: false),
                     login = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
                     createDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     lastLog = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_user", x => x.userId);
+                    table.PrimaryKey("PK_user", x => x.login);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModelTrainingExperiment",
+                columns: table => new
+                {
+                    experimentId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    accuracy = table.Column<double>(type: "double precision", nullable: false),
+                    precision = table.Column<double>(type: "double precision", nullable: false),
+                    recall = table.Column<double>(type: "double precision", nullable: false),
+                    specificity = table.Column<double>(type: "double precision", nullable: false),
+                    missRate = table.Column<double>(type: "double precision", nullable: false),
+                    confusionMatrix = table.Column<int[]>(type: "integer[]", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModelTrainingExperiment", x => x.experimentId);
+                    table.ForeignKey(
+                        name: "FK_ModelTrainingExperiment_experiment_experimentId",
+                        column: x => x.experimentId,
+                        principalTable: "experiment",
+                        principalColumn: "experimentId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,20 +82,19 @@ namespace PatternRecogniser.Migrations
                 name: "authentication",
                 columns: table => new
                 {
-                    userId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    userLogin = table.Column<string>(type: "text", nullable: false),
                     hashedToken = table.Column<string>(type: "text", nullable: true),
-                    userId1 = table.Column<int>(type: "integer", nullable: true)
+                    lastSeed = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_authentication", x => x.userId);
+                    table.PrimaryKey("PK_authentication", x => x.userLogin);
                     table.ForeignKey(
-                        name: "FK_authentication_user_userId1",
-                        column: x => x.userId1,
+                        name: "FK_authentication_user_userLogin",
+                        column: x => x.userLogin,
                         principalTable: "user",
-                        principalColumn: "userId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "login",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,17 +104,18 @@ namespace PatternRecogniser.Migrations
                     experimentListId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "text", nullable: true),
-                    userID = table.Column<int>(type: "integer", nullable: false)
+                    experimentType = table.Column<string>(type: "text", nullable: true),
+                    userLogin = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_experimentList", x => x.experimentListId);
                     table.ForeignKey(
-                        name: "FK_experimentList_user_userID",
-                        column: x => x.userID,
+                        name: "FK_experimentList_user_userLogin",
+                        column: x => x.userLogin,
                         principalTable: "user",
-                        principalColumn: "userId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "login",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,31 +124,31 @@ namespace PatternRecogniser.Migrations
                 {
                     extendedModelId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    userLogin = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: true),
-                    distribution = table.Column<int>(type: "integer", nullable: false),
-                    userId = table.Column<int>(type: "integer", nullable: true)
+                    distribution = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_extendedModel", x => x.extendedModelId);
                     table.ForeignKey(
-                        name: "FK_extendedModel_user_userId",
-                        column: x => x.userId,
+                        name: "FK_extendedModel_user_userLogin",
+                        column: x => x.userLogin,
                         principalTable: "user",
-                        principalColumn: "userId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "login",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ExperimentExperimentList",
                 columns: table => new
                 {
-                    experimentListId = table.Column<int>(type: "integer", nullable: false),
+                    experimentListsexperimentListId = table.Column<int>(type: "integer", nullable: false),
                     experimentsexperimentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ExperimentExperimentList", x => new { x.experimentListId, x.experimentsexperimentId });
+                    table.PrimaryKey("PK_ExperimentExperimentList", x => new { x.experimentListsexperimentListId, x.experimentsexperimentId });
                     table.ForeignKey(
                         name: "FK_ExperimentExperimentList_experiment_experimentsexperimentId",
                         column: x => x.experimentsexperimentId,
@@ -134,8 +156,8 @@ namespace PatternRecogniser.Migrations
                         principalColumn: "experimentId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ExperimentExperimentList_experimentList_experimentListId",
-                        column: x => x.experimentListId,
+                        name: "FK_ExperimentExperimentList_experimentList_experimentListsexpe~",
+                        column: x => x.experimentListsexperimentListId,
                         principalTable: "experimentList",
                         principalColumn: "experimentListId",
                         onDelete: ReferentialAction.Cascade);
@@ -197,11 +219,18 @@ namespace PatternRecogniser.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     testedPattern = table.Column<byte[]>(type: "bytea", nullable: true),
                     truePatternId = table.Column<int>(type: "integer", nullable: false),
-                    recognisedPatternId = table.Column<int>(type: "integer", nullable: false)
+                    recognisedPatternId = table.Column<int>(type: "integer", nullable: false),
+                    experimentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_validationSet", x => x.validationSetId);
+                    table.ForeignKey(
+                        name: "FK_validationSet_ModelTrainingExperiment_experimentId",
+                        column: x => x.experimentId,
+                        principalTable: "ModelTrainingExperiment",
+                        principalColumn: "experimentId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_validationSet_pattern_recognisedPatternId",
                         column: x => x.recognisedPatternId,
@@ -216,61 +245,22 @@ namespace PatternRecogniser.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ModelTrainingExperiment",
-                columns: table => new
-                {
-                    experimentId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    accuracy = table.Column<double>(type: "double precision", nullable: false),
-                    precision = table.Column<double>(type: "double precision", nullable: false),
-                    recall = table.Column<double>(type: "double precision", nullable: false),
-                    specificity = table.Column<double>(type: "double precision", nullable: false),
-                    missRate = table.Column<double>(type: "double precision", nullable: false),
-                    confusionMatrix = table.Column<int[]>(type: "integer[]", nullable: true),
-                    validationSetId1 = table.Column<int>(type: "integer", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ModelTrainingExperiment", x => x.experimentId);
-                    table.ForeignKey(
-                        name: "FK_ModelTrainingExperiment_experiment_experimentId",
-                        column: x => x.experimentId,
-                        principalTable: "experiment",
-                        principalColumn: "experimentId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ModelTrainingExperiment_validationSet_validationSetId1",
-                        column: x => x.validationSetId1,
-                        principalTable: "validationSet",
-                        principalColumn: "validationSetId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_authentication_userId1",
-                table: "authentication",
-                column: "userId1");
-
             migrationBuilder.CreateIndex(
                 name: "IX_ExperimentExperimentList_experimentsexperimentId",
                 table: "ExperimentExperimentList",
                 column: "experimentsexperimentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_experimentList_userID",
+                name: "IX_experimentList_userLogin_name",
                 table: "experimentList",
-                column: "userID");
+                columns: new[] { "userLogin", "name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_extendedModel_userId",
+                name: "IX_extendedModel_userLogin_name",
                 table: "extendedModel",
-                column: "userId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelTrainingExperiment_validationSetId1",
-                table: "ModelTrainingExperiment",
-                column: "validationSetId1");
+                columns: new[] { "userLogin", "name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_pattern_extendedModelId",
@@ -294,10 +284,9 @@ namespace PatternRecogniser.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_login",
-                table: "user",
-                column: "login",
-                unique: true);
+                name: "IX_validationSet_experimentId",
+                table: "validationSet",
+                column: "experimentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_validationSet_recognisedPatternId",
@@ -319,19 +308,19 @@ namespace PatternRecogniser.Migrations
                 name: "ExperimentExperimentList");
 
             migrationBuilder.DropTable(
-                name: "ModelTrainingExperiment");
-
-            migrationBuilder.DropTable(
                 name: "recognisedPatterns");
-
-            migrationBuilder.DropTable(
-                name: "experimentList");
 
             migrationBuilder.DropTable(
                 name: "validationSet");
 
             migrationBuilder.DropTable(
+                name: "experimentList");
+
+            migrationBuilder.DropTable(
                 name: "PatternRecognitionExperiment");
+
+            migrationBuilder.DropTable(
+                name: "ModelTrainingExperiment");
 
             migrationBuilder.DropTable(
                 name: "pattern");
