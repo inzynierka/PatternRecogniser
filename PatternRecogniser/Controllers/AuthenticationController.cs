@@ -92,20 +92,13 @@ namespace PatternRecogniser.Controllers
 
 
                 string seed = CreateSeed();
-                var newAuthenticationData = new Authentication()
-                {
-                    userLogin = info.login,
-                    lastSeed = seed, // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + seed)
-                };
-
-                _context.authentication.Remove(authorization);
-                _context.authentication.Add(newAuthenticationData);
+                authorization.lastSeed = seed;
+                authorization.hashedToken = CreatedToken(info.password + seed);
 
                 await _context.SaveChangesAsync();
                 return Ok(new Token()
                 {
-                    accessToken = newAuthenticationData.hashedToken
+                    accessToken = authorization.hashedToken
                 });
             }
             catch (Exception e)
