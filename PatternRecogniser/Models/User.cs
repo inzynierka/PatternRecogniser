@@ -146,6 +146,16 @@ namespace PatternRecogniser.Models
             }
         }
 
+        private int[] NormaliseData ()
+        {
+            // jeden obrazek Bitmap
+            // sprowadzamy do skali szarości
+            // zwiększamy kontrast?
+            // zaokrąglamy do wartości 0 i 1
+            // robimy macierz
+            return null;
+        }
+
         public void SaveResult(Experiment experiment) { }
 
         public void SaveResultList(ExperimentList experimentList) { }
