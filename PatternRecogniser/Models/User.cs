@@ -17,9 +17,9 @@ namespace PatternRecogniser.Models
         public string login { get; set; }
         [Required]
         public string email { get; set; }
+        public string hashedPassword { get; set; }
         public bool exsistUnsavePatternRecognitionExperiment { get; set; } = false;
         public string lastTrainModelName { get; set; }
-
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
 

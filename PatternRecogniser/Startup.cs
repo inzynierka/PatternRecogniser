@@ -16,6 +16,13 @@ using System.Reflection;
 using System.IO;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using FluentValidation;
+using PatternRecogniser.Models.Validators;
+using PatternRecogniser.Messages.Authorization;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace PatternRecogniser
 {
@@ -31,10 +38,37 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews()
+
+
+            services.AddControllers()
             .AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
+            var authenticationSettings = new AuthenticationSettings();
+            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+            services.AddSingleton(authenticationSettings);
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            }).AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer,
+                    ValidAudience = authenticationSettings.JwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                };
+            });
+            // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
+            // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
+            services.AddScoped<ITokenCreator, TokenCreator>();
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
             {
@@ -65,7 +99,7 @@ namespace PatternRecogniser
             );
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
-
+            
             var connectionString = Configuration["DbContextSettings:ConnectionString"];
             services.AddDbContext<PatternRecogniserDBContext>(
                 opts => opts.UseNpgsql(connectionString)
