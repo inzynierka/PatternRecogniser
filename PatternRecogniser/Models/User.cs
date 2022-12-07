@@ -59,16 +59,16 @@ namespace PatternRecogniser.Models
                         string patternName = name.Substring(0, name.IndexOf('/'));
 
                         // obrazek patternu - byte array zawartości
-                        byte[] array = new byte[maxBitmapSize];
-                        using (Stream stream = entry.Open())
-                        {
-                            int read = stream.Read(array, 0, maxBitmapSize);
-                            if (read <= 0)
-                                return new PatternData(); // był jakiś błąd, nie odczytaliśmy poprawnie pliku
-                        }
+                        Stream reader = entry.Open ();
+                        MemoryStream memstream = new MemoryStream ();
+                        reader.CopyTo (memstream);
+                        byte[] array = memstream.ToArray();
+                        MemoryStream ms = new MemoryStream (array);
+                        Bitmap bmp = new Bitmap (ms);
+                        int[,] matrix = NormaliseData (bmp);
 
                         // stwórz Pattern
-                        Pattern pattern = new Pattern(patternName, array);
+                        Pattern pattern = new Pattern(patternName, matrix); // konstruktor zamienia int[,] na byte[]
 
                         // dodaj do PatternData
                         data.AddPattern(pattern);
