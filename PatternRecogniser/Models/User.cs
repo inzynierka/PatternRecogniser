@@ -22,8 +22,11 @@ namespace PatternRecogniser.Models
         public string lastTrainModelName { get; set; }
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
+        public string refreshToken { get; set; }
+        public DateTime refreshTokenExpiryDate { get; set; }
 
         private const int maxBitmapSize = 128; // do ustalenia
+        
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }
         public virtual ICollection<ExperimentList> experimentLists { get; set; }

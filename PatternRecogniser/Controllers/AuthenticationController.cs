@@ -60,11 +60,13 @@ namespace PatternRecogniser.Controllers
                 _context.user.Add(userToAdd);
 
                 var accesToken = _tokenCreator.CreateAccessToken(userToAdd);
-                var refreshToken = _tokenCreator.CreateRefreshToken(userToAdd);
+                var refreshToken = _tokenCreator.CreateRefreshToken();
                 // dodawanie refreshe token do bazy
+                userToAdd.refreshToken = _passwordHasher.HashPassword(userToAdd, refreshToken);
+                userToAdd.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
 
                 await _context.SaveChangesAsync();
-                 return Ok(new AuthenticationRespond()
+                 return Ok(new Tokens()
                 {
                     accessToken = accesToken,
                     refreshToken = refreshToken
@@ -100,10 +102,13 @@ namespace PatternRecogniser.Controllers
 
 
                 var accesToken = _tokenCreator.CreateAccessToken(user);
-                var refreshToken = _tokenCreator.CreateRefreshToken(user);
-                // dodawanie refreshe token do bazy
+                var refreshToken = _tokenCreator.CreateRefreshToken();
 
-                return Ok(new AuthenticationRespond()
+                user.refreshToken = _passwordHasher.HashPassword(user, refreshToken);
+                user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
+                await _context.SaveChangesAsync();
+
+                return Ok(new Tokens()
                 {
                     accessToken = accesToken,
                     refreshToken = refreshToken
