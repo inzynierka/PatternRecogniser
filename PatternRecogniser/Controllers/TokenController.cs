@@ -44,7 +44,7 @@ namespace PatternRecogniser.Controllers
             if (user is null ||
                 _passwordHasher.VerifyHashedPassword(user, user.refreshToken, refreshToken) == PasswordVerificationResult.Failed||
                 user.refreshTokenExpiryDate <= DateTime.Now)
-                return BadRequest(_messeges.invalidClientRequest));
+                return BadRequest(_messeges.invalidClientRequest);
 
             var newAccessToken = _tokenCreator.CreateAccessToken(user);
             var newRefreshToken = _tokenCreator.CreateRefreshToken();

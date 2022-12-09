@@ -63,7 +63,7 @@ namespace PatternRecogniser
                 };
             });
 
-           
+
             // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
             // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -72,6 +72,7 @@ namespace PatternRecogniser
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
             {
+
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
@@ -89,8 +90,28 @@ namespace PatternRecogniser
                     //    Url = new Uri("https://example.com/license")
                     //}
 
-            });
 
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                   {
+                     new OpenApiSecurityScheme
+                     {
+                       Reference = new OpenApiReference
+                       {
+                         Type = ReferenceType.SecurityScheme,
+                         Id = "Bearer"
+                       }
+                      },
+                      new string[] { }
+                    }
+                  });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Przed tokenem nalerzy umieœciæ s³owo \"Bearer\". Token i \"Bearer\" powiny byæ odzielone pojedyncz¹ spacj¹",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
@@ -99,7 +120,7 @@ namespace PatternRecogniser
             );
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
-            
+
             var connectionString = Configuration["DbContextSettings:ConnectionString"];
             services.AddDbContext<PatternRecogniserDBContext>(
                 opts => opts.UseNpgsql(connectionString)

@@ -12,18 +12,24 @@ using PatternRecogniser.ThreadsComunication;
 namespace PatternRecogniser.Controllers
 {
     [ApiController]
-    [Route("api/User")]
-    public class UserController : ControllerBase
+    [Route("DevelopingRequests")]
+    public class DevelopingRequestsController : ControllerBase
     {
         private readonly IBackgroundTaskQueue _trainingQueue;
         private PatternRecogniserDBContext _context;
-        public UserController(PatternRecogniserDBContext context, IBackgroundTaskQueue backgroundJobs)
+        public DevelopingRequestsController(PatternRecogniserDBContext context, IBackgroundTaskQueue backgroundJobs)
         {
             _context = context;
             _trainingQueue = backgroundJobs;
         }
 
-
+        /// <summary>
+        /// Zwraca dane wszystkich urzytkowników. Zapytanie nie pojawi się w produkcji
+        /// </summary>
+        /// <returns> 
+        /// string
+        /// 
+        /// </returns>
         [HttpGet]
         public IEnumerable<User> Get()
         {
