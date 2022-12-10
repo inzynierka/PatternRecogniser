@@ -24,7 +24,7 @@ namespace PatternRecogniser.Controllers
         }
 
         /// <summary>
-        /// Zwraca dane wszystkich urzytkowników. Zapytanie nie pojawi się w finalnej wersji
+        /// Zwraca dane wszystkich użytkowników. Zapytanie nie pojawi się w finalnej wersji.
         /// </summary>
         /// <returns> 
         /// string
