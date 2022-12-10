@@ -11,7 +11,6 @@ namespace PatternRecogniser.Models
     [Table("ModelTrainingExperiment")]
     public class ModelTrainingExperiment : Experiment 
     {
-        public int validationSetId;
         public double accuracy { get; set; }
         public double precision { get; set; }
         public double recall { get; set; }
@@ -23,7 +22,7 @@ namespace PatternRecogniser.Models
         private int FP { get; set; }
         private int FN { get; set; }
 
-        public virtual ValidationSet validationSet { get; set; }
+        public virtual ICollection<ValidationSet> validationSet { get; set; }
 
         public override string GetResults()
         {
@@ -34,6 +33,11 @@ namespace PatternRecogniser.Models
         {
             throw new NotImplementedException();
         }
+
+        public override bool IsItMe(string experimentType)
+        {
+            return experimentType == "ModelTrainingExperiment";
+        }
     }
 
     public class ValidationSet
@@ -42,7 +46,10 @@ namespace PatternRecogniser.Models
         public byte[] testedPattern { get; set; }
         public int truePatternId { get; set; }
         public int recognisedPatternId { get; set; }
+        public int experimentId { get; set; }
 
+        [ForeignKey("experimentId")]
+        public virtual ModelTrainingExperiment modelTrainingExperiment  { get; set;}
         public virtual Pattern truePattern { get; set; }
         public virtual Pattern recognisedPattern { get; set; }
 

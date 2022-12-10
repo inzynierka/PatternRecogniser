@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
@@ -9,9 +10,10 @@ using PatternRecogniser.Models;
 namespace PatternRecogniser.Migrations
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
-    partial class PatternRecogniserDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221124234053_saveLastExperiment")]
+    partial class saveLastExperiment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +34,22 @@ namespace PatternRecogniser.Migrations
                     b.HasIndex("experimentsexperimentId");
 
                     b.ToTable("ExperimentExperimentList");
+                });
+
+            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
+                {
+                    b.Property<string>("userLogin")
+                        .HasColumnType("text");
+
+                    b.Property<string>("hashedToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("lastSeed")
+                        .HasColumnType("text");
+
+                    b.HasKey("userLogin");
+
+                    b.ToTable("authentication");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>
@@ -153,6 +171,9 @@ namespace PatternRecogniser.Migrations
                     b.Property<string>("login")
                         .HasColumnType("text");
 
+                    b.Property<bool>("ExsistUnsavePatternRecognitionExperiment")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("createDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -160,26 +181,11 @@ namespace PatternRecogniser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("exsistUnsavePatternRecognitionExperiment")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("hashedPassword")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("lastLog")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("lastPatternRecognitionExperimentexperimentId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("lastTrainModelName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("refreshToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("refreshTokenExpiryDate")
-                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("login");
 
@@ -275,6 +281,17 @@ namespace PatternRecogniser.Migrations
                         .HasForeignKey("experimentsexperimentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
+                {
+                    b.HasOne("PatternRecogniser.Models.User", "user")
+                        .WithMany()
+                        .HasForeignKey("userLogin")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>

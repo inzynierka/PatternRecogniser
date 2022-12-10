@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
@@ -9,9 +10,10 @@ using PatternRecogniser.Models;
 namespace PatternRecogniser.Migrations
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
-    partial class PatternRecogniserDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221124020718_initDabase_fixErrors")]
+    partial class initDabase_fixErrors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +36,22 @@ namespace PatternRecogniser.Migrations
                     b.ToTable("ExperimentExperimentList");
                 });
 
+            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
+                {
+                    b.Property<string>("userLogin")
+                        .HasColumnType("text");
+
+                    b.Property<string>("hashedToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("lastSeed")
+                        .HasColumnType("text");
+
+                    b.HasKey("userLogin");
+
+                    b.ToTable("authentication");
+                });
+
             modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>
                 {
                     b.Property<int>("experimentId")
@@ -45,8 +63,6 @@ namespace PatternRecogniser.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("experimentId");
-
-                    b.HasIndex("extendedModelId");
 
                     b.ToTable("experiment");
                 });
@@ -160,33 +176,13 @@ namespace PatternRecogniser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("exsistUnsavePatternRecognitionExperiment")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("hashedPassword")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("lastLog")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("lastPatternRecognitionExperimentexperimentId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("lastTrainModelName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("refreshToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("refreshTokenExpiryDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("login");
 
                     b.HasIndex("email")
                         .IsUnique();
-
-                    b.HasIndex("lastPatternRecognitionExperimentexperimentId");
 
                     b.ToTable("user");
                 });
@@ -231,9 +227,6 @@ namespace PatternRecogniser.Migrations
                     b.Property<int[]>("confusionMatrix")
                         .HasColumnType("integer[]");
 
-                    b.Property<int?>("extendedModelId1")
-                        .HasColumnType("integer");
-
                     b.Property<double>("missRate")
                         .HasColumnType("double precision");
 
@@ -246,7 +239,7 @@ namespace PatternRecogniser.Migrations
                     b.Property<double>("specificity")
                         .HasColumnType("double precision");
 
-                    b.HasIndex("extendedModelId1")
+                    b.HasIndex("extendedModelId")
                         .IsUnique();
 
                     b.ToTable("ModelTrainingExperiment");
@@ -258,6 +251,8 @@ namespace PatternRecogniser.Migrations
 
                     b.Property<byte[]>("testedPattern")
                         .HasColumnType("bytea");
+
+                    b.HasIndex("extendedModelId");
 
                     b.ToTable("PatternRecognitionExperiment");
                 });
@@ -277,15 +272,15 @@ namespace PatternRecogniser.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>
+            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
                 {
-                    b.HasOne("PatternRecogniser.Models.ExtendedModel", "extendedModel")
-                        .WithMany("experiments")
-                        .HasForeignKey("extendedModelId")
+                    b.HasOne("PatternRecogniser.Models.User", "user")
+                        .WithMany()
+                        .HasForeignKey("userLogin")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("extendedModel");
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.ExperimentList", b =>
@@ -334,15 +329,6 @@ namespace PatternRecogniser.Migrations
                     b.Navigation("pattern");
                 });
 
-            modelBuilder.Entity("PatternRecogniser.Models.User", b =>
-                {
-                    b.HasOne("PatternRecogniser.Models.PatternRecognitionExperiment", "lastPatternRecognitionExperiment")
-                        .WithMany()
-                        .HasForeignKey("lastPatternRecognitionExperimentexperimentId");
-
-                    b.Navigation("lastPatternRecognitionExperiment");
-                });
-
             modelBuilder.Entity("PatternRecogniser.Models.ValidationSet", b =>
                 {
                     b.HasOne("PatternRecogniser.Models.ModelTrainingExperiment", "modelTrainingExperiment")
@@ -378,9 +364,13 @@ namespace PatternRecogniser.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PatternRecogniser.Models.ExtendedModel", null)
+                    b.HasOne("PatternRecogniser.Models.ExtendedModel", "extendedModel")
                         .WithOne("modelTrainingExperiment")
-                        .HasForeignKey("PatternRecogniser.Models.ModelTrainingExperiment", "extendedModelId1");
+                        .HasForeignKey("PatternRecogniser.Models.ModelTrainingExperiment", "extendedModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("extendedModel");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.PatternRecognitionExperiment", b =>
@@ -390,12 +380,18 @@ namespace PatternRecogniser.Migrations
                         .HasForeignKey("PatternRecogniser.Models.PatternRecognitionExperiment", "experimentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("PatternRecogniser.Models.ExtendedModel", "extendedModel")
+                        .WithMany()
+                        .HasForeignKey("extendedModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("extendedModel");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.ExtendedModel", b =>
                 {
-                    b.Navigation("experiments");
-
                     b.Navigation("modelTrainingExperiment");
 
                     b.Navigation("patterns");
