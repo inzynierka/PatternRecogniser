@@ -16,7 +16,6 @@ export default function Login() {
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
         localStorage.setItem('accessToken', accessToken)
@@ -32,7 +31,7 @@ export default function Login() {
     }
 
     const login = async (user : any) => {
-        setLoading(true);
+        setWaiting(true);
         let url = 'https://localhost:44314/LogIn'; 
 
         fetch(url, {
@@ -50,12 +49,13 @@ export default function Login() {
             .then(response => response.json())
             .then(
                 (data) => {
-                    setLoading(false);
+                    setWaiting(false);
                     console.log("zalogowano pomyślnie, token: " + data.accessToken + " refresh token: " + data.refreshToken);
                     successfullLogIn(user, data.accessToken, data.refreshToken);
                 },
                 (error) => {
                     setUserNotFound(true);
+                    setWaiting(false);
                     console.log(user);
                     console.error(error);
                     return;
