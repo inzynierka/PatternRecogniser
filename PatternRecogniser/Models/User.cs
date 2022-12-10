@@ -30,14 +30,16 @@ namespace PatternRecogniser.Models
         public virtual ICollection<ExperimentList> experimentLists { get; set; }
         public virtual PatternRecognitionExperiment lastPatternRecognitionExperiment { get; set; }
 
-        public void LoadTrainingSet() 
-        { 
+        public void LoadTrainingSet(string path) 
+        {
             // to jakoś w kontrolerze trzeba ogarnąć
             // na froncie otwieramy file explorer i wybieramy plik
             // przekazujemy tutaj ścieżkę do pliku
             // PatternData data = OpenZip(path);
             // tworzymy nowy ExtendedModel
             // wywołujemy w nim TrainModel (trzeba chyba by dodać parametr PatternData do tej metody)
+
+            PatternData data = OpenZip (path);
         }
 
         private PatternData OpenZip(string path)
@@ -56,16 +58,16 @@ namespace PatternRecogniser.Models
                     if (name.Length > 0) // plik nie folder
                     {
                         // etykieta pattern - nazwa folderu - FullName do /
-                        string patternName = name.Substring(0, name.IndexOf('/'));
+                        string patternName = fullName.Substring(0, name.IndexOf('/'));
 
                         // obrazek patternu - byte array zawartości
-                        Stream reader = entry.Open ();
-                        MemoryStream memstream = new MemoryStream ();
-                        reader.CopyTo (memstream);
+                        Stream reader = entry.Open();
+                        MemoryStream memstream = new MemoryStream();
+                        reader.CopyTo(memstream);
                         byte[] array = memstream.ToArray();
-                        MemoryStream ms = new MemoryStream (array);
-                        Bitmap bmp = new Bitmap (ms);
-                        int[,] matrix = NormaliseData (bmp);
+                        MemoryStream ms = new MemoryStream(array);
+                        Bitmap bmp = new Bitmap(ms);
+                        int[,] matrix = NormaliseData(bmp);
 
                         // stwórz Pattern
                         Pattern pattern = new Pattern(patternName, matrix); // konstruktor zamienia int[,] na byte[]
@@ -150,15 +152,14 @@ namespace PatternRecogniser.Models
             }
         }
 
-        private int[,] NormaliseData (Bitmap bmp)
+        private int[,] NormaliseData(Bitmap bmp)
         {
             // jeden obrazek Bitmap
             bmp = new Bitmap (bmp, 28, 28);
 
             int height = bmp.Height; // 28
             int width = bmp.Width; // 28
-            Bitmap contrastBmp = AdjustContrast (bmp, 100.0f);
-
+            Bitmap contrastBmp = AdjustContrast(bmp, 100.0f);
 
             int[,] binaryMatrix = new int[height, width];
             for (int i = 0; i < width; i++)
@@ -166,7 +167,7 @@ namespace PatternRecogniser.Models
                 for (int j = 0; j < height; j++)
                 {
                     // sprowadzamy kolor do skali szarości
-                    Color pixelColor = contrastBmp.GetPixel (i, j);
+                    Color pixelColor = contrastBmp.GetPixel(i, j);
                     int avg = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
 
                     // odnaleziony kolor sprowadzamy do wartości 0/1
@@ -188,7 +189,7 @@ namespace PatternRecogniser.Models
             return binaryMatrix;
         }
 
-        private static Bitmap AdjustContrast (Bitmap Image, float Value) // https://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently
+        private static Bitmap AdjustContrast(Bitmap Image, float Value) // https://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently
         {
             Value = (100.0f + Value) / 100.0f;
             Value *= Value;

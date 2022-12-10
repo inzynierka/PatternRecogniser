@@ -24,29 +24,29 @@ namespace PatternRecogniser.Models
         }
         public Pattern() { }
 
-        public Pattern (string name, int[,] matrix)
+        public Pattern(string name, int[,] matrix)
         {
             this.name = name;
-            this.picture = IntsToByte (matrix);
+            this.picture = IntsToByte(matrix);
         }
 
-        public static byte[] IntsToByte (int[,] matrix)
+        public static byte[] IntsToByte(int[,] matrix)
         {
-            int size = matrix.GetLength (0) * matrix.GetLength (1);
+            int size = matrix.GetLength(0) * matrix.GetLength(1);
             byte[] result = new byte[size];
 
-            for (int i = 0; i < matrix.GetLength (0); i++)
+            for (int i = 0; i < matrix.GetLength(0); i++)
             {
-                for (int j = 0; j < matrix.GetLength (1); j++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    result[i * matrix.GetLength (1) + j] = (byte)matrix[i, j];
+                    result[i * matrix.GetLength(1) + j] = (byte)matrix[i, j];
                 }
             }
 
             return result;
         }
 
-        public static int[,] ByteToInts (byte[] bytes, int rows, int columns)
+        public static int[,] ByteToInts(byte[] bytes, int rows, int columns)
         {
             int[,] result = new int[rows, columns];
             for (int i = 0; i < rows; i++)
