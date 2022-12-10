@@ -18,10 +18,10 @@ export default function Login() {
     const [waiting, setWaiting] = useState(false);
 
     const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-        localStorage.setItem('userId', user.login)
-        localStorage.setItem('email', user.email)
+        localStorage.setItem('token', 'Bearer ' + accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('userId', user.login);
+        localStorage.setItem('email', user.email);
 
         message.success('Logged in succesfully!');
         setUserNotFound(false);
@@ -58,6 +58,7 @@ export default function Login() {
                     setWaiting(false);
                     console.log(user);
                     console.error(error);
+                    //successfullLogIn(user, '', '')
                     return;
                 }
             )
@@ -123,8 +124,8 @@ export default function Login() {
                         {
                             userNotFound && 
                             <Alert
-                            message="Niepoprawne dane"
-                            description="Logowanie nie powiodło się. Sprawdź czy wprowadzone dane są poprawne."
+                            message="Logowanie nie powiodło się."
+                            description="Sprawdź czy wprowadzone dane są poprawne."
                             type="error"
                             showIcon
                             />
