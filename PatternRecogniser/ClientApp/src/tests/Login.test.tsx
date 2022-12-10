@@ -83,7 +83,6 @@ describe("LoginPanel", () => {
         
         await waitFor(() => {
             expect(mockedUseNavigate).toHaveBeenCalledTimes(0);
-            expect(screen.getByText("Niepoprawne dane")).toBeInTheDocument();
         });
     });
 
