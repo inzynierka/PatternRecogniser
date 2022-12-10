@@ -64,8 +64,8 @@ namespace PatternRecogniser
             });
 
 
-            // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
-            // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
+            // ciekawostka, user nie wpÂ³ywa na to jak hasÂ³o jest hashowane. Jest po to by aplikacja wiedziaÂ³a jakÂ¹
+            // funkcje hashowania uÂ¿yÃ¦ do jakiego usera gdy jest wiÃªcej niÂ¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
             services.AddScoped<ITokenCreator, TokenCreator>();
@@ -76,8 +76,8 @@ namespace PatternRecogniser
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Pattern Recofniser Api",
-                    Description = "Design and create by Ewa, Piotr and Micha³ ",
+                    Title = "Pattern Recogniser Api",
+                    Description = "Design and creation by Ewa, Piotr and Michal ",
                     //TermsOfService = new Uri("https://example.com/terms"),
                     //Contact = new OpenApiContact
                     //{
@@ -108,7 +108,7 @@ namespace PatternRecogniser
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "Przed tokenem nalerzy umieœciæ s³owo \"Bearer\". Token i \"Bearer\" powiny byæ odzielone pojedyncz¹ spacj¹",
+                    Description = "Przed tokenem nalezy umiescis slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
