@@ -16,9 +16,11 @@ export default function Login() {
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const successfullLogIn = (user : any, token : string) => {
-        localStorage.setItem('token', token)
+    const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
         localStorage.setItem('userId', user.login)
         localStorage.setItem('email', user.email)
 
@@ -28,22 +30,41 @@ export default function Login() {
         navigate(Urls.Train, { replace: true });
         window.location.reload();
     }
-    const demoLogin = async (user : any) => {
-        user.email = "admin@patrec.com";
-        return (user.login === "admin" && user.password === "admin") 
+
+    const login = async (user : any) => {
+        setLoading(true);
+        let url = 'https://localhost:44314/LogIn'; 
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'accept': '*/*', 
+                'Content-Type': 'application/json-patch+json',
+                'mode': 'no-cors'
+            },
+            body: JSON.stringify({
+                login: user.login,
+                password: user.password
+            })
+        })
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    setLoading(false);
+                    console.log("zalogowano pomyślnie, token: " + data.accessToken + " refresh token: " + data.refreshToken);
+                    successfullLogIn(user, data.accessToken, data.refreshToken);
+                },
+                (error) => {
+                    setUserNotFound(true);
+                    console.log(user);
+                    console.error(error);
+                    return;
+                }
+            )
     }
+
     const loginHandler = (user : any) => {
-        demoLogin(user).then((result) => {
-            if(result) {
-                successfullLogIn(user,"Bearer ");
-            }
-            else {
-                setUserNotFound(true);
-                console.log(user);
-                console.error("User not found")
-                return;
-            }
-        });
+        login(user);
     }
 
     const signInHandler = () => {
