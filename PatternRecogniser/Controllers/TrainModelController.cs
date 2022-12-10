@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.Messages.TrainModel;
@@ -20,7 +22,8 @@ namespace PatternRecogniser.Controllers
 
     }
 
-    [Route("{login}")]
+    [Route("")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TrainModelController : ControllerBase
     {
 
@@ -47,25 +50,26 @@ namespace PatternRecogniser.Controllers
         /// </returns>
         [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> TrainModel([FromRoute] string login, string modelName,
+        public async Task<IActionResult> TrainModel( string modelName,
             DistributionType distributionType, IFormFile trainingSet)
         {
             try
             {
-                if (GetStatus(login, modelName) != ModelStatus.NotFound)
-                    return BadRequest(_messages.modelAlreadyExist);
+                string login = User.Identity.Name;
+                //if (GetStatus(login, modelName) != ModelStatus.NotFound)
+                //    return BadRequest(_messages.modelAlreadyExist);
 
-                if ( ! (trainingSet.FileName.EndsWith(".zip")) )
-                    throw new Exception(_messages.incorectFileFormat);
+                //if ( ! (trainingSet.FileName.EndsWith(".zip")) )
+                //    throw new Exception(_messages.incorectFileFormat);
 
 
-                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
-                var user = _context.user.Where(a => a.login == login).FirstOrDefault();
-                user.lastTrainModelName = modelName;
+                //_trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
+                //var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+                //user.lastTrainModelName = modelName;
 
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
 
-                return NumberInQueue(login);
+                return NumberInQueue();
             }
             catch (Exception e)
             {
@@ -84,8 +88,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// </returns>
         [HttpGet("TrainingModel/NumberInQueue")]
-        public IActionResult NumberInQueue([FromRoute] string login)
+        public IActionResult NumberInQueue()
         {
+            string login = User.Identity.Name;
             int numberInQueue = _trainInfoQueue.NumberInQueue(login);
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
@@ -101,8 +106,9 @@ namespace PatternRecogniser.Controllers
         /// 
         /// </returns>
         [HttpDelete("Cancel")]
-        public IActionResult Cancel([FromRoute] string login)
+        public IActionResult Cancel()
         {
+            string login = User.Identity.Name;
             bool deleted = _trainInfoQueue.Remove(login);
             if (deleted)
                 return Ok(_messages.deletedFromQueue);
@@ -118,8 +124,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// </returns>
         [HttpGet("TrainUpdate")]
-        public IActionResult TrainUpdate([FromRoute] string login, string modelName)
+        public IActionResult TrainUpdate(string modelName)
         {
+            string login = User.Identity.Name;
             var info = _traningUpdate.ActualInfo(login, modelName);
             if (GetStatus(login, modelName) != ModelStatus.Training)
                 return NotFound(_messages.modelIsTrained);
@@ -133,8 +140,9 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetModelStatistics")]
-        public IActionResult GetModelStatistics([FromRoute] string login, string modelName)
+        public IActionResult GetModelStatistics(string modelName)
         {
+            string login = User.Identity.Name;
             var statistics = _context.extendedModel.Include(model => model.modelTrainingExperiment ).Where(
                 model => model.userLogin == login && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;
             if (statistics == null)
@@ -149,8 +157,9 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetModels")]
-        public IActionResult GetModels(string login)
+        public IActionResult GetModels()
         {
+            string login = User.Identity.Name;
             var models = _context.extendedModel.Where(model => model.userLogin == login);
             return Ok(models);
         }
@@ -162,8 +171,9 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetModelStatus")]
-        public IActionResult GetModelStatus([FromRoute] string login, string modelName)
+        public IActionResult GetModelStatus(string modelName)
         {
+            string login = User.Identity.Name;
             if (string.IsNullOrEmpty(modelName))
                 modelName = _context.user.Where(user => user.login == login).FirstOrDefault()?.lastTrainModelName;
 

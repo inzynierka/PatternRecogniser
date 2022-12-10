@@ -1,4 +1,6 @@
-﻿namespace PatternRecogniser.Messages.Authorization
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PatternRecogniser.Messages.Authorization
 {
     public class SignUp
     {

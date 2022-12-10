@@ -16,6 +16,15 @@ using System.Reflection;
 using System.IO;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using FluentValidation;
+using PatternRecogniser.Models.Validators;
+using PatternRecogniser.Messages.Authorization;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PatternRecogniser
 {
@@ -31,18 +40,44 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews()
+
+
+            services.AddControllers()
             .AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
+            var authenticationSettings = new AuthenticationSettings();
+            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+            services.AddSingleton(authenticationSettings);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, configureOptions: cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer,
+                    ValidAudience = authenticationSettings.JwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                };
+            });
+
+
+            // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
+            // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
+            services.AddScoped<ITokenCreator, TokenCreator>();
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
             {
+
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Pattern Recofniser Api",
-                    Description = "Design and create by Ewa, Piotr and Micha� ",
+                    Title = "Pattern Recogniser Api",
+                    Description = "Design and creation by Ewa, Piotr and Michal ",
                     //TermsOfService = new Uri("https://example.com/terms"),
                     //Contact = new OpenApiContact
                     //{
@@ -55,8 +90,28 @@ namespace PatternRecogniser
                     //    Url = new Uri("https://example.com/license")
                     //}
 
-            });
 
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                   {
+                     new OpenApiSecurityScheme
+                     {
+                       Reference = new OpenApiReference
+                       {
+                         Type = ReferenceType.SecurityScheme,
+                         Id = "Bearer"
+                       }
+                      },
+                      new string[] { }
+                    }
+                  });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Przed tokenem nalezy umiescis slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
