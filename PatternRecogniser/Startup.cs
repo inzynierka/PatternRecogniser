@@ -108,7 +108,7 @@ namespace PatternRecogniser
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "Przed tokenem nalezy umiescis slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
+                    Description = "Przed tokenem nalezy umiescic slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
@@ -151,7 +151,14 @@ namespace PatternRecogniser
             app.UseStaticFiles();
 
             app.UseRouting();
-            
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                                                    //.WithOrigins("https://localhost:44351")); // Allow only this origin can also have multiple origins separated with comma
+                .AllowCredentials()); // allow credentials
 
             app.UseAuthorization();
 

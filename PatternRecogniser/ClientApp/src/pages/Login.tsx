@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router';
 import { Urls } from '../types/Urls';
 import useWindowDimensions from '../UseWindowDimensions';
 
+import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
+
 const { Title } = Typography;
 
 export default function Login() {
@@ -16,6 +18,7 @@ export default function Login() {
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
+    const apiService = new ApiService();
 
     const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
         localStorage.setItem('token', 'Bearer ' + accessToken);
@@ -32,33 +35,21 @@ export default function Login() {
 
     const login = async (user : any) => {
         setWaiting(true);
-        let url = 'https://localhost:44314/LogIn'; 
 
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'accept': '*/*', 
-                'Content-Type': 'application/json-patch+json',
-                'mode': 'no-cors'
-            },
-            body: JSON.stringify({
-                login: user.login,
-                password: user.password
-            })
-        })
+        const data : ILogIn = {
+            login: user.login,
+            password: user.password
+        }
+        apiService.logIn(new LogIn(data))
             .then(response => response.json())
             .then(
                 (data) => {
                     setWaiting(false);
-                    console.log("zalogowano pomyślnie, token: " + data.accessToken + " refresh token: " + data.refreshToken);
                     successfullLogIn(user, data.accessToken, data.refreshToken);
                 },
-                (error) => {
+                () => {
                     setUserNotFound(true);
                     setWaiting(false);
-                    console.log(user);
-                    console.error(error);
-                    //successfullLogIn(user, '', '')
                     return;
                 }
             )
