@@ -33,7 +33,7 @@ export default function Login() {
         window.location.reload();
     }
 
-    const login = async (user : any) => {
+    const loginHandler = (user : any) => {
         setWaiting(true);
 
         const data : ILogIn = {
@@ -53,10 +53,6 @@ export default function Login() {
                     return;
                 }
             )
-    }
-
-    const loginHandler = (user : any) => {
-        login(user);
     }
 
     const signInHandler = () => {
