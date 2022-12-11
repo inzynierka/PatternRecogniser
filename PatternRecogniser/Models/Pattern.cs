@@ -1,9 +1,14 @@
-﻿using System;
+﻿
+//using NumSharp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Tensorflow;
+using Tensorflow.NumPy;
+
 
 namespace PatternRecogniser.Models
 {
@@ -63,7 +68,6 @@ namespace PatternRecogniser.Models
 
     public class PatternData 
     {
-
         public List<List<Pattern>> patterns;
 
         public void AddPatterns(List<Pattern> list)
@@ -85,6 +89,31 @@ namespace PatternRecogniser.Models
             List<Pattern> newList = new List<Pattern>();
             newList.Add(pattern);
             patterns.Add(newList);
+        }
+
+        public int GetNumberOfClasses()
+        {
+            return patterns.Count;
+        }
+
+        public (NDArray, NDArray) PatternToNDArray() // zwraca (obrazki, etykiety)
+        {
+            NDArray x_arr, y_arr;
+
+            List<byte[]> pictures = new List<byte[]> ();
+            List<string> classes = new List<string> ();
+            foreach(List<Pattern> list in patterns)
+            {
+                foreach(Pattern pattern in list)
+                {
+                    pictures.Add (pattern.picture);
+                    classes.Add (pattern.name);
+                }
+            }
+            x_arr = new NDArray (pictures.ToArray ());
+            y_arr = new NDArray (classes.ToArray ());
+
+            return (x_arr, y_arr);
         }
     }
 }
