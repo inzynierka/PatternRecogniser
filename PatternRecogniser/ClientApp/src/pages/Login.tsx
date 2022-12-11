@@ -8,19 +8,23 @@ import { useNavigate } from 'react-router';
 import { Urls } from '../types/Urls';
 import useWindowDimensions from '../UseWindowDimensions';
 
+import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
+
 const { Title } = Typography;
 
 export default function Login() {
+    const apiService = new ApiService();
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
 
-    const successfullLogIn = (user : any, token : string) => {
-        localStorage.setItem('token', token)
-        localStorage.setItem('userId', user.login)
-        localStorage.setItem('email', user.email)
+    const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
+        localStorage.setItem('token', 'Bearer ' + accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('userId', user.login);
+        localStorage.setItem('email', user.email);
 
         message.success('Logged in succesfully!');
         setUserNotFound(false);
@@ -28,22 +32,27 @@ export default function Login() {
         navigate(Urls.Train, { replace: true });
         window.location.reload();
     }
-    const demoLogin = async (user : any) => {
-        user.email = "admin@patrec.com";
-        return (user.login === "admin" && user.password === "admin") 
-    }
+
     const loginHandler = (user : any) => {
-        demoLogin(user).then((result) => {
-            if(result) {
-                successfullLogIn(user,"Bearer ");
-            }
-            else {
-                setUserNotFound(true);
-                console.log(user);
-                console.error("User not found")
-                return;
-            }
-        });
+        setWaiting(true);
+
+        const data : ILogIn = {
+            login: user.login,
+            password: user.password
+        }
+        apiService.logIn(new LogIn(data))
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    setWaiting(false);
+                    successfullLogIn(user, data.accessToken, data.refreshToken);
+                },
+                () => {
+                    setUserNotFound(true);
+                    setWaiting(false);
+                    return;
+                }
+            )
     }
 
     const signInHandler = () => {
@@ -102,8 +111,8 @@ export default function Login() {
                         {
                             userNotFound && 
                             <Alert
-                            message="Niepoprawne dane"
-                            description="Logowanie nie powiodło się. Sprawdź czy wprowadzone dane są poprawne."
+                            message="Logowanie nie powiodło się."
+                            description="Sprawdź czy wprowadzone dane są poprawne."
                             type="error"
                             showIcon
                             />
