@@ -25,7 +25,7 @@ export class ApiService {
      * @param body (optional) 
      * @return Success
      */
-    signUp(body: SignUp | undefined): Promise<void> {
+    signUp(body: SignUp): Promise<any> {
         let url_ = this.baseUrl + "/SignUp";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -44,19 +44,15 @@ export class ApiService {
         });
     }
 
-    protected processSignUp(response: Response): Promise<void> {
+    protected processSignUp(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return Promise.reject<any>(_responseText);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
     }
 
     /**
@@ -64,7 +60,7 @@ export class ApiService {
      * @param body (optional) 
      * @return Success
      */
-    logIn(body: LogIn | undefined): Promise<any> {
+    logIn(body: LogIn): Promise<any> {
         let url_ = this.baseUrl + "/LogIn";
         url_ = url_.replace(/[?&]$/, "");
 

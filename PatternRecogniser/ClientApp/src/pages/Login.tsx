@@ -13,12 +13,12 @@ import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
 const { Title } = Typography;
 
 export default function Login() {
+    const apiService = new ApiService();
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [userNotFound, setUserNotFound] = useState(false);
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
-    const apiService = new ApiService();
 
     const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
         localStorage.setItem('token', 'Bearer ' + accessToken);

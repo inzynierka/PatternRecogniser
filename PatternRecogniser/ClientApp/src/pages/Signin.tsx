@@ -9,12 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import { Urls } from '../types/Urls';
 import useWindowDimensions from '../UseWindowDimensions';
 
+import { ApiService, ISignUp, SignUp } from '../generated/ApiService';
+
 const { Title } = Typography;
 
 interface Props {
 }
 
 export default function SignIn(props : Props) {
+    const apiService = new ApiService();
     const [password, setPassword] = useState("")
 	const [passwordAgain, setPasswordAgain] = useState("")
     const [correctPassword, setCorrectPassword] = useState(true);
@@ -22,12 +25,14 @@ export default function SignIn(props : Props) {
     const navigate = useNavigate();
     const isOrientationVertical  = useWindowDimensions();
     const [waiting, setWaiting] = useState(false);
+    const [couldntSignIn, setCouldntSignIn] = useState(false);
+    const [reasonOfFailure, setReasonOfFailure] = useState("");
 
-    const successfullSignIn = (user : any, token : string) => {
-        localStorage.setItem('token', token);
+    const successfullSignIn = (user : any, accessToken : string, refreshToken : string) => {
+        localStorage.setItem('token', 'Bearer ' + accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('userId', user.login);
         localStorage.setItem('email', user.email);
-
 
         message.success('Signed in succesfully!');
         setWaiting(true);
@@ -36,8 +41,39 @@ export default function SignIn(props : Props) {
     }
 
     const signinHandler = (user : any) => {
-        successfullSignIn(user,"Bearer ");
-        navigate(Urls.Train, {replace: true});
+        setWaiting(true);
+        setCouldntSignIn(false);
+
+        const data : ISignUp = {
+            email: user.email,
+            login: user.login,
+            password: user.password
+        }
+
+        apiService.signUp(new SignUp(data))
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    setWaiting(false);
+                    successfullSignIn(user, data.accessToken, data.refreshToken);
+                },
+                (error) => {
+                    setCouldntSignIn(true);
+                    setReasonOfFailure(error);
+                    setWaiting(false);
+                    return;
+                }
+            )
+    }
+    const getFailureReason = () => {
+        console.log(reasonOfFailure);
+        if (reasonOfFailure.includes("Login" && "zajęty")) {
+            return "Użytkownik o podanym loginie już istnieje.";
+        
+        } else if (reasonOfFailure.includes("Istnieje" && "e-mail")) {
+            return "Użytkownik o podanym adresie e-mail już istnieje.";
+        } 
+        return "Sprawdź czy wprowadzone dane są poprawne.";
     }
     const cancelHandler = () => {
         navigate(Urls.LogIn, {replace: true});
@@ -184,7 +220,16 @@ export default function SignIn(props : Props) {
                                 <Button data-testid="signin-button" type="primary" htmlType="submit" className="login-form-button" style={{width: isOrientationVertical ? "13vw" : "23vw"}}>Zarejestruj</Button>
                             </Row>
                         </Form.Item>
-                                                
+
+                        {
+                            couldntSignIn && 
+                            <Alert
+                            message="Rejestracja nie powiodła się"
+                            description={getFailureReason()}
+                            type="error"
+                            showIcon
+                            />
+                        }         
                     </Form>
                 }
                 {
