@@ -51,7 +51,7 @@ namespace PatternRecogniser.Models
             return result;
         }
 
-        public static int[,] ByteToInts(byte[] bytes, int rows, int columns)
+        public int[,] ByteToInts(byte[] bytes, int rows, int columns)
         {
             int[,] result = new int[rows, columns];
             for (int i = 0; i < rows; i++)
@@ -100,13 +100,13 @@ namespace PatternRecogniser.Models
         {
             NDArray x_arr, y_arr;
 
-            List<byte[]> pictures = new List<byte[]> ();
+            List<int[,]> pictures = new List<int[,]> ();
             List<string> classes = new List<string> ();
             foreach(List<Pattern> list in patterns)
             {
                 foreach(Pattern pattern in list)
                 {
-                    pictures.Add (pattern.picture);
+                    pictures.Add (pattern.ByteToInts (pattern.picture, 28, 28)); // 28 to ustalony rozmiar
                     classes.Add (pattern.name);
                 }
             }

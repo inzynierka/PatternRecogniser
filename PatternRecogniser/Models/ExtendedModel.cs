@@ -122,6 +122,10 @@ namespace PatternRecogniser.Models
 
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
         {
+            var toRecognise = new List<int[,]> { user.NormaliseData(picture) };
+            NDArray nDArray = new NDArray (toRecognise.ToArray());
+            var result = model.Apply (nDArray, training: false); // i coś z result odczytujemy
+
             return new List<RecognisedPatterns>(); // returns a string that follows json formatting
         }
 

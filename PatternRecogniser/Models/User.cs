@@ -152,7 +152,7 @@ namespace PatternRecogniser.Models
             }
         }
 
-        private int[,] NormaliseData(Bitmap bmp)
+        public int[,] NormaliseData(Bitmap bmp)
         {
             // jeden obrazek Bitmap
             bmp = new Bitmap (bmp, 28, 28);
