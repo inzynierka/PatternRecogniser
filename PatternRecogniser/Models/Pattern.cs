@@ -46,7 +46,7 @@ namespace PatternRecogniser.Models
             return result;
         }
 
-        public static int[,] ByteToInts(byte[] bytes, int rows, int columns)
+        public static int[,] ByteToInts(byte[] bytes, int rows = 28, int columns = 28)
         {
             int[,] result = new int[rows, columns];
             for (int i = 0; i < rows; i++)
