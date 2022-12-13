@@ -402,7 +402,7 @@ export class ApiService {
     protected processRefresh(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 401) {
+        if (status === 401 || status === 500) {
             LogOut(LogOutReason.tokenExpired);
         }
         return Promise.resolve<any>(response);
@@ -410,7 +410,7 @@ export class ApiService {
 
     process401() {
         const tokens : ITokens = {
-            accessToken: "Bearer " + localStorage.getItem("token"),
+            accessToken: localStorage.getItem("token") || "",
             refreshToken: localStorage.getItem("refreshToken") || "",
         }
         this.refresh(new Tokens(tokens))
@@ -421,9 +421,6 @@ export class ApiService {
                         localStorage.setItem("token", data.accessToken);
                         localStorage.setItem("refreshToken", data.refreshToken);
                     }
-                },
-                (error) => {
-                    console.log(error);
                 }
             );
         console.log("Refreshed token");
