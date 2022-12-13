@@ -19,7 +19,6 @@ export const AppRouter: React.FC = () => {
     <>
       { !isUserAuthenticated && 
         <Routes>
-          <Route path={Urls.LogIn} element={<Login />}/>
           <Route path={Urls.SignIn} element={<SignIn />}/>  
           <Route path='*' element={<Login />}/>  
         </Routes>    
