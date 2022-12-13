@@ -71,7 +71,7 @@ const MyModelsPage = () => {
 
     useEffect(() => {
         fetchModels();
-    }, [])
+    })
 
     return (
         <div>
