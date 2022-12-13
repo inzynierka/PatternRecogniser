@@ -1,7 +1,5 @@
-import { message } from "antd";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Urls } from "../../types/Urls";
+import { message } from 'antd';
+import { useState } from 'react';
 
 export enum LogOutReason {
     userLoggedOut = "userLoggedOut",

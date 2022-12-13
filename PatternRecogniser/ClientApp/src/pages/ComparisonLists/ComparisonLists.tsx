@@ -1,14 +1,13 @@
 import 'antd/dist/antd.min.css';
 
-import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { Button, Card, Col, Row, Typography } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ComparisonListType } from '../../types/ComparisonType';
 import { Urls } from '../../types/Urls';
-import ComparisonList from './ComparisonList';
 import { SearchBar } from '../Common/SearchBar';
+import ComparisonList from './ComparisonList';
 
 const { Title } = Typography;
 

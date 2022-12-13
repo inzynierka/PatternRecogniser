@@ -1,11 +1,8 @@
 import 'antd/dist/antd.min.css';
 
-import { QuestionCircleOutlined, SearchOutlined, InboxOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
-import { useState, useEffect, ReactElement } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const { Title } = Typography;
+import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { Col, Input, Row, Space, Tooltip, Typography } from 'antd';
+import { ReactElement } from 'react';
 
 interface Props {
     onPressEnterHandler : (e : any) => void,

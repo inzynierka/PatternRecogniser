@@ -1,16 +1,15 @@
 import 'antd/dist/antd.min.css';
 
-import { QuestionCircleOutlined, SearchOutlined, InboxOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
-import { useState, useEffect } from 'react';
+import { Button, Card, Col, Row, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ApiService } from '../../generated/ApiService';
 import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
-import ModelListElement from './ModelListElement';
-import { ApiService } from '../../generated/ApiService';
 import { NoData } from '../Common/NoData';
 import { SearchBar } from '../Common/SearchBar';
+import ModelListElement from './ModelListElement';
 
 const { Title } = Typography;
 

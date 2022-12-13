@@ -1,14 +1,13 @@
 import 'antd/dist/antd.min.css';
 
-import { LockOutlined, UserOutlined, LoadingOutlined, Loading3QuartersOutlined } from '@ant-design/icons';
+import { Loading3QuartersOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import { ApiService, ILogIn, LogIn } from '../../generated/ApiService';
 import { Urls } from '../../types/Urls';
 import useWindowDimensions from '../../UseWindowDimensions';
-
-import { ApiService, ILogIn, LogIn } from '../../generated/ApiService';
 
 const { Title } = Typography;
 
