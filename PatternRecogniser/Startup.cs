@@ -25,6 +25,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Lib.AspNetCore.ServerSentEvents;
 
 namespace PatternRecogniser
 {
@@ -55,8 +56,11 @@ namespace PatternRecogniser
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
+                
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = authenticationSettings.JwtIssuer,
                     ValidAudience = authenticationSettings.JwtIssuer,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
@@ -161,6 +165,8 @@ namespace PatternRecogniser
                 .AllowCredentials()); // allow credentials
 
             app.UseAuthorization();
+
+            //app.UseMiddleware<ServerSentEventsMiddleware>()
 
             app.UseEndpoints(endpoints =>
             {

@@ -108,10 +108,14 @@ namespace PatternRecogniser.Controllers
                 user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
                 await _context.SaveChangesAsync();
 
-                return Ok(new Tokens()
+                return Ok(new LogInRespond()
                 {
-                    accessToken = accesToken,
-                    refreshToken = refreshToken
+                    tokens = new Tokens()
+                    {
+                        accessToken = accesToken,
+                        refreshToken = refreshToken
+                    },
+                    email = user.email
                 });;
             }
             catch (Exception e)
