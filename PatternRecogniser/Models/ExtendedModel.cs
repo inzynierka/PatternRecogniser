@@ -142,9 +142,9 @@ namespace PatternRecogniser.Models
 
             // matching our data to expected Tensorflow.NET data
             IDatasetV2 train_data;
-            NDArray x_test, y_test, x_train, y_train;
-            (x_train, y_train) = train.PatternToNDArray();
-            (x_test, y_test) = test.PatternToNDArray ();
+            Tensor x_test, y_test, x_train, y_train;
+            (x_train, y_train) = train.PatternToTensor();
+            (x_test, y_test) = test.PatternToTensor();
             train_data = tf.data.Dataset.from_tensor_slices (x_train, y_train);
             train_data = train_data.repeat ()
                 .shuffle (5000)
@@ -213,7 +213,7 @@ namespace PatternRecogniser.Models
                     var pred = neural_net.Apply (batch_x, training: true);
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
-                    print ($"step: {step}, loss: {(float)loss}, accuracy: {(float)acc}");
+                    //print ($"step: {step}, loss: {(float)loss}, accuracy: {(float)acc}");
                 }
             }
 

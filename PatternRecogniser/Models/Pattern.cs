@@ -96,22 +96,28 @@ namespace PatternRecogniser.Models
             return patterns.Count;
         }
 
-        public (NDArray, NDArray) PatternToNDArray() // zwraca (obrazki, etykiety)
+        public (Tensor, Tensor) PatternToTensor() // zwraca (obrazki, etykiety)
         {
-            NDArray x_arr, y_arr;
-
-            List<int[,]> pictures = new List<int[,]> ();
-            List<string> classes = new List<string> ();
+            Tensor x_arr, y_arr;
+            int k = 0; // numeryczne klasy, trzeba by zrobić jakąś konwersję/połączenie
+            List<float[]> pictures = new List<float[]> ();
+            List<int> classes = new List<int> ();
             foreach(List<Pattern> list in patterns)
             {
                 foreach(Pattern pattern in list)
                 {
-                    pictures.Add (pattern.ByteToInts (pattern.picture, 28, 28)); // 28 to ustalony rozmiar
-                    classes.Add (pattern.name);
+                    float[] arr = new float[pattern.picture.Length];
+                    for (int i = 0; i < pattern.picture.Length; i++)
+                    {
+                        arr[i] = pattern.picture[i];
+                    }
+                    pictures.Add(arr);
+                    classes.Add (k);
+                    k++;
                 }
             }
-            x_arr = new NDArray (pictures.ToArray ());
-            y_arr = new NDArray (classes.ToArray ());
+            x_arr = ops.convert_to_tensor (pictures.ToArray (), TF_DataType.TF_FLOAT);
+            y_arr = ops.convert_to_tensor(classes.ToArray(), TF_DataType.TF_INT32);
 
             return (x_arr, y_arr);
         }

@@ -58,7 +58,7 @@ namespace PatternRecogniser.Models
                     if (name.Length > 0) // plik nie folder
                     {
                         // etykieta pattern - nazwa folderu - FullName do /
-                        string patternName = fullName.Substring(0, name.IndexOf('/'));
+                        string patternName = fullName.Substring(0, fullName.IndexOf('/'));
 
                         // obrazek patternu - byte array zawartości
                         Stream reader = entry.Open();
