@@ -205,27 +205,6 @@ describe("SigninPanel", () => {
 
         expect(couter).toBe(1);
     });
-    it("saves data to localStorage after successful registration", async () => {
-        const { findByTestId } = renderComponentWithRouter(<Signin />);
-        const loginInput = await findByTestId("login-input");
-        const emailInput = await findByTestId("email-input");
-        const passwordInput = await findByTestId("password-input");
-        const passwordConfirmInput = await findByTestId("password-confirm-input");
-        const signinButton = await findByTestId("signin-button");
-
-        fireEvent.change(loginInput, { target: { value: "login" } });
-        fireEvent.change(emailInput, { target: { value: "email@email.com" } });
-        fireEvent.change(passwordInput, { target: { value: "someSTRONGpassword123@!#" } });
-        fireEvent.change(passwordConfirmInput, { target: { value: "someSTRONGpassword123@!#" } });
-
-        signinButton.click();
-
-        await waitFor(() => {
-            expect(localStorage.getItem("token")).not.toBeNull();
-            expect(localStorage.getItem("userId")).toBe('login');
-            expect(localStorage.getItem("email")).toBe("email@email.com")
-        });
-    });
 
     it("signin button reacts to click", async () => {
         const { findByTestId } = renderComponentWithRouter(<Signin />);
