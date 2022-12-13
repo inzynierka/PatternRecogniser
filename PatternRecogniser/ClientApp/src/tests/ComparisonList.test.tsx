@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import ComparisonList from '../pages/ComparisonList';
+import ComparisonList from '../pages/ComparisonLists/ComparisonList';
 import { ComparisonListType } from '../types/ComparisonType';
 
 

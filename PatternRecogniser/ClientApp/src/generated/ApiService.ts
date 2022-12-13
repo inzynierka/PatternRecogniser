@@ -650,13 +650,14 @@ export class ApiService {
      * Pobiera modele
      * @return Success
      */
-    getModels(): Promise<void> {
+    getModels(token : string): Promise<void> {
         let url_ = this.baseUrl + "/GetModels";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 

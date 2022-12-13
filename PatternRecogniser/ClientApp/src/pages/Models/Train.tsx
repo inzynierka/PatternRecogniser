@@ -20,7 +20,7 @@ import {
 import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 import React, { useState } from 'react';
 
-import useWindowDimensions from '../UseWindowDimensions';
+import useWindowDimensions from '../../UseWindowDimensions';
 
 const { Title } = Typography;
 

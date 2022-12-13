@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 
-import ComparisonPage from '../pages/ComparisonLists';
-import CreateComparisonListPage from '../pages/CreateComparisonList';
-import Login from '../pages/Login';
-import MyAccountPage from '../pages/MyAccount';
-import MyModelsPage from '../pages/MyModels';
-import RecognisePage from '../pages/Recognise';
-import SignIn from '../pages/Signin';
-import TrainPage from '../pages/Train';
+import ComparisonPage from '../pages/ComparisonLists/ComparisonLists';
+import CreateComparisonListPage from '../pages/ComparisonLists/CreateComparisonList';
+import Login from '../pages/Account/Login';
+import MyAccountPage from '../pages/Account/MyAccount';
+import MyModelsPage from '../pages/Models/MyModels';
+import RecognisePage from '../pages/Models/Recognise';
+import SignIn from '../pages/Account/Signin';
+import TrainPage from '../pages/Models/Train';
 import { Urls } from '../types/Urls';
 import NotFound from './NotFound';
 

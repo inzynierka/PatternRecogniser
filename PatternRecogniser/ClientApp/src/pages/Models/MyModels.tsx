@@ -1,13 +1,14 @@
 import 'antd/dist/antd.min.css';
 
-import { ArrowLeftOutlined, QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ModelType } from '../types/ModelType';
-import { Urls } from '../types/Urls';
+import { ModelType } from '../../types/ModelType';
+import { Urls } from '../../types/Urls';
 import ModelListElement from './ModelListElement';
+import { ApiService } from '../../generated/ApiService';
 
 const { Title } = Typography;
 
@@ -26,7 +27,8 @@ const exampleModels : ModelType[] = [
     }
 ]
 
-const CreateComparisonListPage = () => {
+const MyModelsPage = () => {
+    const apiService = new ApiService();
     const navigate = useNavigate();
     const [models, setModels] = useState(exampleModels)
     
@@ -36,8 +38,8 @@ const CreateComparisonListPage = () => {
         setModels(exampleModels.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
-    const goBackHandler = () => {
-        navigate(Urls.ComparisonLists, {replace: true});
+    const addNewModelHandler = () => {
+        navigate(Urls.Train, {replace: true});
     }
 
     return (
@@ -45,28 +47,27 @@ const CreateComparisonListPage = () => {
             <Row style={{ marginTop: 50 }}>
                 <Col flex="auto">
                     <div className="site-layout-content" style={{minHeight: "75vh" }}>
-                        <Button onClick={goBackHandler} icon={<ArrowLeftOutlined style={{fontSize: '2em'}}/>} size="large" shape="circle" type="text" style={{marginLeft: '20px', marginTop: '15px'}}/>
-                        <Row justify="space-around" align="middle" style={{marginBottom: "30px", marginTop: "-55px"}}>
-                            <Title>Stwórz nową listę</Title>
+                        <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
+                            <Title>Moje modele</Title>
                         </Row>
 
                         <Row justify="space-around" align="middle">
                             <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
-                                    <p></p>
-                                <Col>
                                     <Space>
-                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
+                                        <Input data-testid="search-input" placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
                                         <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
+                                <Col>
+                                    <Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
-                                <Card bordered={true} style={{width: "80vw"}}>
+                                <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelType) => (<ModelListElement model={item} addingToList={true}/> ))
+                                        models.map((item: ModelType) => (<ModelListElement model={item}/> ))
                                     }
                                 </Card>
                             </Row>
@@ -78,4 +79,4 @@ const CreateComparisonListPage = () => {
     );
 }
 
-export default CreateComparisonListPage;
+export default MyModelsPage;

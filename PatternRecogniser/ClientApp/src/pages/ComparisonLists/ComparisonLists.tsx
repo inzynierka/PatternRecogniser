@@ -5,67 +5,64 @@ import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ModelType } from '../types/ModelType';
-import { Urls } from '../types/Urls';
-import ModelListElement from './ModelListElement';
+import { ComparisonListType } from '../../types/ComparisonType';
+import { Urls } from '../../types/Urls';
+import ComparisonList from './ComparisonList';
 
 const { Title } = Typography;
 
-const exampleModels : ModelType[] = [
+const exampleLists : ComparisonListType[] = [
     {
-        name: "Cyfry arabskie",
-        patternNum: 10
+        name: "Modele z alfabetami",
+        elementNum: 3
     },
     {
-        name: "Alfabet",
-        patternNum: 32
-    },
-    {
-        name: "Figury geometryczne",
-        patternNum: 56
+        name: "Rozpoznawanie cyfr",
+        elementNum: 2,
+        usedModel: "Cyfry arabskie"
     }
 ]
 
-const MyModelsPage = () => {
+const ComparisonPage = () => {
     const navigate = useNavigate();
-    const [models, setModels] = useState(exampleModels)
-    
+    const [lists, setLists] = useState(exampleLists)
+
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
         console.log(searchName)
-        setModels(exampleModels.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
+        setLists(exampleLists.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
-    const addNewModelHandler = () => {
-        navigate(Urls.Train, {replace: true});
+    const createNewListHandler = () => {
+        navigate(Urls.ComparisonListsCreate, {replace: true});
     }
 
     return (
         <div>
             <Row style={{ marginTop: 50 }}>
-                <Col flex="auto">
+            <Col flex="auto">
                     <div className="site-layout-content" style={{minHeight: "75vh" }}>
                         <Row justify="space-around" align="middle" style={{marginBottom: "30px"}}>
-                            <Title>Moje modele</Title>
+                            <Title>Porównywarka</Title>
                         </Row>
 
                         <Row justify="space-around" align="middle">
                             <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
                                     <Space>
-                                        <Input data-testid="search-input" placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
-                                        <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
+                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
+                                        <Tooltip title="Wciśnij ENTER aby wyszukać listy po nazwie.">
                                             <Typography.Link><QuestionCircleOutlined /></Typography.Link>
                                         </Tooltip>
                                     </Space>
                                 <Col>
-                                    <Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
+                                    <Button type="default" onClick={createNewListHandler}>Stwórz nową listę</Button>
                                 </Col>
                             </Row>
 
                             <Row justify="space-around" align="middle">
-                                <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
+                                <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.map((item: ModelType) => (<ModelListElement model={item}/> ))
+                                        lists.map((item: ComparisonListType) => ( <ComparisonList list={item} /> ))
                                     }
                                 </Card>
                             </Row>
@@ -77,4 +74,4 @@ const MyModelsPage = () => {
     );
 }
 
-export default MyModelsPage;
+export default ComparisonPage;

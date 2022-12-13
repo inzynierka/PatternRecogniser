@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { queryByTestId, render, screen } from '@testing-library/react';
 import React from 'react';
 
-import ModelListElement from '../pages/ModelListElement';
+import ModelListElement from '../pages/Models/ModelListElement';
 import { ModelType } from '../types/ModelType';
 
 window.matchMedia = window.matchMedia || function() {

@@ -3,7 +3,7 @@ import 'antd/dist/antd.min.css';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Row, Typography } from 'antd';
 
-import { ComparisonListType } from '../types/ComparisonType';
+import { ComparisonListType } from '../../types/ComparisonType';
 
 const { Title } = Typography;
 
