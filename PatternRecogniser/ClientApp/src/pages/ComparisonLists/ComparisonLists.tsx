@@ -62,7 +62,7 @@ const ComparisonPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>
                                     {
-                                        lists.map((item: ComparisonListType) => ( <ComparisonList list={item} /> ))
+                                        lists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name}/> ))
                                     }
                                 </Card>
                             </Row>

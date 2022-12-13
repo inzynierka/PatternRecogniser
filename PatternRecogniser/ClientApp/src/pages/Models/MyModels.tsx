@@ -9,23 +9,9 @@ import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
 import ModelListElement from './ModelListElement';
 import { ApiService } from '../../generated/ApiService';
+import { NoData } from '../NoData';
 
 const { Title } = Typography;
-
-// const exampleModels : ModelType[] = [
-//     {
-//         name: "Cyfry arabskie",
-//         patternNum: 10
-//     },
-//     {
-//         name: "Alfabet",
-//         patternNum: 32
-//     },
-//     {
-//         name: "Figury geometryczne",
-//         patternNum: 56
-//     }
-// ]
 
 const MyModelsPage = () => {
     const apiService = new ApiService();
@@ -116,16 +102,9 @@ const MyModelsPage = () => {
                                 <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
                                         displayedModels.length > 0 && dataLoaded ?
-                                            displayedModels.map((item: ModelType) => (<ModelListElement model={item}/> ))
+                                            displayedModels.map((item: ModelType) => (<ModelListElement model={item} key={item.name}/> ))
                                             :
-                                            <div>
-                                                <Row align="middle" justify="center">
-                                                   <InboxOutlined style={{ fontSize: '10em', marginTop: "5px", color: "rgb(140, 140, 140)" }}/>
-                                                </Row>
-                                                <Row align="middle" justify="center">
-                                                    <Title level={3} type="secondary">Brak danych</Title>
-                                                </Row>
-                                            </div>
+                                            <NoData />
                                     }
                                 </Card>
                             </Row>
