@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ComparisonListType } from '../../types/ComparisonType';
 import { Urls } from '../../types/Urls';
 import ComparisonList from './ComparisonList';
-import { SearchBar } from '../SearchBar';
+import { SearchBar } from '../Common/SearchBar';
 
 const { Title } = Typography;
 

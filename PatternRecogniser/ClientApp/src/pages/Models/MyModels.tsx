@@ -9,8 +9,8 @@ import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
 import ModelListElement from './ModelListElement';
 import { ApiService } from '../../generated/ApiService';
-import { NoData } from '../NoData';
-import { SearchBar } from '../SearchBar';
+import { NoData } from '../Common/NoData';
+import { SearchBar } from '../Common/SearchBar';
 
 const { Title } = Typography;
 
