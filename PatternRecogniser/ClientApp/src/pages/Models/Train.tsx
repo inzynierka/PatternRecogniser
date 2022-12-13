@@ -21,6 +21,7 @@ import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 import React, { useState } from 'react';
 
 import useWindowDimensions from '../../UseWindowDimensions';
+import { DistributionType } from '../../generated/ApiService';
 
 const { Title } = Typography;
 
@@ -28,7 +29,7 @@ const { Title } = Typography;
 const TrainPage = () => {
     const [form] = Form.useForm();
     const isOrientationVertical  = useWindowDimensions();
-    const [selectedDistributionType, setSelectedDistributionType] = useState("trainTest");
+    const [selectedDistributionType, setSelectedDistributionType] = useState(0);
     const [train, setTrain] = useState(80);
     const [test, setTest] = useState(20);
     const [emptyfile, ] = useState<UploadFile>();
@@ -42,7 +43,7 @@ const TrainPage = () => {
         console.log('Received values of form: ', values);
     };
 
-    const distributionTypeChanged = (type : string) => {
+    const distributionTypeChanged = (type : number) => {
         setSelectedDistributionType(type);
     }
 
@@ -126,11 +127,11 @@ const TrainPage = () => {
                                                     <Select 
                                                         style={{width: "15vw" }} 
                                                         onChange={distributionTypeChanged} 
-                                                        defaultValue="trainTest"
+                                                        defaultValue={DistributionType.TrainTest}
                                                         data-testid="distribution-type-select"
                                                     >
-                                                        <Select.Option data-testid="trainTest" value="trainTest">podział train/test</Select.Option>
-                                                        <Select.Option data-testid="crossValidation" value="crossValidation">walidacja krzyżowa</Select.Option>
+                                                        <Select.Option data-testid={DistributionType.TrainTest} value={DistributionType.TrainTest}>podział train/test</Select.Option>
+                                                        <Select.Option data-testid={DistributionType.CrossValidation} value={DistributionType.CrossValidation}>walidacja krzyżowa</Select.Option>
                                                     </Select>
                                                 </Form.Item>
                                                 <Tooltip title="Tu wyświetla się instrukcja dla użytkownika." data-testid="distribution-tooltip">
@@ -140,7 +141,7 @@ const TrainPage = () => {
                                         </Form.Item>
 
                                         {
-                                            selectedDistributionType.includes("trainTest") ? (
+                                            selectedDistributionType === DistributionType.TrainTest ? (
                                                 isOrientationVertical ?
                                                 <Form.Item style={{width: "25vw"}}>
                                                     {/* gdy wybrano podział train/test */}

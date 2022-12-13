@@ -4,6 +4,7 @@
 // </auto-generated>
 //----------------------
 
+import { LogOut, LogOutReason } from "../pages/Account/LogOut";
 import { BASE_URL } from "./ApiServiceConfig";
 
 /* tslint:disable */
@@ -80,8 +81,6 @@ export class ApiService {
     }
 
     protected processLogIn(response: Response): Promise<any> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         return Promise.resolve<any>(response);
     }
 
@@ -381,7 +380,7 @@ export class ApiService {
      * @param body (optional) 
      * @return Success
      */
-    refresh(body: Tokens | undefined): Promise<void> {
+    refresh(body: Tokens | undefined): Promise<any> {
         let url_ = this.baseUrl + "/Token/refresh";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -400,19 +399,34 @@ export class ApiService {
         });
     }
 
-    protected processRefresh(response: Response): Promise<void> {
+    protected processRefresh(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            LogOut(LogOutReason.tokenExpired);
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
+    }
+
+    process401() {
+        const tokens : ITokens = {
+            accessToken: "Bearer " + localStorage.getItem("token"),
+            refreshToken: localStorage.getItem("refreshToken") || "",
+        }
+        this.refresh(new Tokens(tokens))
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    if(data !== undefined) {
+                        localStorage.setItem("token", data.accessToken);
+                        localStorage.setItem("refreshToken", data.refreshToken);
+                    }
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
+        console.log("Refreshed token");
     }
 
     /**
@@ -650,7 +664,7 @@ export class ApiService {
      * Pobiera modele
      * @return Success
      */
-    getModels(token : string): Promise<void> {
+    getModels(token : string): Promise<any> {
         let url_ = this.baseUrl + "/GetModels";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -666,19 +680,13 @@ export class ApiService {
         });
     }
 
-    protected processGetModels(response: Response): Promise<void> {
+    protected processGetModels(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+        if (status === 401) {
+            this.process401();
+        } 
+        return Promise.resolve<any>(response);
     }
 
     /**
@@ -722,8 +730,8 @@ export class ApiService {
 }
 
 export enum DistributionType {
-    _0 = 0,
-    _1 = 1,
+    TrainTest = 0,
+    CrossValidation = 1,
 }
 
 export class Experiment implements IExperiment {

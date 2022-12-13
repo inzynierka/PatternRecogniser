@@ -8,21 +8,28 @@ import { useNavigate } from 'react-router-dom';
 import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
 import ModelListElement from '../Models/ModelListElement';
+import { DistributionType } from '../../generated/ApiService';
 
 const { Title } = Typography;
 
 const exampleModels : ModelType[] = [
     {
         name: "Cyfry arabskie",
-        patternNum: 10
+        patternNum: 10,
+        distribution: DistributionType.CrossValidation,
+        extendedModelId: 1
     },
     {
         name: "Alfabet",
-        patternNum: 32
+        patternNum: 32,
+        distribution: DistributionType.TrainTest,
+        extendedModelId: 2
     },
     {
         name: "Figury geometryczne",
-        patternNum: 56
+        patternNum: 56,
+        distribution: DistributionType.CrossValidation,
+        extendedModelId: 3
     }
 ]
 
