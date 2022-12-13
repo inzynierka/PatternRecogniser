@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ComparisonListType } from '../../types/ComparisonType';
 import { Urls } from '../../types/Urls';
 import ComparisonList from './ComparisonList';
+import { SearchBar } from '../SearchBar';
 
 const { Title } = Typography;
 
@@ -29,7 +30,6 @@ const ComparisonPage = () => {
 
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
-        console.log(searchName)
         setLists(exampleLists.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
@@ -47,17 +47,10 @@ const ComparisonPage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
-                                    <Space>
-                                        <Input placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
-                                        <Tooltip title="Wciśnij ENTER aby wyszukać listy po nazwie.">
-                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                        </Tooltip>
-                                    </Space>
-                                <Col>
-                                    <Button type="default" onClick={createNewListHandler}>Stwórz nową listę</Button>
-                                </Col>
-                            </Row>
+                            <SearchBar 
+                                onPressEnterHandler={filter} 
+                                button={<Button type="default" onClick={createNewListHandler}>Stwórz nową listę</Button>}
+                            />
 
                             <Row justify="space-around" align="middle">
                                 <Card bordered={true} style={{width: "80vw"}}>

@@ -10,6 +10,7 @@ import { Urls } from '../../types/Urls';
 import ModelListElement from './ModelListElement';
 import { ApiService } from '../../generated/ApiService';
 import { NoData } from '../NoData';
+import { SearchBar } from '../SearchBar';
 
 const { Title } = Typography;
 
@@ -23,7 +24,6 @@ const MyModelsPage = () => {
     
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
-        console.log(searchName)
         setDisplayedModels(models.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
@@ -86,17 +86,10 @@ const MyModelsPage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Row justify="space-between" align="middle" style={{width: "80vw", marginBottom: '20px'}}>
-                                    <Space>
-                                        <Input data-testid="search-input" placeholder="Wyszukaj" prefix={<SearchOutlined />} onPressEnter={filter}/>
-                                        <Tooltip title="Wciśnij ENTER aby wyszukać modelu po nazwie.">
-                                            <Typography.Link><QuestionCircleOutlined /></Typography.Link>
-                                        </Tooltip>
-                                    </Space>
-                                <Col>
-                                    <Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>
-                                </Col>
-                            </Row>
+                            <SearchBar 
+                                onPressEnterHandler={filter} 
+                                button={<Button data-testid="add-model-button" type="default" onClick={addNewModelHandler}>Dodaj nowy model</Button>}
+                            />
 
                             <Row justify="space-around" align="middle">
                                 <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
