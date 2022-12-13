@@ -1,4 +1,4 @@
-import { IExperiment, IPattern } from "../generated/ApiService";
+import { IExperiment } from "../generated/ApiService";
 
 export enum ExperimentType {
     PatternRecognition = "PatternRecognitionExperiment",
