@@ -2,7 +2,7 @@ import 'antd/dist/antd.min.css';
 
 import { Button, Card, Col, Row, Typography } from 'antd';
 
-import useWindowDimensions from '../UseWindowDimensions';
+import useWindowDimensions from '../../UseWindowDimensions';
 
 const { Title } = Typography;
 

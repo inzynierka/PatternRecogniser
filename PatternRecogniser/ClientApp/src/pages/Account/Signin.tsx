@@ -6,10 +6,10 @@ import { useState } from 'react';
 import PasswordChecklist from 'react-password-checklist';
 import { useNavigate } from 'react-router-dom';
 
-import { Urls } from '../types/Urls';
-import useWindowDimensions from '../UseWindowDimensions';
+import { Urls } from '../../types/Urls';
+import useWindowDimensions from '../../UseWindowDimensions';
 
-import { ApiService, ISignUp, SignUp } from '../generated/ApiService';
+import { ApiService, ISignUp, SignUp } from '../../generated/ApiService';
 
 const { Title } = Typography;
 

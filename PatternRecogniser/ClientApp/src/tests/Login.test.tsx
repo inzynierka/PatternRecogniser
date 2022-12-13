@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
-import Login from '../pages/Login';
+import Login from '../pages/Account/Login';
 import { allowsTypingIn, mockedUseNavigate, reactsOnClicking, renderComponentWithRouter, requiresNotEmpty } from './util';
 
 window.matchMedia = window.matchMedia || function() {
