@@ -10,6 +10,7 @@ import { Urls } from '../../types/Urls';
 import { NoData } from '../Common/NoData';
 import { SearchBar } from '../Common/SearchBar';
 import ModelListElement from './ModelListElement';
+import { Loading } from '../Common/Loading';
 
 const { Title } = Typography;
 
@@ -90,6 +91,9 @@ const MyModelsPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
+                                        loading ? 
+                                        <Loading />
+                                        :
                                         displayedModels.length > 0 && dataLoaded ?
                                             displayedModels.map((item: ModelType) => (<ModelListElement model={item} key={item.name}/> ))
                                             :

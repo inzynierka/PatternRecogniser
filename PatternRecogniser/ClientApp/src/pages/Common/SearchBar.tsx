@@ -19,7 +19,7 @@ export const SearchBar = (props : Props) => {
                     </Tooltip>
                 </Space>
             <Col>
-                props.button
+                { props.button }
             </Col>
         </Row>
     )

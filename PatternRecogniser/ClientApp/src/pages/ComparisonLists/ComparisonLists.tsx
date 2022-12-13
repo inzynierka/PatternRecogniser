@@ -1,40 +1,77 @@
 import 'antd/dist/antd.min.css';
 
 import { Button, Card, Col, Row, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ComparisonListType } from '../../types/ComparisonType';
+import { ComparisonListType, ExperimentType } from '../../types/ComparisonType';
 import { Urls } from '../../types/Urls';
 import { SearchBar } from '../Common/SearchBar';
 import ComparisonList from './ComparisonList';
+import { Loading } from '../Common/Loading';
+import { NoData } from '../Common/NoData';
+import { ApiService } from '../../generated/ApiService';
 
 const { Title } = Typography;
 
-const exampleLists : ComparisonListType[] = [
-    {
-        name: "Modele z alfabetami",
-        elementNum: 3
-    },
-    {
-        name: "Rozpoznawanie cyfr",
-        elementNum: 2,
-        usedModel: "Cyfry arabskie"
-    }
-]
 
 const ComparisonPage = () => {
+    const apiService = new ApiService();
     const navigate = useNavigate();
-    const [lists, setLists] = useState(exampleLists)
+    const [lists, setLists] = useState<ComparisonListType[]>([]);
+    const [displayedLists, setDisplayedLists] = useState<ComparisonListType[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
-        setLists(exampleLists.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
+        setDisplayedLists(lists.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
 
     const createNewListHandler = () => {
         navigate(Urls.ComparisonListsCreate, {replace: true});
     }
+
+    const parseListsData = (data : any) => {
+        let lists : ComparisonListType[] = [];
+        let list : ComparisonListType;
+
+        data.forEach((item: any) => {
+            list = {
+                name: item.name,
+                elementNum: item.experiments === null ? 0 : item.experiments.length(),
+                experimentType: item.experimentType.includes("Pattern") ? ExperimentType.PatternRecognition : ExperimentType.ModelTraining,
+                experimentListId: item.experimentListId
+            }
+            lists.push(list);
+        })
+
+        return lists;
+    }
+
+    const fetchLists = () => {
+        setLoading(true);
+        let token = localStorage.getItem('token') || "";
+        apiService.getLists(token)
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    if(data !== undefined) {
+                        const lists = parseListsData(data);
+                        setLists(lists);
+                        setDisplayedLists(lists);
+                        setDataLoaded(true);
+                    }
+                    else setDataLoaded(false);
+                    setLoading(false);
+                }
+            )
+        return;
+    }
+
+    useEffect(() => {
+        fetchLists();
+    }, [])
 
     return (
         <div>
@@ -52,9 +89,15 @@ const ComparisonPage = () => {
                             />
 
                             <Row justify="space-around" align="middle">
-                                <Card bordered={true} style={{width: "80vw"}}>
+                                <Card data-testid="comparison-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
-                                        lists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name}/> ))
+                                        loading ? 
+                                        <Loading />
+                                        :
+                                        displayedLists.length > 0 && dataLoaded ?
+                                            displayedLists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name}/> ))
+                                            :
+                                            <NoData />
                                     }
                                 </Card>
                             </Row>

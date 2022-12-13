@@ -215,13 +215,14 @@ export class ApiService {
      * Pobiera listy
      * @return Success
      */
-    getLists(): Promise<void> {
+    getLists(token : string): Promise<any> {
         let url_ = this.baseUrl + "/GetLists";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 
@@ -230,19 +231,13 @@ export class ApiService {
         });
     }
 
-    protected processGetLists(response: Response): Promise<void> {
+    protected processGetLists(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
     }
 
     /**
