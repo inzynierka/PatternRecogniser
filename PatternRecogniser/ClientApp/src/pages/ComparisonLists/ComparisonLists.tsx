@@ -71,7 +71,7 @@ const ComparisonPage = () => {
 
     useEffect(() => {
         fetchLists();
-    })
+    }, [])
 
     return (
         <div>

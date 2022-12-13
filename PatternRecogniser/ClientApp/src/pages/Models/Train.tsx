@@ -18,15 +18,17 @@ import {
     UploadProps,
 } from 'antd';
 import { RcFile, UploadFile } from 'antd/lib/upload/interface';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import useWindowDimensions from '../../UseWindowDimensions';
-import { DistributionType } from '../../generated/ApiService';
+import { ApiService, DistributionType } from '../../generated/ApiService';
+import { TrainModelMessages } from '../../types/TrainModelMessages';
 
 const { Title } = Typography;
 
 
 const TrainPage = () => {
+    const apiService = new ApiService();
     const [form] = Form.useForm();
     const isOrientationVertical  = useWindowDimensions();
     const [selectedDistributionType, setSelectedDistributionType] = useState(0);
@@ -36,17 +38,18 @@ const TrainPage = () => {
     const [file, setFile] = useState<UploadFile>();
     const [uploading, setUploading] = useState(false);
     const [uploadSuccessful, setUploadSuccessful] = useState(false);
+    const [isModelTrained, setIsModelTrained] = useState(false);
 
     const [customTrainTestValue, setCustomTrainTestValue] = useState(false);;
 
     const onFinish = (values: any) => {
+        setIsModelTrained(true);
         console.log('Received values of form: ', values);
     };
 
     const distributionTypeChanged = (type : number) => {
         setSelectedDistributionType(type);
     }
-
     const trainChanged = (value : number) => {
         setTrain(value);
         setTest(100 - value);
@@ -83,6 +86,28 @@ const TrainPage = () => {
     const handleTrain = () => {
         console.log('Train');
     };
+
+    const getUpdate = () => {
+        let token = localStorage.getItem('token') || "";
+        apiService.getModelStatus(token, "")
+        .then((status) => {
+            if(status === TrainModelMessages.modelIsTrained || status === TrainModelMessages.modelIsInQueue) {
+                setIsModelTrained(true);
+            }
+            else if (status === TrainModelMessages.modelTrainingComplete) {
+                setIsModelTrained(false);
+                message.success('Model został wytrenowany pomyślnie.');
+            }
+            else {
+                setIsModelTrained(false);
+                //if(status === TrainModelMessages.modelTrainingFailed) message.error('Nie udało się wytrenować modelu.');
+            }
+          });
+    };
+
+    useEffect(() => {
+        getUpdate();
+    }, [])
 
     const props: UploadProps = {
         onChange: info => {

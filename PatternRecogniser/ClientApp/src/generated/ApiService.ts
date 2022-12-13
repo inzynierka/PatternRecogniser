@@ -579,7 +579,7 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    trainUpdate(modelName: string | undefined): Promise<void> {
+    trainUpdate(token : string, modelName: string | ""): Promise<any> {
         let url_ = this.baseUrl + "/TrainUpdate?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
@@ -590,6 +590,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 
@@ -598,19 +599,13 @@ export class ApiService {
         });
     }
 
-    protected processTrainUpdate(response: Response): Promise<void> {
+    protected processTrainUpdate(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
     }
 
     /**
@@ -686,7 +681,7 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    getModelStatus(modelName: string | undefined): Promise<void> {
+    getModelStatus(token: string, modelName: string | ""): Promise<string> {
         let url_ = this.baseUrl + "/GetModelStatus?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
@@ -697,6 +692,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 
@@ -705,19 +701,18 @@ export class ApiService {
         });
     }
 
-    protected processGetModelStatus(response: Response): Promise<void> {
+    protected processGetModelStatus(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if(status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        return Promise.resolve<string>(message);
     }
 }
 

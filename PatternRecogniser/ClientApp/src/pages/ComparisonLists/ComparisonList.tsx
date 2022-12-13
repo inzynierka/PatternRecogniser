@@ -29,7 +29,6 @@ const ComparisonList = (props: Props) => {
         
     }
 
-
     return (
         <div key={"div_" + props.list.name}>
             <Card>
@@ -51,7 +50,6 @@ const ComparisonList = (props: Props) => {
                         </Row>
                     </Col>
                 </Row>
-                
             </Card>
         </div>
     );
