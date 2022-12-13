@@ -63,9 +63,6 @@ const MyModelsPage = () => {
                     }
                     else setDataLoaded(false);
                     setLoading(false);
-                },
-                (error) => {
-                    console.error(error);
                 }
             )
         return;
