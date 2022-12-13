@@ -30,6 +30,7 @@ export const AppRouter: React.FC = () => {
             <Route path={Urls.Recognise} element={<RecognisePage />}/>
             <Route path={Urls.MyModels} element={<MyModelsPage />}/>
             <Route path={Urls.LogIn} element={<Login />}/>
+            <Route path={Urls.SignIn} element={<SignIn />}/>  
             <Route path='comparison-lists' >
               <Route path='create' element={<CreateComparisonListPage />}/>
               <Route path='' element={<ComparisonPage />}/>

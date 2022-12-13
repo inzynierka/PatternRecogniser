@@ -44,7 +44,8 @@ export default function Login() {
             .then(
                 (data) => {
                     setWaiting(false);
-                    successfullLogIn(user, data.accessToken, data.refreshToken);
+                    user.email = data.email;
+                    successfullLogIn(user, data.tokens.accessToken, data.tokens.refreshToken);
                 },
                 () => {
                     setUserNotFound(true);

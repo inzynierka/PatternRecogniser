@@ -29,7 +29,7 @@ export default function SignIn(props : Props) {
     const [reasonOfFailure, setReasonOfFailure] = useState("");
 
     const successfullSignIn = (user : any, accessToken : string, refreshToken : string) => {
-        localStorage.setItem('token', 'Bearer ' + accessToken);
+        localStorage.setItem('token', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('userId', user.login);
         localStorage.setItem('email', user.email);
