@@ -1,6 +1,6 @@
 import 'antd/dist/antd.min.css';
 
-import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, SearchOutlined, InboxOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Input, Row, Space, Tooltip, Typography } from 'antd';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -115,10 +115,17 @@ const MyModelsPage = () => {
                             <Row justify="space-around" align="middle">
                                 <Card data-testid="model-list-card" bordered={true} style={{width: "80vw"}}>
                                     {
-                                        models.length > 0 && dataLoaded ?
-                                            models.map((item: ModelType) => (<ModelListElement model={item}/> ))
+                                        displayedModels.length > 0 && dataLoaded ?
+                                            displayedModels.map((item: ModelType) => (<ModelListElement model={item}/> ))
                                             :
-                                            <p>NO DATA</p>
+                                            <div>
+                                                <Row align="middle" justify="center">
+                                                   <InboxOutlined style={{ fontSize: '10em', marginTop: "5px", color: "rgb(140, 140, 140)" }}/>
+                                                </Row>
+                                                <Row align="middle" justify="center">
+                                                    <Title level={3} type="secondary">Brak danych</Title>
+                                                </Row>
+                                            </div>
                                     }
                                 </Card>
                             </Row>
