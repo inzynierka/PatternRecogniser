@@ -100,7 +100,7 @@ const TrainPage = () => {
             }
             else {
                 setIsModelTrained(false);
-                //if(status === TrainModelMessages.modelTrainingFailed) message.error('Nie udało się wytrenować modelu.');
+                if(status === TrainModelMessages.modelTrainingFailed) message.error('Nie udało się wytrenować modelu.');
             }
           });
     };
