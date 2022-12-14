@@ -1,8 +1,8 @@
-name: Utwórz i wdróż aplikację .NET Core w aplikacji internetowej PatternRecogniser
+name: Wdróż backend na Azure oraz utwórz RestAPI .NET Core
 on:
   push:
     branches:
-    - IN-46-Frontend-integracja-z-backendem
+    - dev
 env:
   AZURE_WEBAPP_NAME: PatternRecogniser
   AZURE_WEBAPP_PACKAGE_PATH: PatternRecogniser\published
