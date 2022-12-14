@@ -34,22 +34,6 @@ namespace PatternRecogniser.Migrations
                     b.ToTable("ExperimentExperimentList");
                 });
 
-            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
-                {
-                    b.Property<string>("userLogin")
-                        .HasColumnType("text");
-
-                    b.Property<string>("hashedToken")
-                        .HasColumnType("text");
-
-                    b.Property<string>("lastSeed")
-                        .HasColumnType("text");
-
-                    b.HasKey("userLogin");
-
-                    b.ToTable("authentication");
-                });
-
             modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>
                 {
                     b.Property<int>("experimentId")
@@ -179,14 +163,29 @@ namespace PatternRecogniser.Migrations
                     b.Property<bool>("exsistUnsavePatternRecognitionExperiment")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("hashedPassword")
+                        .HasColumnType("text");
+
+                    b.Property<string>("lastCheckModel")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("lastLog")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("lastModelStatus")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("lastPatternRecognitionExperimentexperimentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("lastTrainModelName")
                         .HasColumnType("text");
+
+                    b.Property<string>("refreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("refreshTokenExpiryDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("login");
 
@@ -282,17 +281,6 @@ namespace PatternRecogniser.Migrations
                         .HasForeignKey("experimentsexperimentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("PatternRecogniser.Models.Authentication", b =>
-                {
-                    b.HasOne("PatternRecogniser.Models.User", "user")
-                        .WithMany()
-                        .HasForeignKey("userLogin")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("PatternRecogniser.Models.Experiment", b =>

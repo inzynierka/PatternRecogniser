@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import TrainPage from '../pages/Train';
+import TrainPage from '../pages/Models/Train';
 
 window.matchMedia = window.matchMedia || function() {
     return {

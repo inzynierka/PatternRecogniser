@@ -3,7 +3,7 @@ import 'antd/dist/antd.min.css';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Row, Typography } from 'antd';
 
-import { ModelType } from '../types/ModelType';
+import { ModelType } from '../../types/ModelType';
 
 const { Title } = Typography;
 

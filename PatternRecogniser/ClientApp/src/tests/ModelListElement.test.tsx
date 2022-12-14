@@ -2,8 +2,9 @@ import '@testing-library/jest-dom';
 
 import { queryByTestId, render, screen } from '@testing-library/react';
 import React from 'react';
+import { DistributionType } from '../generated/ApiService';
 
-import ModelListElement from '../pages/ModelListElement';
+import ModelListElement from '../pages/Models/ModelListElement';
 import { ModelType } from '../types/ModelType';
 
 window.matchMedia = window.matchMedia || function() {
@@ -16,7 +17,9 @@ window.matchMedia = window.matchMedia || function() {
   
 const mockedModel : ModelType = {
     name : 'mocked model name',
-    patternNum : 17
+    patternNum : 17,
+    distribution: DistributionType.TrainTest,
+    extendedModelId: 1
 }
 
 describe("ModelListPanel", () => {

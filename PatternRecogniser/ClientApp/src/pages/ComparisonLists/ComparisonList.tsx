@@ -3,7 +3,7 @@ import 'antd/dist/antd.min.css';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Row, Typography } from 'antd';
 
-import { ComparisonListType } from '../types/ComparisonType';
+import { ComparisonListType, ExperimentType } from '../../types/ComparisonType';
 
 const { Title } = Typography;
 
@@ -15,7 +15,8 @@ const ComparisonList = (props: Props) => {
     const displayElementNumber = ()  => {
         let num = props.list.elementNum
         let list = props.list
-        if(list.usedModel?.valueOf !== undefined) {
+
+        if(list.experimentType === ExperimentType.PatternRecognition) {
             if(num === 1) return num.toString() + " znak"
             if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " znaki"
             return num.toString() + " znaków"
@@ -27,7 +28,6 @@ const ComparisonList = (props: Props) => {
         }
         
     }
-
 
     return (
         <div key={"div_" + props.list.name}>
@@ -50,7 +50,6 @@ const ComparisonList = (props: Props) => {
                         </Row>
                     </Col>
                 </Row>
-                
             </Card>
         </div>
     );
