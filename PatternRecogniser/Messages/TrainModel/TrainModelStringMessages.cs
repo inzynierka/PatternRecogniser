@@ -15,7 +15,7 @@
         public string modelNotFound => "Nie znaleziono podanego modelu";
         public string userNotFound => "Użytkownik nie istnieje";
         public string alreadyAsked => "Już zapytano o stan. Model został wytrenowany lub trenowanie się nie powiodło";
-        public string youAlreadyWaitInTheQueue => "Dodałeś już model do kolejki. Poczekaj na zakączenie trenowania";
-        public string oneOfYourModelIsTraining => "Twój model jest już trenowany, poczekaj na zakączenie";
+        public string youAlreadyWaitInTheQueue => "Dodałeś już model do kolejki. Poczekaj na zakończenie trenowania";
+        public string oneOfYourModelIsTraining => "Twój model jest już trenowany, poczekaj na zakończenie";
     }
 }
