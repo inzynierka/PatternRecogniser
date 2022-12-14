@@ -12,6 +12,8 @@ namespace PatternRecogniser.ThreadsComunication
         public void SetNewUserModel(string login, string modelName);
 
         public bool IsUserModelInTraining(string login, string modelName);
+        public bool IsUserTrainingModel(string login);
+
     }
 
     public class SimpleComunicationOneToMany: ITrainingUpdate
@@ -52,6 +54,11 @@ namespace PatternRecogniser.ThreadsComunication
         public bool IsUserModelInTraining(string login, string modelName)
         {
             return _login == login && _modelName == modelName;
+        }
+
+        public bool IsUserTrainingModel(string login)
+        {
+            return _login == login;
         }
     }
 }
