@@ -50,11 +50,4 @@ describe("TrainPanel", () => {
 
         expect(trainButton).toBeDisabled();
     });
-    it("send button is disabled when no file is sent", async () => {
-        const { findByTestId } = render(<TrainPage />);
-
-        const sendButton = await findByTestId("send-button");
-
-        expect(sendButton).toBeDisabled();
-    });
 })
