@@ -23,6 +23,42 @@ namespace PatternRecogniser.Models
             this.picture = picture;
         }
         public Pattern() { }
+
+        public Pattern(string name, int[,] matrix)
+        {
+            this.name = name;
+            this.picture = IntsToByte(matrix);
+        }
+
+        public static byte[] IntsToByte(int[,] matrix)
+        {
+            int size = matrix.GetLength(0) * matrix.GetLength(1);
+            byte[] result = new byte[size];
+
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    result[i * matrix.GetLength(1) + j] = (byte)matrix[i, j];
+                }
+            }
+
+            return result;
+        }
+
+        public static int[,] ByteToInts(byte[] bytes, int rows = 28, int columns = 28)
+        {
+            int[,] result = new int[rows, columns];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    result[i, j] = bytes[i * columns + j];
+                }
+            }
+
+            return result;
+        }
     }
 
     public class PatternData 
