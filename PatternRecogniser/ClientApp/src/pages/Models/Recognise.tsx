@@ -4,8 +4,8 @@ import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, message, Row, Select, Space, Tooltip, Typography, Upload, UploadProps } from 'antd';
 import { useEffect, useState } from 'react';
 
+import { ApiService } from '../../generated/ApiService';
 import useWindowDimensions from '../../UseWindowDimensions';
-import { GetModels } from '../Common/GetModels';
 import { Loading } from '../Common/Loading';
 
 
@@ -39,6 +39,7 @@ const props: UploadProps = {
   };
 
 const RecognisePage = () => {
+    const apiService = new ApiService();
     const [form] = Form.useForm();
     const isOrientationVertical  = useWindowDimensions();
     const [usedModel , setUsedModel] = useState("");
@@ -46,25 +47,39 @@ const RecognisePage = () => {
     const [loading, setLoading] = useState(false);
     const [, setDataLoaded] = useState(false);
 
+    const parseModelData = (data : any) => {
+        let options : selectOption[] = [];
+        let option : selectOption;
+
+        data.forEach((item: any) => {
+            option = {
+                label: item.name,
+                value: item.name
+            }
+            options.push(option);
+        })
+
+        return options;
+    }
     const fetchModels = () => {
         setLoading(true);
-        let models = GetModels();
-        if(models.length > 0) {
-            setDataLoaded(true);
-            let options : selectOption[] = [];
-            models.forEach(model => {
-                let option : selectOption = {
-                    value: model.name,
-                    label: model.name
+        let token = localStorage.getItem('token') || "";
+        apiService.getModels(token)
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    if(data !== undefined) {
+                        const options = parseModelData(data);
+                        setSelectOptions(options);
+                        setDataLoaded(true);
+                    }
+                    else setDataLoaded(false);
+                    setLoading(false);
                 }
-                options.push(option);
-            })
-            setSelectOptions(options);
-        }
-        else setDataLoaded(false);
-        setLoading(false);
+            )
         return;
     }
+
     useEffect(() => {
         fetchModels();
     }, [])

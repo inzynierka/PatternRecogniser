@@ -4,9 +4,9 @@ import { Button, Card, Col, Row, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ApiService } from '../../generated/ApiService';
 import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
-import { GetModels } from '../Common/GetModels';
 import { Loading } from '../Common/Loading';
 import { NoData } from '../Common/NoData';
 import { SearchBar } from '../Common/SearchBar';
@@ -15,6 +15,7 @@ import ModelListElement from './ModelListElement';
 const { Title } = Typography;
 
 const MyModelsPage = () => {
+    const apiService = new ApiService();
     const navigate = useNavigate();
     const [models, setModels] = useState<ModelType[]>([]);
     const [displayedModels, setDisplayedModels] = useState<ModelType[]>([]);
@@ -30,15 +31,44 @@ const MyModelsPage = () => {
         navigate(Urls.Train, {replace: true});
     }
 
+    const parseModelData = (data : any) => {
+        let models : ModelType[] = [];
+        let model : ModelType;
+
+        data.forEach((item: any) => {
+            model = {
+                name: item.name,
+                patternNum: item.patterns === null ? 0 : item.patterns.length(),
+                distribution: item.distribution,
+                extendedModelId: item.extendedModelId,
+            }
+            models.push(model);
+        })
+
+        return models;
+    }
+
     const fetchModels = () => {
         setLoading(true);
-        let models = GetModels();
-        if(models.length > 0) setDataLoaded(true);
-        else setDataLoaded(false);
-        setModels(models);
-        setLoading(false);
+        let token = localStorage.getItem('token') || "";
+        apiService.getModels(token)
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    if(data !== undefined) {
+                        const models = parseModelData(data);
+
+                        setModels(models);
+                        setDisplayedModels(models);
+                        setDataLoaded(true);
+                    }
+                    else setDataLoaded(false);
+                    setLoading(false);
+                }
+            )
         return;
     }
+
     useEffect(() => {
         fetchModels();
     }, [])
