@@ -106,9 +106,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpPost("GenereteVAlidationSet")]
+        [HttpPost("GenerateVAlidationSet")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<ValidationSet> GenereteVAlidationSet(List<IFormFile> attachment, int experimentId)
+        public IEnumerable<ValidationSet> GenerateVAlidationSet(List<IFormFile> attachment, int experimentId)
         {
             var expe = _context.modelTrainingExperiment.First(expe => expe.experimentId == experimentId);
             var pattens = _context.pattern.ToList();
@@ -135,15 +135,15 @@ namespace PatternRecogniser.Controllers
 
 
         /// <summary>
-        /// GeneretePaternRecognizerExperiment. Zapytanie nie pojawi się w finalnej wersji.
+        /// GeneratePaternRecognizerExperiment. Zapytanie nie pojawi się w finalnej wersji.
         /// </summary>
         /// <returns> 
         /// string
         /// 
         /// </returns>
-        [HttpPost("GeneretePaternRecognizerExperiment")]
+        [HttpPost("GeneratePaternRecognizerExperiment")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<PatternRecognitionExperiment> GeneretePaternRecognizerExperiment(IFormFile attachment, int modelId)
+        public IEnumerable<PatternRecognitionExperiment> GeneratePaternRecognizerExperiment(IFormFile attachment, int modelId)
         {
             var expePattern = new PatternRecognitionExperiment();
             int probeblyPatternsNumber = 4;
