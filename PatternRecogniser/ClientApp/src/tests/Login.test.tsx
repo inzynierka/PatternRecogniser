@@ -100,7 +100,7 @@ describe("LoginIntegrationTests", () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ILogIn = {
-            login: "Test",
+            login: "TestAccount",
             password: "Abc123!@#"
         }
 
@@ -121,7 +121,7 @@ describe("LoginIntegrationTests", () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ILogIn = {
-            login: "Test",
+            login: "TestAccount",
             password: "badPassword"
         }
 

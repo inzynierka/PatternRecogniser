@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { ApiService, ILogIn, LogIn } from '../../generated/ApiService';
 import { Urls } from '../../types/Urls';
 import useWindowDimensions from '../../UseWindowDimensions';
+import React from 'react';
 
 const { Title } = Typography;
 

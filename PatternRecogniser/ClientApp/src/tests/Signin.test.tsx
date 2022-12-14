@@ -258,9 +258,9 @@ describe("SigninIntegrationTests", () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ISignUp = {
-            login: "Test",
+            login: "TestAccount",
             password: "Abc123!@#",
-            email: "test@patrec.com"
+            email: "test.account@patrec.com"
         }
 
         apiService.signUp(new SignUp(mockedLoginData))
@@ -278,7 +278,7 @@ describe("SigninIntegrationTests", () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ISignUp = {
-            login: "Test",
+            login: "TestAccount",
             password: "Abc123!@#",
             email: "different_test@patrec.com"
         }
@@ -300,7 +300,7 @@ describe("SigninIntegrationTests", () => {
         const mockedLoginData : ISignUp = {
             login: "DifferentTest",
             password: "Abc123!@#",
-            email: "test@patrec.com"
+            email: "test.account@patrec.com"
         }
 
         apiService.signUp(new SignUp(mockedLoginData))
