@@ -76,9 +76,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpPost("GeneretePatterns")]
+        [HttpPost("GeneratePatterns")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<Pattern> GeneretePatterns( int modelId, List<IFormFile> attachment)
+        public IEnumerable<Pattern> GeneratePatterns( int modelId, List<IFormFile> attachment)
         {
             var model = _context.extendedModel.First(model => model.extendedModelId == modelId);
             for(int i = 0; i<attachment.Count; i++)
@@ -106,9 +106,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpPost("GenereteVAlidationSet")]
+        [HttpPost("GenerateValidationSet")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<ValidationSet> GenereteVAlidationSet(List<IFormFile> attachment, int experimentId)
+        public IEnumerable<ValidationSet> GenerateValidationSet(List<IFormFile> attachment, int experimentId)
         {
             var expe = _context.modelTrainingExperiment.First(expe => expe.experimentId == experimentId);
             var pattens = _context.pattern.ToList();
@@ -135,15 +135,15 @@ namespace PatternRecogniser.Controllers
 
 
         /// <summary>
-        /// GeneretePaternRecognizerExperiment. Zapytanie nie pojawi się w finalnej wersji.
+        /// GeneratePaternRecognizerExperiment. Zapytanie nie pojawi się w finalnej wersji.
         /// </summary>
         /// <returns> 
         /// string
         /// 
         /// </returns>
-        [HttpPost("GeneretePaternRecognizerExperiment")]
+        [HttpPost("GeneratePaternRecognizerExperiment")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<PatternRecognitionExperiment> GeneretePaternRecognizerExperiment(IFormFile attachment, int modelId)
+        public IEnumerable<PatternRecognitionExperiment> GeneratePaternRecognizerExperiment(IFormFile attachment, int modelId)
         {
             var expePattern = new PatternRecognitionExperiment();
             int probeblyPatternsNumber = 4;
