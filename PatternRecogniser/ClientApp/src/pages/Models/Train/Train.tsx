@@ -4,7 +4,7 @@ import { Card, Col, message, Row, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { ApiService } from '../../../generated/ApiService';
-import { TrainModelMessages } from '../../../types/TrainModelMessages';
+import { TrainModelMessages } from '../../../types/BackendMessages';
 import useWindowDimensions from '../../../UseWindowDimensions';
 import { TrainForm } from './TrainForm';
 import Training from './Training';
@@ -18,8 +18,7 @@ const TrainPage = () => {
     const [isModelBeingTrained, setIsModelBeingTrained] = useState(false);
 
     const getUpdate = () => {
-        let token = localStorage.getItem('token') || "";
-        apiService.getModelStatus(token, "")
+        apiService.getModelStatus("")
         .then((status) => {
             if(status === TrainModelMessages.modelIsTrained || status === TrainModelMessages.modelIsInQueue) {
                 setIsModelBeingTrained(true);

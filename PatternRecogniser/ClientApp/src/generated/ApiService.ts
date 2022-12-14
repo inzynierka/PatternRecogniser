@@ -6,6 +6,7 @@
 
 import { RcFile } from "antd/lib/upload";
 import { LogOut, LogOutReason } from "../pages/Account/LogOut";
+import { TrainModelMessages } from "../types/BackendMessages";
 import { BASE_URL } from "./ApiServiceConfig";
 
 /* tslint:disable */
@@ -459,9 +460,9 @@ export class ApiService {
      * @param trainingSet (optional) 
      * @return Success
      */
-    trainModel(modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<any> {
+    trainModel(modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<string> {
         let url_ = this.baseUrl + "/TrainModel?";
-        let token = localStorage.getItem("token");
+        let token = localStorage.getItem("token") || "";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -478,9 +479,6 @@ export class ApiService {
         else
             content_.append("trainingSet", trainingSet as RcFile);
 
-        console.log("body");
-        console.log(content_)
-
         let options_: RequestInit = {
             body: content_,
             method: "POST",
@@ -494,13 +492,32 @@ export class ApiService {
         });
     }
 
-    protected processTrainModel(response: Response): Promise<any> {
+    protected processTrainModel(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+
+        if (status === 404) {
+            return this.getModelStatus("").then((status) => {
+                if(status === TrainModelMessages.modelTrainingComplete) {
+                    return Promise.resolve<string>("Trenowanie zostało zakończone");
+                }
+                else {
+                    return Promise.reject<string>(message);
+                }
+            })
+        }
+        if (status !== 200 && status !== 401) {
+            return Promise.reject<string>(message);
+        }
         if (status === 401) {
             this.process401();
-        } 
-        return Promise.resolve<any>(response);
+        }        
+        return Promise.resolve<string>(message);
     }
 
     /**
@@ -680,13 +697,14 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    getModelStatus(token: string, modelName: string | ""): Promise<string> {
+    getModelStatus(modelName: string | ""): Promise<string> {
         let url_ = this.baseUrl + "/GetModelStatus?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
             url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
         url_ = url_.replace(/[?&]$/, "");
+        let token = localStorage.getItem('token') || "";
 
         let options_: RequestInit = {
             method: "GET",
