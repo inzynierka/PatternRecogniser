@@ -106,9 +106,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpPost("GenerateVAlidationSet")]
+        [HttpPost("GenerateValidationSet")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<ValidationSet> GenerateVAlidationSet(List<IFormFile> attachment, int experimentId)
+        public IEnumerable<ValidationSet> GenerateValidationSet(List<IFormFile> attachment, int experimentId)
         {
             var expe = _context.modelTrainingExperiment.First(expe => expe.experimentId == experimentId);
             var pattens = _context.pattern.ToList();
