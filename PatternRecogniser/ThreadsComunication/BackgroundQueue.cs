@@ -15,12 +15,15 @@ namespace PatternRecogniser.ThreadsComunication
 
     public class TrainingInfo
     {
-        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType)
+        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, double trainingPercent, int sets)
         {
             this.login = login;
             this.trainingSet = trainingSet;
             this.modelName = modelName;
             this.distributionType = distributionType;
+            this.trainingPercent = trainingPercent;
+            this.sets = sets;
+
 
         }
 
@@ -28,6 +31,8 @@ namespace PatternRecogniser.ThreadsComunication
         public IFormFile trainingSet;
         public string modelName;
         public DistributionType distributionType;
+        private double trainingPercent;
+        private int sets;
     }
 
 

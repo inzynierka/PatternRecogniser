@@ -10,10 +10,15 @@ namespace PatternRecogniser.Services
 {
     public interface IAuthenticationServicis
     {
-        public  Task<Tokens> SignUp(SignUp info);
 
         public Task<LogInRespond> LogIn(LogIn info);
 
+        public bool IsEmailTaken(string email);
+        public bool IsLoginTaken(string login);
+        Task SaveUser(User userToAdd);
+        void AddRefreshTokenToUser(string refreshToken, User userToAdd);
+        Tokens CreateTokens(User userToAdd);
+        User CreateUserFromSignUpInfo(SignUp info);
     }
 
     public class AuthenticationServicis: IAuthenticationServicis
@@ -30,37 +35,56 @@ namespace PatternRecogniser.Services
             _tokenCreator = tokenCreator;
         }
 
-
-        public async Task<Tokens> SignUp( SignUp info)
+        public User CreateUserFromSignUpInfo(SignUp info)
         {
-                
+            var user = new User()
+            {
+                createDate = DateTime.Now,
+                lastLog = DateTime.Now,
+                login = info.login,
+                email = info.email
+            };
 
-                var userToAdd = new User()
-                {
-                    createDate = DateTime.Now,
-                    lastLog = DateTime.Now,
-                    login = info.login,
-                    email = info.email
-                };
+            // samo dodaje ziarno więc luzik
+            user.hashedPassword = _passwordHasher.HashPassword(user, info.password);
+            
 
-                // samo dodaje ziarno więc luzik
-                userToAdd.hashedPassword = _passwordHasher.HashPassword(userToAdd, info.password);
-                _context.user.Add(userToAdd);
-
-                var accesToken = _tokenCreator.CreateAccessToken(userToAdd);
-                var refreshToken = _tokenCreator.CreateRefreshToken();
-                // dodawanie refreshe token do bazy
-                userToAdd.refreshToken = _passwordHasher.HashPassword(userToAdd, refreshToken);
-                userToAdd.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
-
-                await _context.SaveChangesAsync();
-                return new Tokens()
-                {
-                    accessToken = accesToken,
-                    refreshToken = refreshToken
-                }; ;
+            return user;
         }
 
+        public bool IsEmailTaken(string email)
+        {
+            return _context.user.Where(user => user.email == email).FirstOrDefault() != null;
+        }
+
+        public bool IsLoginTaken(string login)
+        {
+            return _context.user.Where(user => user.login == login).FirstOrDefault() != null;
+        }
+
+        public Tokens CreateTokens(User user)
+        {
+            var accesToken = _tokenCreator.CreateAccessToken(user);
+            var refreshToken = _tokenCreator.CreateRefreshToken();
+            return new Tokens()
+            {
+                accessToken = accesToken,
+                refreshToken = refreshToken
+            }; ;
+        }
+
+        public void AddRefreshTokenToUser(string refreshToken, User user)
+        {
+            user.refreshToken = _passwordHasher.HashPassword(user, refreshToken);
+            user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
+        }
+
+
+        public async Task SaveUser(User user)
+        {
+            _context.user.Add(user);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<LogInRespond> LogIn( LogIn info)
         {

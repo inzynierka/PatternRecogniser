@@ -9,6 +9,7 @@ using PatternRecogniser.Messages.TrainModel;
 using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,6 +26,9 @@ namespace PatternRecogniser.Controllers
         private readonly ITrainingUpdate _traningUpdate;
         private PatternRecogniserDBContext _context;
         public TrainModelStringMessages _messages = new TrainModelStringMessages();
+        private double defultTrainPercent = 0.8;
+        private int defultStesNumber = 2;
+
         public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate trainingUpdate)
         {
             _context = context;
@@ -45,7 +49,7 @@ namespace PatternRecogniser.Controllers
         [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> TrainModel( string modelName,
-            DistributionType distributionType, IFormFile trainingSet)
+            DistributionType distributionType, IFormFile trainingSet, double trainingPercent, int setsNumber)
         {
             try
             {
@@ -56,8 +60,16 @@ namespace PatternRecogniser.Controllers
                 if (!(trainingSet.FileName.EndsWith(".zip")))
                     throw new Exception(_messages.incorectFileFormat);
 
+                if (distributionType == DistributionType.CrossValidation && ( trainingPercent >= 1 || trainingPercent < 0) )
+                    return BadRequest(_messages.incorectCrossValidationOption);
 
-                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
+                if (distributionType == DistributionType.TrainTest && setsNumber <= 1 )
+                    return BadRequest(_messages.incorectTrainTest);
+
+                trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
+                setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
+
+                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
                 var user = _context.user.Where(a => a.login == login).FirstOrDefault();
                 user.lastTrainModelName = modelName;
 

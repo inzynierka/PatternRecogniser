@@ -10,70 +10,56 @@ using PatternRecogniser;
 using Microsoft.AspNetCore.Identity;
 using PatternRecogniser.Services;
 using Moq;
+using PatternRecogniser.Models.Validators;
+using FluentValidation.TestHelper;
+using FluentValidation;
+using FluentValidation.TestHelper;
 
 namespace PatternRecogniserUnitTests
 {
     [TestClass]
     public class AuthenticationUnitTests
     {
-        private PatternRecogniserDBContext _context;
-        private AuthenticationController _authenticationController;
-        private IConfiguration _conf;
-        private IPasswordHasher<User> _passwordHasher;
-        private User _testedUser;
+        private SignUp signUpInfo;
         private Mock<IAuthenticationServicis> _mockRepo;
-        private AuthenticationController _controller;
         private string _testedPassword;
-        private string connectionString = "User ID=postgres;Password=AdJjYAmyKx5pXCDN7qhH;Host=containers-us-west-97.railway.app;Port=7363;Database=railway;Pooling=true;";
-
         public AuthenticationUnitTests()
         {
+            
             _mockRepo = new Mock<IAuthenticationServicis>();
-            _controller = new AuthenticationController(_mockRepo.Object);
-            _testedPassword = "password";
-            _testedUser = new User()
+            
+            signUpInfo = new SignUp()
             {
-                login = "testedUser",
-                email = "testedEmail",
-                hashedPassword = _passwordHasher.HashPassword(new User(), _testedPassword)
+                email = "tested@emial.com",
+                login = "testedLogin",
+                password = "testedPassword"
             };
+        }
+
+        public void InputDataValidatorTest()
+        {
+            _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
+        .Returns(true);
+            _mockRepo.Setup(repo => repo.IsEmailTaken(signUpInfo.email))
+        .Returns(true);
+            var _validator = new AuthentycationValidatorSingUp(_mockRepo.Object);
+            var result = _validator.Validate(signUpInfo);
+
+            //result.ShouldHaveValidationErrorFor
+
         }
 
         [TestMethod]
-        public void SignUp()
+        public void SignUp_DateValidationTest()
         {
 
+            _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
+        .Returns(true);
 
-            SignUp signUpInfo = new SignUp()
-            {
-                email = _testedUser.email,
-                login = _testedUser.login,
-                password = _testedPassword
-            };
+            var controller = new AuthenticationController(_mockRepo.Object);
+            var respond = controller.SignUp(signUpInfo);
 
-            var dbContext = new PatternRecogniserDBContext(null) ;
-            _mockRepo.Setup(repo => repo.SignUp(signUpInfo));
-
-
-            //_context.Database.BeginTransaction();
-
-            //var user = _context.user.FirstOrDefault(b => b.login == _testedUser.login);
-            //if (user != null)
-            //    _context.user.Remove(user);
-            //_context.SaveChanges();
-
-            //var respond = _authenticationController.SignUp(signUpInfo);
-            //var result = respond.Result;
-            //_context.ChangeTracker.Clear();
-
-
-            //var okResult = result as OkObjectResult;
-            //Assert.IsTrue(okResult.StatusCode == 200);
-            //var token = okResult.Value as Tokens;
-            //var addedUser = _context.user.Single(b => b.login == _testedUser.login);
-
-            //Assert.IsTrue(_passwordHasher.VerifyHashedPassword(addedUser, addedUser.refreshToken, token.refreshToken) != PasswordVerificationResult.Failed);
-        }
+         }
 
 
         [TestMethod]
@@ -81,29 +67,29 @@ namespace PatternRecogniserUnitTests
         {
 
 
-            LogIn logInInfo = new LogIn()
-            {
-                login = _testedUser.login,
-                password = _testedPassword
-            };
+            //LogIn logInInfo = new LogIn()
+            //{
+            //    login = _testedUser.login,
+            //    password = _testedPassword
+            //};
 
 
-            _context.Database.BeginTransaction();
+            //_context.Database.BeginTransaction();
 
-            var user = _context.user.FirstOrDefault(b => b.login == _testedUser.login);
-            if (user != null)
-                _context.user.Remove(user);
-            _context.user.Add(_testedUser);
-            _context.SaveChanges();
+            //var user = _context.user.FirstOrDefault(b => b.login == _testedUser.login);
+            //if (user != null)
+            //    _context.user.Remove(user);
+            //_context.user.Add(_testedUser);
+            //_context.SaveChanges();
 
-            var respond = _authenticationController.LogIn(logInInfo);
-            var result = respond.Result;
-            _context.ChangeTracker.Clear();
+            //var respond = _authenticationController.LogIn(logInInfo);
+            //var result = respond.Result;
+            //_context.ChangeTracker.Clear();
 
 
-            var okResult = result as OkObjectResult;
+            //var okResult = result as OkObjectResult;
 
-            Assert.IsTrue(okResult.StatusCode == 200);
+            //Assert.IsTrue(okResult.StatusCode == 200);
         }
     }
 }

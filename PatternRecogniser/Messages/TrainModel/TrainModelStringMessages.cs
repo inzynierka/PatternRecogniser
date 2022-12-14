@@ -15,5 +15,7 @@
         public string modelNotFound => "Nie znaleziono podanego modelu";
         public string userNotFound => "Użytkownik nie istnieje";
         public string alreadyAsked => "Już zapytano o stan. Model został wytrenowany lub trenowanie się nie powiodło";
+        public string incorectTrainTest => "Podano niewłłaściwe proporcje";
+        public string incorectCrossValidationOption => "Podana liczba podzbiorów jest za mała";
     }
 }

@@ -67,16 +67,23 @@ namespace PatternRecogniser.Services
         {
 
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
+            User user;
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+                user = dbContext.user.First(u => u.login == info.login);
+            }
 
-            var model = new ExtendedModel()
+                var model = new ExtendedModel()
             {
                 name = info.modelName,
                 userLogin = info.login,
                 distribution = info.distributionType
             };
+
             model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken);
 
-            if (new Random().NextDouble() > 0.5)
+            if (new Random().NextDouble() > 0.1) // symulacja porażki trenowania
             {
                 // tutaj byśmy zapisywali wyniki trenowania
                 using (var scope = _serviceScopeFactory.CreateScope())

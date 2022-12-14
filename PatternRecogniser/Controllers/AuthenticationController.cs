@@ -39,8 +39,17 @@ namespace PatternRecogniser.Controllers
                 return BadRequest(ModelState);
             }
 
-            var respond = await _authenticationServicis.SignUp(info);
-            return Ok(respond);
+            var userToAdd = _authenticationServicis.CreateUserFromSignUpInfo(info);
+
+
+            Tokens tokens = _authenticationServicis.CreateTokens(userToAdd);
+            // dodawanie refreshe token do bazy
+            _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
+
+            await _authenticationServicis.SaveUser(userToAdd);
+
+
+            return Ok(tokens);
         }
 
 

@@ -1,13 +1,14 @@
 ﻿using PatternRecogniser.Messages.Authorization;
 using FluentValidation;
 using System.Linq;
+using PatternRecogniser.Services;
 
 namespace PatternRecogniser.Models.Validators
 {
     public class AuthentycationValidatorSingUp : AbstractValidator<SignUp>
     {
         private AuthenticationStringMesseges _message = new AuthenticationStringMesseges();
-        public AuthentycationValidatorSingUp(PatternRecogniserDBContext dbContext)
+        public AuthentycationValidatorSingUp(IAuthenticationServicis AuthenticationRepo)
         {
             RuleFor(x => x.email).NotEmpty().EmailAddress();
 
@@ -16,17 +17,14 @@ namespace PatternRecogniser.Models.Validators
             RuleFor(x => x.email).
                 Custom((value, context) =>
             {
-                
-                bool isEmailTaken = dbContext.user.Where(user => user.email == value).FirstOrDefault() != null;
-                if (isEmailTaken)
+                if (AuthenticationRepo.IsEmailTaken(value))
                     context.AddFailure("email", _message.emailIsTaken);
             });
 
             RuleFor(x => x.login).
                 Custom((value, context) =>
                 {
-                    bool isLoginTaken = dbContext.user.Where(user => user.login == value).FirstOrDefault() != null;
-                    if (isLoginTaken)
+                    if  (AuthenticationRepo.IsLoginTaken(value))
                         context.AddFailure("login", _message.loginIsTaken);
                 });
         }
