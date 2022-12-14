@@ -81,6 +81,7 @@ const AddToComparisonListPage = (props : Props) => {
             .then(
                 (data) => {
                     if(data !== undefined) {
+                        console.log(data);
                         const models = parseModelData(data);
 
                         setModels(models);
