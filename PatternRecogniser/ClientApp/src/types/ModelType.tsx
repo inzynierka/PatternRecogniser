@@ -4,4 +4,3 @@ export interface ModelType {
     distribution: number,
     extendedModelId: number,
 }
-

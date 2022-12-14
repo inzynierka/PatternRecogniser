@@ -36,6 +36,9 @@ const MyModelsPage = () => {
         .then(
             (data) => {
                 message.success("Pomyślnie usunięto model " + modelName)
+                setDisplayedModels(displayedModels.filter(item => item.name !== modelName))
+                setModels(models.filter(item => item.name !== modelName))
+                setDeletedModel(true);
             },
             (error) => {
                 error.then(
@@ -46,10 +49,9 @@ const MyModelsPage = () => {
                 )
             }
         )
-        .catch(error => message.error("Nie udało się usunąć modelu"))
-        setDisplayedModels(displayedModels.filter(item => item.name !== modelName))
-        setModels(models.filter(item => item.name !== modelName))
-        setDeletedModel(true);
+        .catch(error => {
+            message.error("Nie udało się usunąć modelu")
+        })
     }
 
     const parseModelData = (data : any) => {
