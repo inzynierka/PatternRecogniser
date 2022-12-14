@@ -49,6 +49,7 @@ namespace PatternRecogniser.Models
         {
 
             this.distribution = distribution;
+            modelTrainingExperiment = new ModelTrainingExperiment ();
             // trenowanie 
             /*for (int i = 0; i < 3; i++)
             {
@@ -122,11 +123,31 @@ namespace PatternRecogniser.Models
 
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
         {
-            var toRecognise = new List<int[,]> { user.NormaliseData(picture) };
-            NDArray nDArray = new NDArray (toRecognise.ToArray());
-            var result = model.Apply (nDArray, training: false); // i coś z result odczytujemy
+            var toReturn = new List<RecognisedPatterns> ();
+            var toRecognise = user.NormaliseData(picture);
+            float[] pic = new float[toRecognise.GetLength(0) * toRecognise.GetLength(1)];
+            int i = 0;
+            foreach (var pixel in toRecognise)
+            {
+                pic[i] = pixel;
+                i++;
+            }
+            Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
+            var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
+            foreach (var r in result)
+            {
+                foreach (var rn in r.numpy())
+                {
+                    foreach (var rnn in rn.numpy())
+                    {
+                        RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
+                        recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
+                        toReturn.Add (recognisedPattern);
+                    }
+                }
+            }
 
-            return new List<RecognisedPatterns>(); // returns a string that follows json formatting
+            return toReturn; 
         }
 
         private void TrainIndividualModel(PatternData train, PatternData test) 
@@ -221,11 +242,14 @@ namespace PatternRecogniser.Models
             {
                 var pred = neural_net.Apply (x_test, training: false);
                 modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
+                //precision (pred, y_test);
                 //print ($"Test Accuracy: {this.accuracy}"); // commented
                 // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
             }
 
             model = neural_net; // added
+            modelTrainingExperiment.extendedModel = this;
+            //modelTrainingExperiment.precision = model.
         }
     }
 }

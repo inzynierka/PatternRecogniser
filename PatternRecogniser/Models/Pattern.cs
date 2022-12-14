@@ -113,8 +113,8 @@ namespace PatternRecogniser.Models
                     }
                     pictures.Add(arr);
                     classes.Add (k);
-                    k++;
                 }
+                k++; // klasę zmieniamy gdy skończymy jedną listę 
             }
             x_arr = ops.convert_to_tensor (pictures.ToArray (), TF_DataType.TF_FLOAT);
             y_arr = ops.convert_to_tensor(classes.ToArray(), TF_DataType.TF_INT32);
