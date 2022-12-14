@@ -51,8 +51,7 @@ const ComparisonPage = () => {
 
     const fetchLists = () => {
         setLoading(true);
-        let token = localStorage.getItem('token') || "";
-        apiService.getLists(token)
+        apiService.getLists()
             .then(response => response.json())
             .then(
                 (data) => {
@@ -72,6 +71,10 @@ const ComparisonPage = () => {
     useEffect(() => {
         fetchLists();
     }, [])
+
+    const deleteListHandler = (listName : string) => {
+        console.log("unimplemented, Deleting list:", listName);
+    }
 
     return (
         <div>
@@ -95,7 +98,7 @@ const ComparisonPage = () => {
                                         <Loading />
                                         :
                                         displayedLists.length > 0 && dataLoaded ?
-                                            displayedLists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name}/> ))
+                                            displayedLists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name} deleteList={deleteListHandler}/> ))
                                             :
                                             <NoData />
                                     }

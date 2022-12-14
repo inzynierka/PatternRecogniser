@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 
-import ComparisonPage from '../pages/ComparisonLists/ComparisonLists';
-import CreateComparisonListPage from '../pages/ComparisonLists/CreateComparisonList';
 import Login from '../pages/Account/Login';
 import MyAccountPage from '../pages/Account/MyAccount';
+import SignIn from '../pages/Account/Signin';
+import ComparisonPage from '../pages/ComparisonLists/ComparisonLists';
+import AddToComparisonListPage from '../pages/ComparisonLists/AddToComparisonList';
 import MyModelsPage from '../pages/Models/MyModels';
 import RecognisePage from '../pages/Models/Recognise';
-import SignIn from '../pages/Account/Signin';
-import TrainPage from '../pages/Models/Train';
+import TrainPage from '../pages/Models/Train/Train';
 import { Urls } from '../types/Urls';
 import NotFound from './NotFound';
 
@@ -32,7 +32,8 @@ export const AppRouter: React.FC = () => {
             <Route path={Urls.LogIn} element={<Login />}/>
             <Route path={Urls.SignIn} element={<SignIn />}/>  
             <Route path='comparison-lists' >
-              <Route path='create' element={<CreateComparisonListPage />}/>
+              <Route path='create' element={<AddToComparisonListPage creating={true} />}/>
+              <Route path='add-to-list/:listName' element={<AddToComparisonListPage creating={false}/>}/>
               <Route path='' element={<ComparisonPage />}/>
             </Route>
             <Route path='/my-account/:accountName' element={<MyAccountPage />}/>

@@ -66,7 +66,7 @@ describe("LoginPanel", () => {
         requiresNotEmpty("password-input", otherElements, "login-form", <Login/>)
     });
 
-    it("invalid user can't log in", async () => {
+    it("invalid user cannot log in", async () => {
         const { findByTestId } = renderComponentWithRouter(<Login/>);
         const loginForm = await findByTestId("login-form");
         const loginInput = await findByTestId("login-input");
@@ -93,31 +93,6 @@ describe("LoginPanel", () => {
     it("login button reacts to click", async () => {
         reactsOnClicking("login-button", <Login/>);
     });
-
-    it("valid user can log in", async () => {
-        const { findByTestId } = renderComponentWithRouter(<Login/>);
-        const loginForm = await findByTestId("login-form");
-        const loginInput = await findByTestId("login-input");
-        const passwordInput = await findByTestId("password-input");
-      
-        fireEvent.change(loginInput, { target: { value: "admin" } });
-        fireEvent.change(passwordInput, { target: { value: "admin" } });
-
-        expect(loginForm).toHaveFormValues({
-            "login-input": "admin",
-            "password-input": "admin"
-        });
-
-        // the function below works, but only when called individually
-        // or within LoginPanel describtion. When all tests are being run
-        // at the same time, function window.location.reload() causes problems
-
-        // fireEvent.submit(loginForm);
-        // await waitFor(() => {
-        //     // data is saved in local storage ONLY after successful login
-        //     expect(localStorage.getItem("userId")).toBe("admin");
-        // });
-    });
 })
 
 describe("LoginIntegrationTests", () => {
@@ -125,7 +100,7 @@ describe("LoginIntegrationTests", () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ILogIn = {
-            login: "Test",
+            login: "TestAccount",
             password: "Abc123!@#"
         }
 
@@ -142,11 +117,11 @@ describe("LoginIntegrationTests", () => {
                 }
             )
     });
-    it("invalid user can't log in", async () => {
+    it("invalid user cannot log in", async () => {
         const apiService = new ApiService();
 
         const mockedLoginData : ILogIn = {
-            login: "Test",
+            login: "TestAccount",
             password: "badPassword"
         }
 

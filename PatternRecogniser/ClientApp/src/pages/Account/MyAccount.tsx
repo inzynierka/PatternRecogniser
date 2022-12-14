@@ -3,6 +3,7 @@ import 'antd/dist/antd.min.css';
 import { Button, Card, Col, Row, Typography } from 'antd';
 
 import useWindowDimensions from '../../UseWindowDimensions';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -41,9 +42,9 @@ const MyAccountPage = () => {
                                     </Col>
                                     <Col>
                                         <Row justify="space-around" align="middle">
-                                            <p style={{fontSize: "1.5em"}}>{localStorage.getItem('email')}</p>
+                                            <p data-testid="email-displayer" style={{fontSize: "1.5em"}}>{localStorage.getItem('email')}</p>
                                         </Row>
-                                        <Row justify="space-around" align="middle">
+                                        <Row data-testid="userId-displayer" justify="space-around" align="middle">
                                             <p style={{fontSize: "1.5em"}}>{localStorage.getItem('userId')}</p>
                                         </Row>
                                     </Col>

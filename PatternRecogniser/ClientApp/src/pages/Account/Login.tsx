@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { ApiService, ILogIn, LogIn } from '../../generated/ApiService';
 import { Urls } from '../../types/Urls';
 import useWindowDimensions from '../../UseWindowDimensions';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -25,11 +26,12 @@ export default function Login() {
         localStorage.setItem('userId', user.login);
         localStorage.setItem('email', user.email);
 
-        message.success('Logged in succesfully!');
         setUserNotFound(false);
         setWaiting(true);
         navigate(Urls.Train, { replace: true });
-        window.location.reload();
+        message.success('Logged in succesfully!', 1, () => {
+            window.location.reload()
+        });
     }
 
     const loginHandler = (user : any) => {

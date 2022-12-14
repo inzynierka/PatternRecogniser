@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import TrainPage from '../pages/Models/Train';
+import TrainPage from '../pages/Models/Train/Train';
 
 window.matchMedia = window.matchMedia || function() {
     return {
@@ -49,12 +49,5 @@ describe("TrainPanel", () => {
         const trainButton = await findByTestId("train-button");
 
         expect(trainButton).toBeDisabled();
-    });
-    it("send button is disabled when no file is sent", async () => {
-        const { findByTestId } = render(<TrainPage />);
-
-        const sendButton = await findByTestId("send-button");
-
-        expect(sendButton).toBeDisabled();
     });
 })

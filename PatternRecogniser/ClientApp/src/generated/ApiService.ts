@@ -3,10 +3,13 @@
 //     Generated using the NSwag toolchain v13.18.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v12.0.0.0)) (http://NSwag.org)
 // </auto-generated>
 //----------------------
+import { RcFile } from 'antd/lib/upload';
 
-import { RcFile } from "antd/lib/upload";
-import { LogOut, LogOutReason } from "../pages/Account/LogOut";
-import { BASE_URL } from "./ApiServiceConfig";
+import { TrainModelMessages } from '../components/BackendMessages';
+import { LogOut, LogOutReason } from '../pages/Account/LogOut';
+import { ExperimentType } from '../types/ExperimentListType';
+import { BASE_URL } from './ApiServiceConfig';
+
 
 /* tslint:disable */
 /* eslint-disable */
@@ -91,7 +94,7 @@ export class ApiService {
      * @param experimentType (optional) 
      * @return Success
      */
-    createExperimentList(experimentListName: string | undefined, experimentType: string | undefined): Promise<void> {
+    createExperimentList(experimentListName: string, experimentType: string): Promise<any> {
         let url_ = this.baseUrl + "/createExperimentList?";
         if (experimentListName === null)
             throw new Error("The parameter 'experimentListName' cannot be null.");
@@ -106,6 +109,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -114,19 +118,22 @@ export class ApiService {
         });
     }
 
-    protected processCreateExperimentList(response: Response): Promise<void> {
+    protected processCreateExperimentList(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        if(status !== 200) {
+            return Promise.reject<any>(message);
+        }
+        return Promise.resolve<any>(message);
+        //return Promise.resolve<any>(response);
     }
 
     /**
@@ -135,7 +142,7 @@ export class ApiService {
      * @param experimentId (optional) 
      * @return Success
      */
-    addModelTrainingExperiment(experimentListName: string | undefined, experimentId: number | undefined): Promise<void> {
+    addModelTrainingExperiment(experimentListName: string | undefined, experimentId: number | undefined): Promise<any> {
         let url_ = this.baseUrl + "/addModelTrainingExperiment?";
         if (experimentListName === null)
             throw new Error("The parameter 'experimentListName' cannot be null.");
@@ -150,6 +157,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -158,19 +166,22 @@ export class ApiService {
         });
     }
 
-    protected processAddModelTrainingExperiment(response: Response): Promise<void> {
+    protected processAddModelTrainingExperiment(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        if(status !== 200) {
+            return Promise.reject<any>(message);
+        }
+        return Promise.resolve<any>(message);
+        //return Promise.resolve<any>(response);
     }
 
     /**
@@ -216,14 +227,14 @@ export class ApiService {
      * Pobiera listy
      * @return Success
      */
-    getLists(token : string): Promise<any> {
+    getLists(): Promise<any> {
         let url_ = this.baseUrl + "/GetLists";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -286,8 +297,9 @@ export class ApiService {
      * @param pattern (optional) 
      * @return Success
      */
-    patternRecognition(modelName: string | undefined, pattern: FileParameter | undefined): Promise<void> {
+    patternRecognition(modelName: string | undefined, pattern: RcFile | undefined): Promise<any> {
         let url_ = this.baseUrl + "/PatternRecognition?";
+         
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -298,12 +310,13 @@ export class ApiService {
         if (pattern === null || pattern === undefined)
             throw new Error("The parameter 'pattern' cannot be null.");
         else
-            content_.append("pattern", pattern.data, pattern.fileName ? pattern.fileName : "pattern");
+            content_.append("pattern", pattern, pattern.name ? pattern.name : "pattern");
 
         let options_: RequestInit = {
             body: content_,
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -312,19 +325,13 @@ export class ApiService {
         });
     }
 
-    protected processPatternRecognition(response: Response): Promise<void> {
+    protected processPatternRecognition(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
     }
 
     /**
@@ -418,8 +425,11 @@ export class ApiService {
                         localStorage.setItem("refreshToken", data.refreshToken);
                     }
                 }
-            );
-        console.log("Refreshed token");
+            )
+            .then(() => {
+                console.log("Refreshed token");
+                window.location.reload();
+            })
     }
 
     /**
@@ -462,8 +472,9 @@ export class ApiService {
      * @param trainingSet (optional) 
      * @return Success
      */
-    trainModel(token : string, modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<any> {
+    trainModel(modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<string> {
         let url_ = this.baseUrl + "/TrainModel?";
+        let token = localStorage.getItem("token") || "";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -478,16 +489,13 @@ export class ApiService {
         if (trainingSet === null || trainingSet === undefined)
             throw new Error("The parameter 'trainingSet' cannot be null.");
         else
-            content_.append("trainingSet", trainingSet);
-
-        console.log("body");
-        console.log(content_)
+            content_.append("trainingSet", trainingSet as RcFile);
 
         let options_: RequestInit = {
             body: content_,
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -496,13 +504,32 @@ export class ApiService {
         });
     }
 
-    protected processTrainModel(response: Response): Promise<any> {
+    protected processTrainModel(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+
+        if (status === 404) {
+            return this.getModelStatus("").then((status) => {
+                if(status === TrainModelMessages.modelTrainingComplete) {
+                    return Promise.resolve<string>("Trenowanie zostało zakończone");
+                }
+                else {
+                    return Promise.reject<string>(message);
+                }
+            })
+        }
+        if (status !== 200 && status !== 401) {
+            return Promise.reject<string>(message);
+        }
         if (status === 401) {
             this.process401();
-        } 
-        return Promise.resolve<any>(response);
+        }        
+        return Promise.resolve<string>(message);
     }
 
     /**
@@ -578,18 +605,19 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    trainUpdate(token : string, modelName: string | ""): Promise<any> {
+    trainUpdate(modelName: string | ""): Promise<any> {
         let url_ = this.baseUrl + "/TrainUpdate?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
             url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
         url_ = url_.replace(/[?&]$/, "");
+         
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -650,14 +678,14 @@ export class ApiService {
      * Pobiera modele
      * @return Success
      */
-    getModels(token : string): Promise<any> {
+    getModels(): Promise<any> {
         let url_ = this.baseUrl + "/GetModels";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -680,7 +708,49 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    getModelStatus(token: string, modelName: string | ""): Promise<string> {
+    deleteModel(modelName: string | undefined): Promise<any> {
+        let url_ = this.baseUrl + "/DeleteModel?";
+        if (modelName === null)
+            throw new Error("The parameter 'modelName' cannot be null.");
+        else if (modelName !== undefined)
+            url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteModel(_response);
+        });
+    }
+
+    protected processDeleteModel(response: Response): Promise<any> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 401) {
+            this.process401();
+        }
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        if(status === 200 || status === 204) {
+            return Promise.resolve<any>(message);
+        }
+        return Promise.reject<any>(message || response.statusText);
+    }
+
+    /**
+     * Pobiera aktualny status modelu
+     * @param modelName (optional) 
+     * @return Success
+     */
+    getModelStatus(modelName: string | ""): Promise<string> {
         let url_ = this.baseUrl + "/GetModelStatus?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
@@ -691,7 +761,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 

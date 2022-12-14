@@ -1,16 +1,17 @@
 import 'antd/dist/antd.min.css';
 
-import { Button, Card, Col, Row, Typography } from 'antd';
+import { Button, Card, Col, message, Row, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ApiService } from '../../generated/ApiService';
 import { ModelType } from '../../types/ModelType';
 import { Urls } from '../../types/Urls';
+import { Loading } from '../Common/Loading';
 import { NoData } from '../Common/NoData';
 import { SearchBar } from '../Common/SearchBar';
 import ModelListElement from './ModelListElement';
-import { Loading } from '../Common/Loading';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -21,14 +22,34 @@ const MyModelsPage = () => {
     const [displayedModels, setDisplayedModels] = useState<ModelType[]>([]);
     const [loading, setLoading] = useState(false);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const [deletedModel, setDeletedModel] = useState(false);
     
     const filter = (e : any) => {
         let searchName = e.target.defaultValue
         setDisplayedModels(models.filter(item => item.name.toLowerCase().includes(searchName.toLowerCase())))
     }
-
     const addNewModelHandler = () => {
         navigate(Urls.Train, {replace: true});
+    }
+    const deleteModelHandler = (modelName : string) => {
+        apiService.deleteModel(modelName)
+        .then(
+            (data) => {
+                message.success("Pomyślnie usunięto model " + modelName)
+            },
+            (error) => {
+                error.then(
+                    (value: string) => {
+                        message.error("Nie udało się usunąć modelu " + modelName)
+                        console.error("Delete failed because " + value);
+                    }
+                )
+            }
+        )
+        .catch(error => message.error("Nie udało się usunąć modelu"))
+        setDisplayedModels(displayedModels.filter(item => item.name !== modelName))
+        setModels(models.filter(item => item.name !== modelName))
+        setDeletedModel(true);
     }
 
     const parseModelData = (data : any) => {
@@ -47,11 +68,9 @@ const MyModelsPage = () => {
 
         return models;
     }
-
     const fetchModels = () => {
         setLoading(true);
-        let token = localStorage.getItem('token') || "";
-        apiService.getModels(token)
+        apiService.getModels()
             .then(response => response.json())
             .then(
                 (data) => {
@@ -66,12 +85,12 @@ const MyModelsPage = () => {
                     setLoading(false);
                 }
             )
+        setDeletedModel(false);
         return;
     }
-
     useEffect(() => {
         fetchModels();
-    }, [])
+    }, [setDeletedModel])
 
     return (
         <div>
@@ -95,7 +114,7 @@ const MyModelsPage = () => {
                                         <Loading />
                                         :
                                         displayedModels.length > 0 && dataLoaded ?
-                                            displayedModels.map((item: ModelType) => (<ModelListElement model={item} key={item.name}/> ))
+                                            displayedModels.map((item: ModelType) => (<ModelListElement model={item} key={item.name} deleteModel={deleteModelHandler}/> ))
                                             :
                                             <NoData />
                                     }
