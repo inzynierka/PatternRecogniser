@@ -1,0 +1,1 @@
+export const BASE_URL = "https://patternrecogniser-apim.azure-api.net" //"https://localhost:44314"

@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { screen } from '@testing-library/react';
 import React from 'react';
 
-import ComparisonLists from '../pages/ComparisonLists';
+import ComparisonLists from '../pages/ComparisonLists/ComparisonLists';
 import { renderComponentWithRouter } from './util';
 
 window.matchMedia = window.matchMedia || function() {

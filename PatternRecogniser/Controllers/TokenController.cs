@@ -33,7 +33,7 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> Refresh([FromBody] Tokens tokens)
         {
             if (tokens is null)
-                return BadRequest(_messeges.invalidClientRequest);
+                return Unauthorized(_messeges.invalidClientRequest);
             string accessToken = tokens.accessToken;
             string refreshToken = tokens.refreshToken;
 
@@ -44,7 +44,7 @@ namespace PatternRecogniser.Controllers
             if (user is null ||
                 _passwordHasher.VerifyHashedPassword(user, user.refreshToken, refreshToken) == PasswordVerificationResult.Failed||
                 user.refreshTokenExpiryDate <= DateTime.Now)
-                return BadRequest(_messeges.invalidClientRequest);
+                return Unauthorized(_messeges.invalidClientRequest);
 
             var newAccessToken = _tokenCreator.CreateAccessToken(user);
             var newRefreshToken = _tokenCreator.CreateRefreshToken();

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Lib.AspNetCore.ServerSentEvents;
+using Lib.AspNetCore.ServerSentEvents.Internals;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,15 +14,7 @@ using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
-    public enum ModelStatus
-    {
-        InQueue,
-        Training,
-        TrainingComplete,
-        TrainingFailed,
-        NotFound,
-
-    }
+    
 
     [Route("")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -56,18 +50,18 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                //if (GetStatus(login, modelName) != ModelStatus.NotFound)
-                //    return BadRequest(_messages.modelAlreadyExist);
+                if (GetStatus(login, modelName) != ModelStatus.NotFound)
+                    return BadRequest(_messages.modelAlreadyExist);
 
-                //if ( ! (trainingSet.FileName.EndsWith(".zip")) )
-                //    throw new Exception(_messages.incorectFileFormat);
+                if (!(trainingSet.FileName.EndsWith(".zip")))
+                    throw new Exception(_messages.incorectFileFormat);
 
 
-                //_trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
-                //var user = _context.user.Where(a => a.login == login).FirstOrDefault();
-                //user.lastTrainModelName = modelName;
+                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType));
+                var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+                user.lastTrainModelName = modelName;
 
-                //await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 return NumberInQueue();
             }
@@ -164,34 +158,88 @@ namespace PatternRecogniser.Controllers
             return Ok(models);
         }
 
-
         /// <summary>
         /// Pobiera aktualny status modelu
         /// </summary>
         /// <description></description>
         /// <returns></returns>
-        [HttpGet("GetModelStatus")]
-        public IActionResult GetModelStatus(string modelName)
+        [HttpDelete("DeleteModel")]
+        public async Task<IActionResult> DeleteModel(string modelName)
+        {
+            try
+            {
+                string login = User.Identity.Name;
+                var model = _context.extendedModel.FirstOrDefault(model => model.name == modelName && model.userLogin == login);
+                if (model == null)
+                    return Ok();
+
+                _context.extendedModel.Remove(model);
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
+
+            /// <summary>
+            /// Pobiera aktualny status modelu
+            /// </summary>
+            /// <description></description>
+            /// <returns></returns>
+            [HttpGet("GetModelStatus")]
+        public async Task<IActionResult> GetModelStatus(string modelName)
         {
             string login = User.Identity.Name;
+            var user = _context.user.Where(user => user.login == login).FirstOrDefault();
+            if (user == null)
+                return NotFound(_messages.userNotFound);
+
             if (string.IsNullOrEmpty(modelName))
-                modelName = _context.user.Where(user => user.login == login).FirstOrDefault()?.lastTrainModelName;
+                modelName = user.lastTrainModelName;
 
             var status = GetStatus( login,  modelName);
 
+            if (user.lastModelStatus == status && user.lastCheckModel == modelName &&
+                (status == ModelStatus.TrainingFailed || status == ModelStatus.TrainingComplete))
+                return Ok(new GetModelStatusRespond()
+                {
+                    modelName = modelName,
+                    messege = _messages.alreadyAsked
+                });
+
+
+            string message = null;
+
             if (status == ModelStatus.InQueue)
-                return Ok(_messages.modelIsInQueue);
+                message = _messages.modelIsInQueue;
 
             if (status == ModelStatus.Training)
-                return Ok(_messages.modelIsTrained);
+                message = _messages.modelIsTrained;
 
             if (status == ModelStatus.TrainingComplete)
-                return Ok(_messages.modelTrainingComplete);
+                message = _messages.modelTrainingComplete;
 
             if (status == ModelStatus.TrainingFailed)
-                return Ok(_messages.modelTrainingFailed);
+                message = _messages.modelTrainingFailed;
 
-            return NotFound(_messages.modelNotFound);
+            if (status == ModelStatus.NotFound)
+                message = _messages.modelNotFound;
+
+            user.lastModelStatus = status;
+            user.lastCheckModel = modelName;
+            await _context.SaveChangesAsync();
+
+
+            return Ok(new GetModelStatusRespond()
+            {
+                modelName = modelName,
+                messege = message
+            });
         }
 
 
@@ -209,7 +257,9 @@ namespace PatternRecogniser.Controllers
 
             var user = _context.user.Where(a => a.login == login).FirstOrDefault();
 
-            if (user != null && user.lastTrainModelName == modelName)
+            if (user != null && 
+                user.lastTrainModelName != null  && 
+                user.lastTrainModelName == modelName)
                 return ModelStatus.TrainingFailed;
 
             return ModelStatus.NotFound;

@@ -1,0 +1,39 @@
+name: Utwórz i wdróż aplikację .NET Core w aplikacji internetowej PatternRecogniser
+on:
+  push:
+    branches:
+    - IN-46-Frontend-integracja-z-backendem
+env:
+  AZURE_WEBAPP_NAME: PatternRecogniser
+  AZURE_WEBAPP_PACKAGE_PATH: PatternRecogniser\published
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 5.0.x
+  WORKING_DIRECTORY: PatternRecogniser
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Restore
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+    - name: Build
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Test
+      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+    - name: Publish
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+    - name: Deploy to Azure WebApp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.PatternRecogniser_FFFF }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    - name: Publish Artifacts
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: webapp
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}

@@ -2,9 +2,11 @@ import './NavMenu.css';
 import 'antd/dist/antd.min.css';
 
 import { UserOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Layout, Menu, message, Row } from 'antd';
+import { Button, Dropdown, Layout, Menu, Row } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from 'reactstrap';
+
+import { LogOut, LogOutReason } from '../pages/Account/LogOut';
 
 const { Header } = Layout;
 
@@ -24,8 +26,7 @@ export function NavMenu() {
     return isUserAuthenticated ? to : "/login"
   }
   const logout = () => {
-    localStorage.clear();
-    message.success('Logged out succesfully!');
+    LogOut(LogOutReason.userLoggedOut);
   }
 
   const accountMenu = (

@@ -25,6 +25,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Lib.AspNetCore.ServerSentEvents;
 
 namespace PatternRecogniser
 {
@@ -55,8 +56,11 @@ namespace PatternRecogniser
             {
                 cfg.RequireHttpsMetadata = false;
                 cfg.SaveToken = true;
+                
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = authenticationSettings.JwtIssuer,
                     ValidAudience = authenticationSettings.JwtIssuer,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
@@ -108,7 +112,7 @@ namespace PatternRecogniser
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "Przed tokenem nalezy umiescis slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
+                    Description = "Przed tokenem nalezy umiescic slowo \"Bearer\". Token i \"Bearer\" powinny byc oddzielone pojedyncza spacja",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
@@ -130,10 +134,10 @@ namespace PatternRecogniser
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
@@ -151,9 +155,18 @@ namespace PatternRecogniser
             app.UseStaticFiles();
 
             app.UseRouting();
-            
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                                                    //.WithOrigins("https://localhost:44351")); // Allow only this origin can also have multiple origins separated with comma
+                .AllowCredentials()); // allow credentials
 
             app.UseAuthorization();
+
+            //app.UseMiddleware<ServerSentEventsMiddleware>()
 
             app.UseEndpoints(endpoints =>
             {
