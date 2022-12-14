@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace PatternRecogniser.Models
         //private Model model; 
 
         // tymczasowo asynchroniczna w celu testowania
-        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken) // nie potrzebne CancellationToken w późniejszym programie
+        public async Task TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile trainingSet, CancellationToken stoppingToken) // nie potrzebne CancellationToken w późniejszym programie
         {
 
             this.distribution = distribution;
