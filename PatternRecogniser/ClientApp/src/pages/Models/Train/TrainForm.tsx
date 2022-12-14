@@ -295,7 +295,12 @@ export const TrainForm = (trainFormProps : TrainFormProps) => {
                     </Row>
                 </Form>
             </Row>
-            {/* {
+            
+            {
+            // absolutnie nie wiem czemu to nie działa...
+            // kod wygląda dobrze, ale nie wyświetla się alert gdy powinien....
+            // niestety react bywa złośliwy
+            /* {
                 <Row justify='center' align="middle">
                     <Alert
                         message="Nie można wytrenować modelu."
@@ -305,7 +310,7 @@ export const TrainForm = (trainFormProps : TrainFormProps) => {
                         style={{width: isOrientationVertical ? "25vw" : "40vw" }}
                     />
                 </Row>
-            }             */}
+            } */}
         </div>
     )
 }

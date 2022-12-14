@@ -1,7 +1,7 @@
 import 'antd/dist/antd.min.css';
 
 import { DeleteOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Row, Typography } from 'antd';
+import { Button, Card, Col, message, Row, Typography } from 'antd';
 
 import { ModelType } from '../../types/ModelType';
 import { ApiService } from '../../generated/ApiService';
@@ -13,6 +13,7 @@ interface Props {
     model: ModelType
     addingToList?: boolean
     deleteModel?: Function
+    listName?: string
 }
 
 const ModelListElement = (props: Props) => {
@@ -22,11 +23,31 @@ const ModelListElement = (props: Props) => {
         return num.toString() + " symboli"
     }
 
+    const detailsHandler = () => {
+        console.log("Details for", props.model.name);
+    }
     const deleteModelHandle = () => {
         if(props.deleteModel !== undefined )
             props.deleteModel(props.model.name);
     }
+    const addToListHandle = () => {
+        let apiService = new ApiService();
 
+        apiService.addModelTrainingExperiment(props.listName, props.model.extendedModelId)
+        .then((response) => {
+            message.success("Dodano model do listy");
+            console.log(response);
+        })
+        .catch((error) => {
+            error.then(
+                (value: string) => {
+                    message.error("Nie udało się dodać modelu do listy");
+                    console.error("Coudln't add list ("+props.listName+"):", value, props.model.extendedModelId);
+                }
+            )
+            
+        });
+    }
     return (
         <div key={"div_" + props.model.name}>
             <Card>
@@ -45,6 +66,7 @@ const ModelListElement = (props: Props) => {
                                         style={{width: "100px", marginBottom: '10px'}} 
                                         size="large" 
                                         key={"detailsButton_" + props.model.name}
+                                        onClick={detailsHandler}
                                     >
                                         Szczegóły
                                     </Button>
@@ -70,6 +92,7 @@ const ModelListElement = (props: Props) => {
                                         style={{width: "150px", marginBottom: '10px'}} 
                                         size="large" 
                                         key={"addButton_" + props.model.name}
+                                        onClick={addToListHandle}
                                     >
                                         Dodaj do listy
                                     </Button>

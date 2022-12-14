@@ -7,6 +7,7 @@ import { RcFile } from 'antd/lib/upload';
 
 import { TrainModelMessages } from '../components/BackendMessages';
 import { LogOut, LogOutReason } from '../pages/Account/LogOut';
+import { ExperimentType } from '../types/ExperimentListType';
 import { BASE_URL } from './ApiServiceConfig';
 
 
@@ -93,7 +94,7 @@ export class ApiService {
      * @param experimentType (optional) 
      * @return Success
      */
-    createExperimentList(experimentListName: string | undefined, experimentType: string | undefined): Promise<void> {
+    createExperimentList(experimentListName: string, experimentType: string): Promise<any> {
         let url_ = this.baseUrl + "/createExperimentList?";
         if (experimentListName === null)
             throw new Error("The parameter 'experimentListName' cannot be null.");
@@ -108,6 +109,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -116,19 +118,22 @@ export class ApiService {
         });
     }
 
-    protected processCreateExperimentList(response: Response): Promise<void> {
+    protected processCreateExperimentList(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        if(status !== 200) {
+            return Promise.reject<any>(message);
+        }
+        return Promise.resolve<any>(message);
+        //return Promise.resolve<any>(response);
     }
 
     /**
@@ -137,7 +142,7 @@ export class ApiService {
      * @param experimentId (optional) 
      * @return Success
      */
-    addModelTrainingExperiment(experimentListName: string | undefined, experimentId: number | undefined): Promise<void> {
+    addModelTrainingExperiment(experimentListName: string | undefined, experimentId: number | undefined): Promise<any> {
         let url_ = this.baseUrl + "/addModelTrainingExperiment?";
         if (experimentListName === null)
             throw new Error("The parameter 'experimentListName' cannot be null.");
@@ -152,6 +157,7 @@ export class ApiService {
         let options_: RequestInit = {
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -160,19 +166,22 @@ export class ApiService {
         });
     }
 
-    protected processAddModelTrainingExperiment(response: Response): Promise<void> {
+    protected processAddModelTrainingExperiment(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        if(status !== 200) {
+            return Promise.reject<any>(message);
+        }
+        return Promise.resolve<any>(message);
+        //return Promise.resolve<any>(response);
     }
 
     /**
@@ -416,8 +425,11 @@ export class ApiService {
                         localStorage.setItem("refreshToken", data.refreshToken);
                     }
                 }
-            );
-        console.log("Refreshed token");
+            )
+            .then(() => {
+                console.log("Refreshed token");
+                window.location.reload();
+            })
     }
 
     /**

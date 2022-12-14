@@ -72,6 +72,10 @@ const ComparisonPage = () => {
         fetchLists();
     }, [])
 
+    const deleteListHandler = (listName : string) => {
+        console.log("unimplemented, Deleting list:", listName);
+    }
+
     return (
         <div>
             <Row style={{ marginTop: 50 }}>
@@ -94,7 +98,7 @@ const ComparisonPage = () => {
                                         <Loading />
                                         :
                                         displayedLists.length > 0 && dataLoaded ?
-                                            displayedLists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name}/> ))
+                                            displayedLists.map((item: ComparisonListType) => ( <ComparisonList list={item} key={item.name} deleteList={deleteListHandler}/> ))
                                             :
                                             <NoData />
                                     }

@@ -4,14 +4,18 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Row, Typography } from 'antd';
 
 import { ComparisonListType, ExperimentType } from '../../types/ComparisonType';
+import { useNavigate } from 'react-router-dom';
+import { Urls } from '../../types/Urls';
 
 const { Title } = Typography;
 
 interface Props {
     list: ComparisonListType
+    deleteList? : Function
 }
 
 const ComparisonList = (props: Props) => {
+    const navigate = useNavigate();
     const displayElementNumber = ()  => {
         let num = props.list.elementNum
         let list = props.list
@@ -26,7 +30,18 @@ const ComparisonList = (props: Props) => {
             if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " symbole"
             return num.toString() + " symboli"
         }
-        
+    }
+
+    const addToListHandler = () => {
+        navigate(Urls.AddToList + "/" + props.list.name, {replace: true});
+    }
+    
+    const detailsHandler = () => {
+        console.log("Details for", props.list.name);
+    }
+    const deleteListHandle = () => {
+        if(props.deleteList !== undefined)
+            props.deleteList(props.list.name);
     }
 
     return (
@@ -43,10 +58,30 @@ const ComparisonList = (props: Props) => {
                     </Col>
                     <Col>
                         <Row justify="end">
-                            <Button data-testid="details-button" type="primary" style={{width: "100px", marginBottom: '10px'}} size="large" key={"detailsButton_" + props.list.name}>Szczegóły</Button>
+                            <Button 
+                                data-testid="details-button" 
+                                type="primary" 
+                                style={{width: "150px", marginBottom: '10px'}} 
+                                size="large" 
+                                key={"detailsButton_" + props.list.name} 
+                                onClick={detailsHandler}
+                            >Szczegóły</Button>
                         </Row>
                         <Row justify="end">
-                            <Button data-testid="delete-button" type="default" shape="circle" icon={<DeleteOutlined />} key={"deleteButton" + props.list.name} size="large" />
+                            <Button 
+                            data-testid="details-button" type="default" style={{width: "150px", marginBottom: '10px'}} 
+                            size="large" key={"addToListButton_" + props.list.name}
+                            onClick={addToListHandler}
+                            >Dodaj do listy</Button>
+                        </Row>
+                        <Row justify="end">
+                            <Button 
+                                data-testid="delete-button" 
+                                type="default" shape="circle" icon={<DeleteOutlined />} 
+                                key={"deleteButton" + props.list.name} 
+                                size="large" 
+                                onClick={deleteListHandle} 
+                            />
                         </Row>
                     </Col>
                 </Row>
