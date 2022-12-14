@@ -18,16 +18,11 @@ namespace PatternRecogniser.Controllers
 
     public class AuthenticationController : ControllerBase
     {
-        private PatternRecogniserDBContext _context;
-        private AuthenticationStringMesseges _message = new AuthenticationStringMesseges();
-        private IPasswordHasher<User> _passwordHasher;
-        private ITokenCreator _tokenCreator;
+        private readonly IAuthenticationServicis _authenticationServicis;
 
-        public AuthenticationController(PatternRecogniserDBContext context, IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
+        public AuthenticationController(IAuthenticationServicis authenticationServicis)
         {
-            _context = context;
-            _passwordHasher = passwordHasher;
-            _tokenCreator = tokenCreator;
+            _authenticationServicis = authenticationServicis;
         }
 
 
@@ -39,43 +34,13 @@ namespace PatternRecogniser.Controllers
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp([FromBody] SignUp info)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if(!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var userToAdd = new User()
-                {
-                    createDate = DateTime.Now,
-                    lastLog = DateTime.Now,
-                    login = info.login,
-                    email = info.email
-
-                };
-
-                // samo dodaje ziarno więc luzik
-                userToAdd.hashedPassword = _passwordHasher.HashPassword(userToAdd, info.password);
-                _context.user.Add(userToAdd);
-
-                var accesToken = _tokenCreator.CreateAccessToken(userToAdd);
-                var refreshToken = _tokenCreator.CreateRefreshToken();
-                // dodawanie refreshe token do bazy
-                userToAdd.refreshToken = _passwordHasher.HashPassword(userToAdd, refreshToken);
-                userToAdd.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
-
-                await _context.SaveChangesAsync();
-                 return Ok(new Tokens()
-                {
-                    accessToken = accesToken,
-                    refreshToken = refreshToken
-                 });;
+                return BadRequest(ModelState);
             }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+
+            var respond = await _authenticationServicis.SignUp(info);
+            return Ok(respond);
         }
 
 
@@ -87,42 +52,10 @@ namespace PatternRecogniser.Controllers
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] LogIn info)
         {
-            try
-            {
-
-                var user = _context.user.Where(user => user.login == info.login).FirstOrDefault();
-                if (user == null)
-                    return NotFound(_message.userNotFound);
-
-
-
-                if (_passwordHasher.VerifyHashedPassword(user, user.hashedPassword, info.password) == PasswordVerificationResult.Failed)
-                    return BadRequest(_message.incorectPassword);
-
-
-
-                var accesToken = _tokenCreator.CreateAccessToken(user);
-                var refreshToken = _tokenCreator.CreateRefreshToken();
-
-
-                user.refreshToken = _passwordHasher.HashPassword(user, refreshToken);
-                user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
-                await _context.SaveChangesAsync();
-
-                return Ok(new LogInRespond()
-                {
-                    tokens = new Tokens()
-                    {
-                        accessToken = accesToken,
-                        refreshToken = refreshToken
-                    },
-                    email = user.email
-                });;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+           // return NotFound("asdasd");
+            var respond = await _authenticationServicis.LogIn(info);
+            
+            return Ok(respond);
         }
 
 

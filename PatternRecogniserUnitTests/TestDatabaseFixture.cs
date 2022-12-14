@@ -11,7 +11,7 @@ namespace PatternRecogniserUnitTests
     public class TestDatabaseFixture
     {
         // używam kopi bazy danych na lokalnym serwerze, railway nie pozwala mi zrobić 2 daz :(
-        private const string ConnectionString = "User ID=postgres;Password=1234;Host=localhost;Port=5432;Database=TestDatabase;Pooling=true;";
+        private const string ConnectionString = "User ID=postgres;Password=AdJjYAmyKx5pXCDN7qhH;Host=containers-us-west-97.railway.app;Port=7363;Database=railway;Pooling=true;";
 
 
         private static readonly object _lock = new();

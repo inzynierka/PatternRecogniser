@@ -26,6 +26,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Lib.AspNetCore.ServerSentEvents;
+using PatternRecogniser.Middleware;
 
 namespace PatternRecogniser
 {
@@ -129,6 +130,8 @@ namespace PatternRecogniser
             services.AddDbContext<PatternRecogniserDBContext>(
                 opts => opts.UseNpgsql(connectionString)
             );
+            services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddScoped<IAuthenticationServicis, AuthenticationServicis>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -146,11 +149,11 @@ namespace PatternRecogniser
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                //app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
