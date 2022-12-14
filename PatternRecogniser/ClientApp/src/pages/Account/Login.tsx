@@ -1,14 +1,13 @@
 import 'antd/dist/antd.min.css';
 
-import { LockOutlined, UserOutlined, LoadingOutlined, Loading3QuartersOutlined } from '@ant-design/icons';
+import { Loading3QuartersOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, message, Row, Typography } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { Urls } from '../types/Urls';
-import useWindowDimensions from '../UseWindowDimensions';
-
-import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
+import { ApiService, ILogIn, LogIn } from '../../generated/ApiService';
+import { Urls } from '../../types/Urls';
+import useWindowDimensions from '../../UseWindowDimensions';
 
 const { Title } = Typography;
 
@@ -21,7 +20,7 @@ export default function Login() {
     const [waiting, setWaiting] = useState(false);
 
     const successfullLogIn = (user : any, accessToken : string, refreshToken : string) => {
-        localStorage.setItem('token', 'Bearer ' + accessToken);
+        localStorage.setItem('token', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('userId', user.login);
         localStorage.setItem('email', user.email);

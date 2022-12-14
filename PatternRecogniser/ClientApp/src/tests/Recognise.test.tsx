@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import RecognisePage from '../pages/Recognise';
+import RecognisePage from '../pages/Models/Recognise';
 
 window.matchMedia = window.matchMedia || function() {
     return {

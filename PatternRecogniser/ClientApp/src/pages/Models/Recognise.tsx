@@ -4,7 +4,7 @@ import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Card, Col, Form, message, Row, Select, Space, Tooltip, Typography, Upload, UploadProps } from 'antd';
 import { useState } from 'react';
 
-import useWindowDimensions from '../UseWindowDimensions';
+import useWindowDimensions from '../../UseWindowDimensions';
 
 
 const { Dragger } = Upload;

@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
-import Signin from '../pages/Signin';
+import Signin from '../pages/Account/Signin';
 import { allowsTypingIn, mockedUseNavigate, renderComponentWithRouter, requiresNotEmpty } from './util';
 
 window.matchMedia = window.matchMedia || function() {
@@ -204,27 +204,6 @@ describe("SigninPanel", () => {
         signinButton.click();
 
         expect(couter).toBe(1);
-    });
-    it("saves data to localStorage after successful registration", async () => {
-        const { findByTestId } = renderComponentWithRouter(<Signin />);
-        const loginInput = await findByTestId("login-input");
-        const emailInput = await findByTestId("email-input");
-        const passwordInput = await findByTestId("password-input");
-        const passwordConfirmInput = await findByTestId("password-confirm-input");
-        const signinButton = await findByTestId("signin-button");
-
-        fireEvent.change(loginInput, { target: { value: "login" } });
-        fireEvent.change(emailInput, { target: { value: "email@email.com" } });
-        fireEvent.change(passwordInput, { target: { value: "someSTRONGpassword123@!#" } });
-        fireEvent.change(passwordConfirmInput, { target: { value: "someSTRONGpassword123@!#" } });
-
-        signinButton.click();
-
-        await waitFor(() => {
-            expect(localStorage.getItem("token")).not.toBeNull();
-            expect(localStorage.getItem("userId")).toBe('login');
-            expect(localStorage.getItem("email")).toBe("email@email.com")
-        });
     });
 
     it("signin button reacts to click", async () => {

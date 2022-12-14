@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import MyAccountPage from '../pages/MyAccount';
+import MyAccountPage from '../pages/Account/MyAccount';
 
 window.matchMedia = window.matchMedia || function() {
     return {
