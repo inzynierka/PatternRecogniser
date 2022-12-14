@@ -73,7 +73,7 @@ export const TrainForm = (trainFormProps : TrainFormProps) => {
 
     const uploadProps: UploadProps = {
         onChange: info => {
-        console.log(info.file);
+            console.log(info.file);
         },
         onRemove: file => {
             setFile(emptyfile);

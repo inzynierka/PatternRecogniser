@@ -216,8 +216,9 @@ export class ApiService {
      * Pobiera listy
      * @return Success
      */
-    getLists(token : string): Promise<any> {
+    getLists(): Promise<any> {
         let url_ = this.baseUrl + "/GetLists";
+        let token = localStorage.getItem('token') || "";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -286,8 +287,9 @@ export class ApiService {
      * @param pattern (optional) 
      * @return Success
      */
-    patternRecognition(modelName: string | undefined, pattern: FileParameter | undefined): Promise<void> {
+    patternRecognition(modelName: string | undefined, pattern: RcFile | undefined): Promise<any> {
         let url_ = this.baseUrl + "/PatternRecognition?";
+        let token = localStorage.getItem('token') || "";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -298,12 +300,13 @@ export class ApiService {
         if (pattern === null || pattern === undefined)
             throw new Error("The parameter 'pattern' cannot be null.");
         else
-            content_.append("pattern", pattern.data, pattern.fileName ? pattern.fileName : "pattern");
+            content_.append("pattern", pattern, pattern.name ? pattern.name : "pattern");
 
         let options_: RequestInit = {
             body: content_,
             method: "PUT",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 
@@ -312,19 +315,13 @@ export class ApiService {
         });
     }
 
-    protected processPatternRecognition(response: Response): Promise<void> {
+    protected processPatternRecognition(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+        if (status === 401) {
+            this.process401();
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<any>(response);
     }
 
     /**
@@ -462,8 +459,9 @@ export class ApiService {
      * @param trainingSet (optional) 
      * @return Success
      */
-    trainModel(token : string, modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<any> {
+    trainModel(modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<any> {
         let url_ = this.baseUrl + "/TrainModel?";
+        let token = localStorage.getItem("token");
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -578,13 +576,14 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
-    trainUpdate(token : string, modelName: string | ""): Promise<any> {
+    trainUpdate(modelName: string | ""): Promise<any> {
         let url_ = this.baseUrl + "/TrainUpdate?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
             url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
         url_ = url_.replace(/[?&]$/, "");
+        let token = localStorage.getItem('token') || "";
 
         let options_: RequestInit = {
             method: "GET",
@@ -650,9 +649,10 @@ export class ApiService {
      * Pobiera modele
      * @return Success
      */
-    getModels(token : string): Promise<any> {
+    getModels(): Promise<any> {
         let url_ = this.baseUrl + "/GetModels";
         url_ = url_.replace(/[?&]$/, "");
+        let token = localStorage.getItem('token') || '';
 
         let options_: RequestInit = {
             method: "GET",

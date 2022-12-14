@@ -51,8 +51,7 @@ const ComparisonPage = () => {
 
     const fetchLists = () => {
         setLoading(true);
-        let token = localStorage.getItem('token') || "";
-        apiService.getLists(token)
+        apiService.getLists()
             .then(response => response.json())
             .then(
                 (data) => {

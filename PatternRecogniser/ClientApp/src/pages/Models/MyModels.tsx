@@ -50,8 +50,7 @@ const MyModelsPage = () => {
 
     const fetchModels = () => {
         setLoading(true);
-        let token = localStorage.getItem('token') || "";
-        apiService.getModels(token)
+        apiService.getModels()
             .then(response => response.json())
             .then(
                 (data) => {

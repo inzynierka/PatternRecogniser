@@ -2,9 +2,10 @@ import 'antd/dist/antd.min.css';
 
 import { InboxOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, message, Row, Select, Space, Tooltip, Typography, Upload, UploadProps } from 'antd';
+import { RcFile, UploadFile } from 'antd/lib/upload/interface';
 import { useEffect, useState } from 'react';
 
-import { ApiService } from '../../generated/ApiService';
+import { ApiService, FileParameter } from '../../generated/ApiService';
 import useWindowDimensions from '../../UseWindowDimensions';
 import { Loading } from '../Common/Loading';
 
@@ -18,34 +19,28 @@ interface selectOption {
     label : string
 }
 
-const props: UploadProps = {
-    name: 'file',
-    multiple: false,
-    action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
-      if (status === 'done') {
-        message.success(`Załadowano pomyślnie plik ${info.file.name}.`);
-      } else if (status === 'error') {
-        message.error(`Nie udało się przesłać pliku ${info.file.name}.`);
-      }
-    },
-    onDrop(e) {
-      console.log('Dropped files', e.dataTransfer.files);
-    },
-  };
-
 const RecognisePage = () => {
     const apiService = new ApiService();
     const [form] = Form.useForm();
     const isOrientationVertical  = useWindowDimensions();
     const [usedModel , setUsedModel] = useState("");
     const [selectOptions, setSelectOptions] = useState<selectOption[]>([])
+    const [patternFile, setPatternFile] = useState<UploadFile<any> | undefined>()
     const [loading, setLoading] = useState(false);
-    const [, setDataLoaded] = useState(false);
+
+    const props: UploadProps = {
+        onRemove: () => {
+            setPatternFile(undefined);
+        },
+        // onDrop(e) {
+        //   console.log('Dropped files', e.dataTransfer.files);
+        // },
+        beforeUpload: file => {
+            //console.log("Before upload", file)
+            setPatternFile(file);
+            return false;
+        },
+      };
 
     const parseModelData = (data : any) => {
         let options : selectOption[] = [];
@@ -63,17 +58,14 @@ const RecognisePage = () => {
     }
     const fetchModels = () => {
         setLoading(true);
-        let token = localStorage.getItem('token') || "";
-        apiService.getModels(token)
+        apiService.getModels()
             .then(response => response.json())
             .then(
                 (data) => {
                     if(data !== undefined) {
                         const options = parseModelData(data);
                         setSelectOptions(options);
-                        setDataLoaded(true);
                     }
-                    else setDataLoaded(false);
                     setLoading(false);
                 }
             )
@@ -85,7 +77,18 @@ const RecognisePage = () => {
     }, [])
 
     const onFinish = (values: any) => {
-        console.log('Received values of form: ', values);
+        apiService.patternRecognition(usedModel, patternFile as RcFile)
+        .then(response => response.json())
+        .then(
+            (data) => {
+                message.success("Operacja zakończona pomyślnie, wyświetlenie wyniku jest WIP");
+                console.log(data);
+            },
+            (error) => {
+                message.error("Wystąpił błąd podczas przetwarzania danych");
+                console.log(error);
+            }
+        )
     };
 
     return (
@@ -117,7 +120,7 @@ const RecognisePage = () => {
                                                 <Form.Item label="Używany model: ">
                                                     <Space>
                                                         <Form.Item
-                                                            name="distributionType"
+                                                            name="usedModel"
                                                             noStyle
                                                             rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                                         >
@@ -148,7 +151,7 @@ const RecognisePage = () => {
                                                         type="primary"
                                                         data-testid="train-button"
                                                         htmlType="submit"
-                                                        disabled={usedModel.length === 0}
+                                                        disabled={usedModel.length === 0 || patternFile === undefined}
                                                         style={{ marginTop: "15px", marginBottom: "14px" }}
                                                     >
                                                         Rozpocznij rozpoznawanie
