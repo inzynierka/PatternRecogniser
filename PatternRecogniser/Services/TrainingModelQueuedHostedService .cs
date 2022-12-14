@@ -68,15 +68,17 @@ namespace PatternRecogniser.Services
 
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
 
+
+            
             var model = new ExtendedModel()
             {
                 name = info.modelName,
                 userLogin = info.login,
                 distribution = info.distributionType
             };
-            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken);
+            await model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, stoppingToken);
 
-            if (new Random().NextDouble() > 0.5)
+            if (new Random().NextDouble() > 0.01)
             {
                 // tutaj byśmy zapisywali wyniki trenowania
                 using (var scope = _serviceScopeFactory.CreateScope())
