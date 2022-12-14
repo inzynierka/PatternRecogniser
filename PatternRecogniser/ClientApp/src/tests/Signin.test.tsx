@@ -323,7 +323,8 @@ describe("SigninIntegrationTests", () => {
             email: "validtestdata@patrec.com"
         }
 
-        apiService.signUp(new SignUp(mockedLoginData))
+        await waitFor(() => {
+            apiService.signUp(new SignUp(mockedLoginData))
             .then(response => response.json())
             .then(
                 (data) => {
@@ -334,5 +335,6 @@ describe("SigninIntegrationTests", () => {
                     expect(true).toBe(false);
                 }
             )
+        });
     });
 });
