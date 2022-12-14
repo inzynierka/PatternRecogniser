@@ -42,6 +42,34 @@ namespace PatternRecogniser.Controllers
 
 
         /// <summary>
+        ///Usuwa urzytkownika. Zapytanie nie pojawi się w finalnej wersji.
+        /// </summary>
+        /// <returns> 
+        /// string
+        /// 
+        /// </returns>
+        [HttpDelete]
+        [Route("deleteUser")]
+        public IActionResult DeleteUser(string login)
+        {
+            try
+            {
+                var user = _context.user.Where(a => login == a.login).FirstOrDefault();
+                if (user != null)
+                {
+                    _context.user.Remove(user);
+                    _context.SaveChanges();
+                }
+
+                return Ok("usnięto");
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// <summary>
         /// Wprowadza wzory do bazy. Zapytanie nie pojawi się w finalnej wersji.
         /// </summary>
         /// <returns> 
