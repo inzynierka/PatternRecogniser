@@ -76,9 +76,9 @@ namespace PatternRecogniser.Controllers
         /// string
         /// 
         /// </returns>
-        [HttpPost("GeneretePatterns")]
+        [HttpPost("GeneratePatterns")]
         [Consumes("multipart/form-data")]
-        public IEnumerable<Pattern> GeneretePatterns( int modelId, List<IFormFile> attachment)
+        public IEnumerable<Pattern> GeneratePatterns( int modelId, List<IFormFile> attachment)
         {
             var model = _context.extendedModel.First(model => model.extendedModelId == modelId);
             for(int i = 0; i<attachment.Count; i++)
