@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import { ApiService, ILogIn, ISignUp, SignUp } from '../generated/ApiService';
 
 import Signin from '../pages/Account/Signin';
 import { allowsTypingIn, mockedUseNavigate, renderComponentWithRouter, requiresNotEmpty } from './util';
@@ -21,7 +22,25 @@ jest.mock('react-password-checklist', () => ({
   })
 );
 
-  
+
+
+enum FailureReason {
+    logintaken = 0,
+    emailtaken = 1,
+    other = 2
+}
+
+const getFailureReason = (reason : string) => {
+    if (reason.includes("Login" && "zajęty")) {
+        return FailureReason.logintaken;
+    
+    } else if (reason.includes("Istnieje" && "e-mail")) {
+        return FailureReason.emailtaken;
+    } 
+    return FailureReason.other;
+}
+
+
 describe("SigninPanel", () => {
     it("renders signin panel", () => {
         renderComponentWithRouter(<Signin />);
@@ -233,3 +252,87 @@ describe("SigninPanel", () => {
         expect(couter).toBe(1);
     });
 })
+
+describe("SigninIntegrationTests", () => {
+    it("existing user cannot sign up again", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ISignUp = {
+            login: "Test",
+            password: "Abc123!@#",
+            email: "test@patrec.com"
+        }
+
+        apiService.signUp(new SignUp(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                () => {
+                    expect(true).toBe(false);
+                },
+                () => {
+                    expect(true).toBe(true);
+                }
+            )
+    });
+    it("user with the same login cannot sign up", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ISignUp = {
+            login: "Test",
+            password: "Abc123!@#",
+            email: "different_test@patrec.com"
+        }
+
+        apiService.signUp(new SignUp(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                () => {
+                    expect(true).toBe(false);
+                },
+                (error) => {
+                    expect(getFailureReason(error)).toBe(FailureReason.logintaken);
+                }
+            )
+    });
+    it("user with the same login cannot sign up", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ISignUp = {
+            login: "DifferentTest",
+            password: "Abc123!@#",
+            email: "test@patrec.com"
+        }
+
+        apiService.signUp(new SignUp(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                () => {
+                    expect(true).toBe(false);
+                },
+                (error) => {
+                    expect(getFailureReason(error)).toBe(FailureReason.emailtaken);
+                }
+            )
+    });
+    it("allows to sign up with valid data", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ISignUp = {
+            login: "ValidTestData",
+            password: "Abc123!@#",
+            email: "validtestdata@patrec.com"
+        }
+
+        apiService.signUp(new SignUp(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    expect(data.tokens.accessToken).toBeValid();
+                    expect(data.tokens.refreshToken).toBeValid();
+                },
+                () => {
+                    expect(true).toBe(false);
+                }
+            )
+    });
+});
