@@ -478,7 +478,7 @@ export class ApiService {
         if (trainingSet === null || trainingSet === undefined)
             throw new Error("The parameter 'trainingSet' cannot be null.");
         else
-            content_.append("trainingSet", trainingSet);
+            content_.append("trainingSet", trainingSet as RcFile);
 
         console.log("body");
         console.log(content_)

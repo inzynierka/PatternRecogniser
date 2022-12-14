@@ -7,7 +7,7 @@ import MyAccountPage from '../pages/Account/MyAccount';
 import MyModelsPage from '../pages/Models/MyModels';
 import RecognisePage from '../pages/Models/Recognise';
 import SignIn from '../pages/Account/Signin';
-import TrainPage from '../pages/Models/Train';
+import TrainPage from '../pages/Models/Train/Train';
 import { Urls } from '../types/Urls';
 import NotFound from './NotFound';
 
