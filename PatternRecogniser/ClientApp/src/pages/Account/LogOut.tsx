@@ -14,5 +14,12 @@ export const LogOut = async (reason : string) => {
         : reason === 'userLoggedOut' ? 'Wylogowano pomyślnie.'
         : 'Wystąpił błąd. Spróbuj ponownie później';
 
-    message.success(displayMessage);
+        if(reason === 'userLoggedOut')
+            message.success(displayMessage, 1, () => {
+                window.location.reload()
+            });
+        else
+            message.error(displayMessage, 2, () => {
+                window.location.reload()
+            });
 }

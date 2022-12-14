@@ -25,11 +25,12 @@ export default function Login() {
         localStorage.setItem('userId', user.login);
         localStorage.setItem('email', user.email);
 
-        message.success('Logged in succesfully!');
         setUserNotFound(false);
         setWaiting(true);
         navigate(Urls.Train, { replace: true });
-        window.location.reload();
+        message.success('Logged in succesfully!', 1, () => {
+            window.location.reload()
+        });
     }
 
     const loginHandler = (user : any) => {

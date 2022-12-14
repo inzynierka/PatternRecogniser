@@ -3,11 +3,12 @@
 //     Generated using the NSwag toolchain v13.18.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v12.0.0.0)) (http://NSwag.org)
 // </auto-generated>
 //----------------------
+import { RcFile } from 'antd/lib/upload';
 
-import { RcFile } from "antd/lib/upload";
-import { LogOut, LogOutReason } from "../pages/Account/LogOut";
-import { TrainModelMessages } from "../components/BackendMessages";
-import { BASE_URL } from "./ApiServiceConfig";
+import { TrainModelMessages } from '../components/BackendMessages';
+import { LogOut, LogOutReason } from '../pages/Account/LogOut';
+import { BASE_URL } from './ApiServiceConfig';
+
 
 /* tslint:disable */
 /* eslint-disable */
@@ -219,13 +220,12 @@ export class ApiService {
      */
     getLists(): Promise<any> {
         let url_ = this.baseUrl + "/GetLists";
-        let token = localStorage.getItem('token') || "";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -290,7 +290,7 @@ export class ApiService {
      */
     patternRecognition(modelName: string | undefined, pattern: RcFile | undefined): Promise<any> {
         let url_ = this.baseUrl + "/PatternRecognition?";
-        let token = localStorage.getItem('token') || "";
+         
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
         else if (modelName !== undefined)
@@ -307,7 +307,7 @@ export class ApiService {
             body: content_,
             method: "PUT",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -483,7 +483,7 @@ export class ApiService {
             body: content_,
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -600,12 +600,12 @@ export class ApiService {
         else if (modelName !== undefined)
             url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
         url_ = url_.replace(/[?&]$/, "");
-        let token = localStorage.getItem('token') || "";
+         
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -669,12 +669,11 @@ export class ApiService {
     getModels(): Promise<any> {
         let url_ = this.baseUrl + "/GetModels";
         url_ = url_.replace(/[?&]$/, "");
-        let token = localStorage.getItem('token') || '';
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
@@ -697,6 +696,45 @@ export class ApiService {
      * @param modelName (optional) 
      * @return Success
      */
+    deleteModel(modelName: string | undefined): Promise<any> {
+        let url_ = this.baseUrl + "/DeleteModel?";
+        if (modelName === null)
+            throw new Error("The parameter 'modelName' cannot be null.");
+        else if (modelName !== undefined)
+            url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteModel(_response);
+        });
+    }
+
+    protected processDeleteModel(response: Response): Promise<any> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 401) {
+            this.process401();
+        }
+        let message = response.body?.getReader().read().then(
+            (result) => {
+                return new TextDecoder("utf-8").decode(result.value);
+            }
+        ) || "";
+        return Promise.resolve<any>(message);
+    }
+
+    /**
+     * Pobiera aktualny status modelu
+     * @param modelName (optional) 
+     * @return Success
+     */
     getModelStatus(modelName: string | ""): Promise<string> {
         let url_ = this.baseUrl + "/GetModelStatus?";
         if (modelName === null)
@@ -704,12 +742,11 @@ export class ApiService {
         else if (modelName !== undefined)
             url_ += "modelName=" + encodeURIComponent("" + modelName) + "&";
         url_ = url_.replace(/[?&]$/, "");
-        let token = localStorage.getItem('token') || "";
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
             }
         };
 
