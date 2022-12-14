@@ -129,7 +129,7 @@ namespace PatternRecogniser.Controllers
             string login = User.Identity.Name;
             var info = _traningUpdate.ActualInfo(login, modelName);
             if (GetStatus(login, modelName) != ModelStatus.Training)
-                return NotFound(_messages.modelIsTraining);
+                return Ok(_messages.modelIsNotTraining);
             else
                 return Ok(info);
         }

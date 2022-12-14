@@ -194,7 +194,7 @@ namespace PatternRecogniser.Controllers
             using (var ms = new MemoryStream(picture))
             {
                 var image = Image.FromStream(ms);
-                image.Save(@"C:\Users\user\Source\Repos\PatternRecogniser\"+fileName+".png", System.Drawing.Imaging.ImageFormat.Png);
+                image.Save(@".\obrazki\"+fileName+".png", System.Drawing.Imaging.ImageFormat.Png);
             }
             return picture;
         }
