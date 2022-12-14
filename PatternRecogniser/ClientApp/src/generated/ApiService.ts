@@ -727,7 +727,10 @@ export class ApiService {
                 return new TextDecoder("utf-8").decode(result.value);
             }
         ) || "";
-        return Promise.resolve<any>(message);
+        if(status === 200 || status === 204) {
+            return Promise.resolve<any>(message);
+        }
+        return Promise.reject<any>(message || response.statusText);
     }
 
     /**

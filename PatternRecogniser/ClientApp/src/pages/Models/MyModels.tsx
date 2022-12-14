@@ -11,6 +11,7 @@ import { Loading } from '../Common/Loading';
 import { NoData } from '../Common/NoData';
 import { SearchBar } from '../Common/SearchBar';
 import ModelListElement from './ModelListElement';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -32,7 +33,19 @@ const MyModelsPage = () => {
     }
     const deleteModelHandler = (modelName : string) => {
         apiService.deleteModel(modelName)
-        .then(response => message.success("Pomyślnie usunięto model " + modelName))
+        .then(
+            (data) => {
+                message.success("Pomyślnie usunięto model " + modelName)
+            },
+            (error) => {
+                error.then(
+                    (value: string) => {
+                        message.error("Nie udało się usunąć modelu " + modelName)
+                        console.error("Delete failed because " + value);
+                    }
+                )
+            }
+        )
         .catch(error => message.error("Nie udało się usunąć modelu"))
         setDisplayedModels(displayedModels.filter(item => item.name !== modelName))
         setModels(models.filter(item => item.name !== modelName))

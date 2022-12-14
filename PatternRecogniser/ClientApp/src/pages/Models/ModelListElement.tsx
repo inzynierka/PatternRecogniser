@@ -5,6 +5,7 @@ import { Button, Card, Col, Row, Typography } from 'antd';
 
 import { ModelType } from '../../types/ModelType';
 import { ApiService } from '../../generated/ApiService';
+import React from 'react';
 
 const { Title } = Typography;
 
@@ -34,47 +35,47 @@ const ModelListElement = (props: Props) => {
                         <Title level={3}>{props.model.name}</Title>
                         {displaySymbolNumber(props.model.patternNum)}
                     </Col>
-                        {
-                            (props.addingToList === undefined || props.addingToList === false) ?
-                                <Col>
-                                    <Row justify="end">
-                                        <Button 
-                                            data-testid="details-button" 
-                                            type="primary" 
-                                            style={{width: "100px", marginBottom: '10px'}} 
-                                            size="large" 
-                                            key={"detailsButton_" + props.model.name}
-                                        >
-                                            Szczegóły
-                                        </Button>
-                                    </Row>
-                                    <Row justify="end">
-                                        <Button 
-                                            data-testid="delete-button" 
-                                            type="default" 
-                                            shape="circle" 
-                                            icon={<DeleteOutlined />} 
-                                            key={"deleteButton" + props.model.name} 
-                                            size="large" 
-                                            onClick={deleteModelHandle}
-                                        />
-                                    </Row>
-                                </Col>
-                                :
-                                <Col>
-                                    <Row justify="end">
-                                        <Button 
-                                            data-testid="add-to-list-button" 
-                                            type="primary" 
-                                            style={{width: "150px", marginBottom: '10px'}} 
-                                            size="large" 
-                                            key={"addButton_" + props.model.name}
-                                        >
-                                            Dodaj do listy
-                                        </Button>
-                                    </Row>
-                                </Col>
-                        }
+                    {
+                        (props.addingToList === undefined || props.addingToList === false) ?
+                            <Col>
+                                <Row justify="end">
+                                    <Button 
+                                        data-testid="details-button" 
+                                        type="primary" 
+                                        style={{width: "100px", marginBottom: '10px'}} 
+                                        size="large" 
+                                        key={"detailsButton_" + props.model.name}
+                                    >
+                                        Szczegóły
+                                    </Button>
+                                </Row>
+                                <Row justify="end">
+                                    <Button 
+                                        data-testid="delete-button" 
+                                        type="default" 
+                                        shape="circle" 
+                                        icon={<DeleteOutlined />} 
+                                        key={"deleteButton" + props.model.name} 
+                                        size="large" 
+                                        onClick={deleteModelHandle}
+                                    />
+                                </Row>
+                            </Col>
+                            :
+                            <Col>
+                                <Row justify="end">
+                                    <Button 
+                                        data-testid="add-to-list-button" 
+                                        type="primary" 
+                                        style={{width: "150px", marginBottom: '10px'}} 
+                                        size="large" 
+                                        key={"addButton_" + props.model.name}
+                                    >
+                                        Dodaj do listy
+                                    </Button>
+                                </Row>
+                            </Col>
+                    }
                 </Row>
                 
             </Card>
