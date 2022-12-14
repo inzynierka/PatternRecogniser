@@ -4,7 +4,7 @@ import { Card, Col, message, Row, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { ApiService } from '../../../generated/ApiService';
-import { TrainModelMessages } from '../../../types/BackendMessages';
+import { TrainModelMessages } from '../../../components/BackendMessages';
 import useWindowDimensions from '../../../UseWindowDimensions';
 import { TrainForm } from './TrainForm';
 import Training from './Training';

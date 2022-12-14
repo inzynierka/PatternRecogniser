@@ -6,7 +6,7 @@
 
 import { RcFile } from "antd/lib/upload";
 import { LogOut, LogOutReason } from "../pages/Account/LogOut";
-import { TrainModelMessages } from "../types/BackendMessages";
+import { TrainModelMessages } from "../components/BackendMessages";
 import { BASE_URL } from "./ApiServiceConfig";
 
 /* tslint:disable */

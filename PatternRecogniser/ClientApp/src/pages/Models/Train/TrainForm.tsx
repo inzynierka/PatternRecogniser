@@ -22,6 +22,7 @@ import { useState } from 'react';
 
 import { ApiService, DistributionType } from '../../../generated/ApiService';
 import useWindowDimensions from '../../../UseWindowDimensions';
+import { TrainModelMessages } from '../../../components/BackendMessages';
 
 interface TrainFormProps {
     setIsModelBeingTrained: (isModelBeingTrained: boolean) => void;
@@ -68,7 +69,7 @@ export const TrainForm = (trainFormProps : TrainFormProps) => {
                 error.then(
                     (value : any) => {
                         // oszukane przez buga w backendzie
-                        value === "Nie ma cię w kolejce" ?
+                        value === TrainModelMessages.youAreNotInQueue ?
                         message.success("Model został pomyślnie zapisany")
                         :
                         message.error(value);   
