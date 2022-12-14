@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
 
 import Login from '../pages/Account/Login';
 import { allowsTypingIn, mockedUseNavigate, reactsOnClicking, renderComponentWithRouter, requiresNotEmpty } from './util';
@@ -118,3 +119,46 @@ describe("LoginPanel", () => {
         // });
     });
 })
+
+describe("LoginIntegrationTests", () => {
+    it("valid user can log in", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ILogIn = {
+            login: "Test",
+            password: "Abc123!@#"
+        }
+
+        apiService.logIn(new LogIn(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                (data) => {
+                    expect(data.email).toBeValid();
+                    expect(data.tokens.accessToken).toBeValid();
+                    expect(data.tokens.refreshToken).toBeValid();
+                },
+                () => {
+                    expect(true).toBe(false);
+                }
+            )
+    });
+    it("invalid user can't log in", async () => {
+        const apiService = new ApiService();
+
+        const mockedLoginData : ILogIn = {
+            login: "Test",
+            password: "badPassword"
+        }
+
+        apiService.logIn(new LogIn(mockedLoginData))
+            .then(response => response.json())
+            .then(
+                () => {
+                    expect(true).toBe(false);
+                },
+                () => {
+                    expect(true).toBe(true);
+                }
+            )
+    });
+});

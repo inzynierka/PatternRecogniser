@@ -7,6 +7,7 @@ import {
     Checkbox,
     Col,
     Form,
+    Input,
     InputNumber,
     message,
     Row,
@@ -45,6 +46,13 @@ const TrainPage = () => {
     const onFinish = (values: any) => {
         setIsModelTrained(true);
         console.log('Received values of form: ', values);
+        console.log(file)
+        let token = localStorage.getItem('token') || "";
+
+        // apiService.trainModel(token, values.modelName, selectedDistributionType || 0, file as RcFile)
+        // .then((response) => {
+        //     console.log(response);
+        // })
     };
 
     const distributionTypeChanged = (type : number) => {
@@ -82,10 +90,6 @@ const TrainPage = () => {
             setUploading(false);
           });
       };
-
-    const handleTrain = () => {
-        console.log('Train');
-    };
 
     const getUpdate = () => {
         let token = localStorage.getItem('token') || "";
@@ -132,7 +136,7 @@ const TrainPage = () => {
                         </Row>
 
                         <Row justify="space-around" align="middle">
-                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', paddingTop: '20px' }}>
+                            <Card bordered={true} style={{width: isOrientationVertical ? "40vw" : "65vw", boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)', paddingTop: '35px' }}>
                                 <Row justify="space-around" align="middle">
                                     <Form 
                                         layout='horizontal'
@@ -141,13 +145,26 @@ const TrainPage = () => {
                                         className="train-form"
                                         data-testid="train-form"
                                         onFinish={onFinish}
-                                    >                                    
+                                    >     
+                                        <Form.Item label="Nazwa modelu: " style={{width: isOrientationVertical ? "15vw" : "40vw" }}>
+                                            <Space>
+                                                <Form.Item
+                                                    name="modelName"
+                                                    noStyle
+                                                    rules={[{ required: true, message: 'Nazwa modelu nie może być pusta.' }]}
+                                                >
+                                                    <Input placeholder='Wpisz nazwę modelu' data-testid="model-name-input" style={{width: "18.1vw" }} />
+                                                </Form.Item>
+                                                <Tooltip title="Nazwa modelu musi być unikalna." data-testid="name-tooltip">
+                                                    <Typography.Link><QuestionCircleOutlined /></Typography.Link>
+                                                </Tooltip>
+                                            </Space>
+                                        </Form.Item>                               
                                         <Form.Item label="Sposób podziału danych: " style={{width: isOrientationVertical ? "15vw" : "40vw" }}>
                                             <Space>
                                                 <Form.Item
                                                     name="distributionType"
                                                     noStyle
-                                                    rules={[{ required: true, message: 'Pole jest wymagane' }]}
                                                 >
                                                     <Select 
                                                         style={{width: "15vw" }} 
@@ -324,8 +341,8 @@ const TrainPage = () => {
                                             <Form.Item>
                                                 <Button
                                                     type="primary"
-                                                    onClick={handleTrain}
                                                     data-testid="train-button"
+                                                    htmlType="submit"
                                                     disabled={!uploadSuccessful || file === emptyfile}
                                                     style={{ marginTop: '-10' }}
                                                 >

@@ -4,6 +4,7 @@
 // </auto-generated>
 //----------------------
 
+import { RcFile } from "antd/lib/upload";
 import { LogOut, LogOutReason } from "../pages/Account/LogOut";
 import { BASE_URL } from "./ApiServiceConfig";
 
@@ -461,7 +462,7 @@ export class ApiService {
      * @param trainingSet (optional) 
      * @return Success
      */
-    trainModel(modelName: string | undefined, distributionType: DistributionType | undefined, trainingSet: FileParameter | undefined): Promise<void> {
+    trainModel(token : string, modelName: string, distributionType: DistributionType, trainingSet: RcFile): Promise<any> {
         let url_ = this.baseUrl + "/TrainModel?";
         if (modelName === null)
             throw new Error("The parameter 'modelName' cannot be null.");
@@ -477,12 +478,16 @@ export class ApiService {
         if (trainingSet === null || trainingSet === undefined)
             throw new Error("The parameter 'trainingSet' cannot be null.");
         else
-            content_.append("trainingSet", trainingSet.data, trainingSet.fileName ? trainingSet.fileName : "trainingSet");
+            content_.append("trainingSet", trainingSet);
+
+        console.log("body");
+        console.log(content_)
 
         let options_: RequestInit = {
             body: content_,
             method: "POST",
             headers: {
+                'Authorization': 'Bearer ' + token,
             }
         };
 
@@ -491,19 +496,13 @@ export class ApiService {
         });
     }
 
-    protected processTrainModel(response: Response): Promise<void> {
+    protected processTrainModel(response: Response): Promise<any> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+        if (status === 401) {
+            this.process401();
+        } 
+        return Promise.resolve<any>(response);
     }
 
     /**
