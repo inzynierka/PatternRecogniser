@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
+using System.IO.Compression;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +19,8 @@ using Tensorflow.Keras.Engine;
 using Tensorflow.NumPy;
 using static Tensorflow.Binding;
 using static Tensorflow.KerasApi;
+using System.Drawing.Imaging;
+using Microsoft.AspNetCore.Http;
 
 namespace PatternRecogniser.Models
 {
@@ -45,11 +50,12 @@ namespace PatternRecogniser.Models
         private Model model; 
 
         // tymczasowo asynchroniczna w celu testowania
-        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken, PatternData patternData, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
         {
 
-            this.distribution = distribution;
+            //this.distribution = distribution;
             modelTrainingExperiment = new ModelTrainingExperiment ();
+            PatternData patternData = OpenZip (file);
             // trenowanie 
             /*for (int i = 0; i < 3; i++)
             {
@@ -250,6 +256,177 @@ namespace PatternRecogniser.Models
             model = neural_net; // added
             modelTrainingExperiment.extendedModel = this;
             //modelTrainingExperiment.precision = model.
+        }
+
+
+        // Obsługa zipów i Bitmap
+
+        private PatternData OpenZip (IFormFile file)
+        {
+            PatternData data = new PatternData ();
+            if (CheckZipStructure (file) == false)
+                return data; // zwraca puste dane, potem użytkownikowi mówimy że coś nie halo
+
+            Stream stream = file.OpenReadStream ();
+            data.patterns = new List<List<Pattern>> ();
+            using (ZipArchive zip = new ZipArchive(stream))
+            {
+                foreach (ZipArchiveEntry entry in zip.Entries)
+                {
+                    string fullName = entry.FullName;
+                    string name = entry.Name;
+                    if (name.Length > 0) // plik nie folder
+                    {
+                        // etykieta pattern - nazwa folderu - FullName do /
+                        string patternName = fullName.Substring (0, fullName.IndexOf ('/'));
+
+                        // obrazek patternu - byte array zawartości
+                        Stream reader = entry.Open ();
+                        MemoryStream memstream = new MemoryStream ();
+                        reader.CopyTo (memstream);
+                        byte[] array = memstream.ToArray ();
+                        MemoryStream ms = new MemoryStream (array);
+                        Bitmap bmp = new Bitmap (ms);
+                        int[,] matrix = NormaliseData (bmp);
+
+                        // stwórz Pattern
+                        Pattern pattern = new Pattern (patternName, matrix); // konstruktor zamienia int[,] na byte[]
+
+                        // dodaj do PatternData
+                        data.AddPattern (pattern);
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        private bool CheckZipStructure (IFormFile file)
+        {
+            // sprawdź czy to w ogóle zip (albo tylko zip będziemy wyświetlać, idk)
+            //FileInfo fi = new FileInfo (path);
+            //if (!fi.Extension.Equals (".zip"))
+            //return false;
+
+            Stream data = file.OpenReadStream ();
+
+            // otwieramy zip i sprawdzamy strukturę
+            using (ZipArchive zip = new ZipArchive(data))
+            {
+                foreach (ZipArchiveEntry entry in zip.Entries)
+                {
+                    string tmp = entry.FullName;
+                    int ind = tmp.IndexOf ('/');
+
+                    // gdyby Substring==0 to byłby to folder
+                    if (ind > 0 && tmp.Substring (ind + 1).Length != 0)
+                    {
+                        // plik w folderze
+                        // sprawdzamy czy nie ma podfolderów
+                        if (tmp.Substring (ind + 1).IndexOf ('/') >= 0)
+                        {
+                            return false;
+                        }
+                    }
+                    else if (ind < 0) // plik poza folderem
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        public int[,] NormaliseData (Bitmap bmp)
+        {
+            // jeden obrazek Bitmap
+            bmp = new Bitmap (bmp, 28, 28);
+
+            int height = bmp.Height; // 28
+            int width = bmp.Width; // 28
+            Bitmap contrastBmp = AdjustContrast (bmp, 100.0f);
+
+            int[,] binaryMatrix = new int[height, width];
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    // sprowadzamy kolor do skali szarości
+                    Color pixelColor = contrastBmp.GetPixel (i, j);
+                    int avg = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
+
+                    // odnaleziony kolor sprowadzamy do wartości 0/1
+                    // normalnie 0 - czarny, 255 - biały
+                    // zatem dzielimy przez 255 i zamieniamy
+                    // wpisujemy do pola [j, i] żeby zapobiec obróceniu obrazka
+                    float tmp = avg / 255;
+                    if (tmp < 0.5) // czarny
+                    {
+                        binaryMatrix[j, i] = 1;
+                    }
+                    else // biały
+                    {
+                        binaryMatrix[j, i] = 0;
+                    }
+                }
+            }
+
+            return binaryMatrix;
+        }
+
+        private static Bitmap AdjustContrast (Bitmap Image, float Value) // https://stackoverflow.com/questions/3115076/adjust-the-contrast-of-an-image-in-c-sharp-efficiently
+        {
+            Value = (100.0f + Value) / 100.0f;
+            Value *= Value;
+            Bitmap NewBitmap = (Bitmap)Image.Clone ();
+            BitmapData data = NewBitmap.LockBits (
+                new Rectangle (0, 0, NewBitmap.Width, NewBitmap.Height),
+                ImageLockMode.ReadWrite,
+                NewBitmap.PixelFormat);
+            int Height = NewBitmap.Height;
+            int Width = NewBitmap.Width;
+
+            unsafe // włączone "allow unsafe code"!!!
+            {
+                for (int y = 0; y < Height; ++y)
+                {
+                    byte* row = (byte*)data.Scan0 + (y * data.Stride);
+                    int columnOffset = 0;
+                    for (int x = 0; x < Width; ++x)
+                    {
+                        byte B = row[columnOffset];
+                        byte G = row[columnOffset + 1];
+                        byte R = row[columnOffset + 2];
+
+                        float Red = R / 255.0f;
+                        float Green = G / 255.0f;
+                        float Blue = B / 255.0f;
+                        Red = (((Red - 0.5f) * Value) + 0.5f) * 255.0f;
+                        Green = (((Green - 0.5f) * Value) + 0.5f) * 255.0f;
+                        Blue = (((Blue - 0.5f) * Value) + 0.5f) * 255.0f;
+
+                        int iR = (int)Red;
+                        iR = iR > 255 ? 255 : iR;
+                        iR = iR < 0 ? 0 : iR;
+                        int iG = (int)Green;
+                        iG = iG > 255 ? 255 : iG;
+                        iG = iG < 0 ? 0 : iG;
+                        int iB = (int)Blue;
+                        iB = iB > 255 ? 255 : iB;
+                        iB = iB < 0 ? 0 : iB;
+
+                        row[columnOffset] = (byte)iB;
+                        row[columnOffset + 1] = (byte)iG;
+                        row[columnOffset + 2] = (byte)iR;
+
+                        columnOffset += 4;
+                    }
+                }
+            }
+
+            NewBitmap.UnlockBits (data);
+
+            return NewBitmap;
         }
     }
 }

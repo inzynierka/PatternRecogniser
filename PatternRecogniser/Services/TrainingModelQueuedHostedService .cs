@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace PatternRecogniser.Services
 {
@@ -74,7 +75,9 @@ namespace PatternRecogniser.Services
                 userLogin = info.login,
                 distribution = info.distributionType
             };
-            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken);
+            //Stream stream = info.trainingSet.OpenReadStream ();
+            //info.
+            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
 
             if (new Random().NextDouble() > 0.5)
             {
