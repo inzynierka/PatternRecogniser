@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PatternRecogniser.Models;
 using System;
@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace PatternRecogniser.Services
 {
@@ -76,7 +77,11 @@ namespace PatternRecogniser.Services
                 userLogin = info.login,
                 distribution = info.distributionType
             };
-            await model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, stoppingToken);
+
+            //Stream stream = info.trainingSet.OpenReadStream ();
+            //info.
+            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
+
 
             if (new Random().NextDouble() > 0.01)
             {
