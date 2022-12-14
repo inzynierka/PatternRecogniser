@@ -104,6 +104,7 @@ namespace PatternRecogniser.Controllers
                 var accesToken = _tokenCreator.CreateAccessToken(user);
                 var refreshToken = _tokenCreator.CreateRefreshToken();
 
+
                 user.refreshToken = _passwordHasher.HashPassword(user, refreshToken);
                 user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
                 await _context.SaveChangesAsync();
