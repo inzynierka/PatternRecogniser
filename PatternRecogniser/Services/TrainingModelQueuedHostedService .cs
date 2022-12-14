@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PatternRecogniser.Models;
 using System;
@@ -69,17 +69,21 @@ namespace PatternRecogniser.Services
 
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
 
+
+            
             var model = new ExtendedModel()
             {
                 name = info.modelName,
                 userLogin = info.login,
                 distribution = info.distributionType
             };
+
             //Stream stream = info.trainingSet.OpenReadStream ();
             //info.
             model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
 
-            if (new Random().NextDouble() > 0.5)
+
+            if (new Random().NextDouble() > 0.01)
             {
                 // tutaj byśmy zapisywali wyniki trenowania
                 using (var scope = _serviceScopeFactory.CreateScope())

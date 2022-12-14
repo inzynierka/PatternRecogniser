@@ -1,9 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PatternRecogniser.Messages.Authorization;
 using PatternRecogniser.Models;
 using System;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Collections.Generic;
+using PatternRecogniser.Services;
 
 namespace PatternRecogniser.Controllers
 {
@@ -12,9 +20,14 @@ namespace PatternRecogniser.Controllers
     {
         private PatternRecogniserDBContext _context;
         private AuthenticationStringMesseges _message = new AuthenticationStringMesseges();
-        public AuthenticationController(PatternRecogniserDBContext context)
+        private IPasswordHasher<User> _passwordHasher;
+        private ITokenCreator _tokenCreator;
+
+        public AuthenticationController(PatternRecogniserDBContext context, IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
+            _tokenCreator = tokenCreator;
         }
 
 
@@ -28,39 +41,36 @@ namespace PatternRecogniser.Controllers
         {
             try
             {
-                bool isLoginTaken = _context.user.Where(user => user.login == info.login).FirstOrDefault() != null;
-                bool isEmailTaken = _context.user.Where(user => user.email == info.email).FirstOrDefault() != null;
-                if (isLoginTaken)
-                    return BadRequest(_message.loginIsTaken);
-                
+                if(!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-                if (isEmailTaken)
-                    return BadRequest(_message.emailIsTaken);
-
-
-                _context.user.Add(new User()
+                var userToAdd = new User()
                 {
                     createDate = DateTime.Now,
                     lastLog = DateTime.Now,
                     login = info.login,
                     email = info.email
-                });
 
-
-                string seed = CreateSeed();
-                var authentication = new Authentication()
-                {
-                    userLogin = info.login,
-                    lastSeed = seed, // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + seed)
                 };
-                _context.authentication.Add(authentication);
+
+                // samo dodaje ziarno więc luzik
+                userToAdd.hashedPassword = _passwordHasher.HashPassword(userToAdd, info.password);
+                _context.user.Add(userToAdd);
+
+                var accesToken = _tokenCreator.CreateAccessToken(userToAdd);
+                var refreshToken = _tokenCreator.CreateRefreshToken();
+                // dodawanie refreshe token do bazy
+                userToAdd.refreshToken = _passwordHasher.HashPassword(userToAdd, refreshToken);
+                userToAdd.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
 
                 await _context.SaveChangesAsync();
-                return Ok(new Token()
+                 return Ok(new Tokens()
                 {
-                    accessToken = authentication.hashedToken
-                });
+                    accessToken = accesToken,
+                    refreshToken = refreshToken
+                 });;
             }
             catch (Exception e)
             {
@@ -82,31 +92,31 @@ namespace PatternRecogniser.Controllers
 
                 var user = _context.user.Where(user => user.login == info.login).FirstOrDefault();
                 if (user == null)
-                    NotFound(_message.userNotFound);
+                    return NotFound(_message.userNotFound);
 
 
-                var authorization = _context.authentication.Where(authentication => authentication.userLogin == info.login).First();
 
-                if (!CheckIfPasswordIsCorrect(info.password, authorization))
+                if (_passwordHasher.VerifyHashedPassword(user, user.hashedPassword, info.password) == PasswordVerificationResult.Failed)
                     return BadRequest(_message.incorectPassword);
 
 
-                string seed = CreateSeed();
-                var newAuthenticationData = new Authentication()
-                {
-                    userLogin = info.login,
-                    lastSeed = seed, // tutaj jakaś funkcja losowa 
-                    hashedToken = CreatedToken(info.password + seed)
-                };
 
-                _context.authentication.Remove(authorization);
-                _context.authentication.Add(newAuthenticationData);
+                var accesToken = _tokenCreator.CreateAccessToken(user);
+                var refreshToken = _tokenCreator.CreateRefreshToken();
 
+                user.refreshToken = _passwordHasher.HashPassword(user, refreshToken);
+                user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
                 await _context.SaveChangesAsync();
-                return Ok(new Token()
+
+                return Ok(new LogInRespond()
                 {
-                    accessToken = newAuthenticationData.hashedToken
-                });
+                    tokens = new Tokens()
+                    {
+                        accessToken = accesToken,
+                        refreshToken = refreshToken
+                    },
+                    email = user.email
+                });;
             }
             catch (Exception e)
             {
@@ -114,20 +124,8 @@ namespace PatternRecogniser.Controllers
             }
         }
 
-        private string CreatedToken(string password)
-        {
-            return password; // tutaj będziemy kodować hasło
-        }
 
-        private string CreateSeed()
-        {
-            return "ziarno";
-        }
 
-        public bool CheckIfPasswordIsCorrect(string password, Authentication authentication)
-        {
-            return authentication.hashedToken == CreatedToken(password + authentication.lastSeed); // tutaj będziemy kodować hasło
-        }
 
     }
 }

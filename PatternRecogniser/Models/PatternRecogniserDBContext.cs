@@ -9,7 +9,6 @@ namespace PatternRecogniser.Models
             : base(options)
         { }
 
-        public DbSet<Authentication> authentication { get; set; }
         public DbSet<Experiment> experiment { get; set; }
         public DbSet<ExperimentList> experimentList { get; set; }
         public DbSet<ExtendedModel> extendedModel { get; set; }

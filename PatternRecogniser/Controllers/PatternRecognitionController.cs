@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PatternRecogniser.Messages.PatternRecognition;
 using PatternRecogniser.Models;
@@ -11,7 +13,8 @@ using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
 {
-    [Route("{login}/[Controller]")]
+    [Route("[Controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PatternRecognitionController : ControllerBase
     {
         private PatternRecogniserDBContext _context;
@@ -28,10 +31,11 @@ namespace PatternRecogniser.Controllers
         /// <returns></returns>
         [HttpPut]
         [Consumes("multipart/form-data")]
-        public async  Task<IActionResult> Recognize([FromRoute] string login, string modelName, IFormFile pattern)
+        public async  Task<IActionResult> Recognize( string modelName, IFormFile pattern)
         {
             try
             {
+                string login = User.Identity.Name;
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
                 var model = _context.extendedModel.Where(model => model.userLogin == login && model.name == modelName)
                     .FirstOrDefault();

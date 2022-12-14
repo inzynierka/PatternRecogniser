@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.Messages.TrainModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,13 +19,18 @@ namespace PatternRecogniser.Models
         public string login { get; set; }
         [Required]
         public string email { get; set; }
+        public string hashedPassword { get; set; }
         public bool exsistUnsavePatternRecognitionExperiment { get; set; } = false;
         public string lastTrainModelName { get; set; }
-
+        public string lastCheckModel { get; set; }
+        public ModelStatus lastModelStatus { get; set; }
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
+        public string refreshToken { get; set; }
+        public DateTime refreshTokenExpiryDate { get; set; }
 
         private const int maxBitmapSize = 128; // do ustalenia
+        
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }
         public virtual ICollection<ExperimentList> experimentLists { get; set; }

@@ -1,5 +1,7 @@
 export interface ModelType {
     name: string,
-    patternNum: number
+    patternNum: number,
+    distribution: number,
+    extendedModelId: number,
 }
 

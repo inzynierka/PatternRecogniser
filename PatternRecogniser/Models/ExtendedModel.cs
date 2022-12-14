@@ -51,6 +51,7 @@ namespace PatternRecogniser.Models
 
         // tymczasowo asynchroniczna w celu testowania
         public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+
         {
 
             //this.distribution = distribution;
