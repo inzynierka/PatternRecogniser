@@ -26,9 +26,9 @@ const ComparisonList = (props: Props) => {
             return num.toString() + " znaków"
         }
         else {
-            if(num === 1) return num.toString() + " symbol"
-            if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " symbole"
-            return num.toString() + " symboli"
+            if(num === 1) return num.toString() + " model"
+            if(num % 10 >= 2 && num % 10 <= 4) return num.toString() + " modele"
+            return num.toString() + " modeli"
         }
     }
 

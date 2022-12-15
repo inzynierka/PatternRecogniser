@@ -6,6 +6,13 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
+	<ItemGroup>
+		<MsDeploySkipRules Include="CustomSkipFolder">
+			<ObjectName>dirPath</ObjectName>
+			<AbsolutePath>ClientApp</AbsolutePath>
+		</MsDeploySkipRules>
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="CSharpTest.Net.Collections" Version="14.906.1403.1082" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />

@@ -32,11 +32,7 @@ const RecognisePage = () => {
         onRemove: () => {
             setPatternFile(undefined);
         },
-        // onDrop(e) {
-        //   console.log('Dropped files', e.dataTransfer.files);
-        // },
         beforeUpload: file => {
-            //console.log("Before upload", file)
             setPatternFile(file);
             return false;
         },
@@ -76,7 +72,7 @@ const RecognisePage = () => {
         fetchModels();
     }, [])
 
-    const onFinish = (values: any) => {
+    const onFinish = () => {
         apiService.patternRecognition(usedModel, patternFile as RcFile)
         .then(response => response.json())
         .then(
