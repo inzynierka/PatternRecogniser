@@ -175,10 +175,10 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                var model = _context.extendedModel.FirstOrDefault(model => model.name == modelName && model.userLogin == login);
+                var model = _context.extendedModel.Include(model => model.modelTrainingExperiment).FirstOrDefault(model => model.name == modelName && model.userLogin == login);
                 if (model == null)
                     return Ok();
-
+                _context.modelTrainingExperiment.Remove(model.modelTrainingExperiment);
                 _context.extendedModel.Remove(model);
 
                 await _context.SaveChangesAsync();
