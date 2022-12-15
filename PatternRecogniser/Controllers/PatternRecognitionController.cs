@@ -43,8 +43,17 @@ namespace PatternRecogniser.Controllers
                 if(model == null)
                     return NotFound(_messages.modelNotFound);
 
-                var result = model.RecognisePattern(picture);
-
+                //var result = model.RecognisePattern(picture); \\ odkomentuj
+       //////////////////////////   ////////////////////////   ///// usuń po prezentacji
+                var result = new List<RecognisedPatterns>();
+                //for (int i = 0; i < 3; i++)
+                //{
+                //    RecognisedPatterns recognisedPattern = new RecognisedPatterns();
+                //    recognisedPattern.probability = new Random().NextDouble();
+                //    result.Add(recognisedPattern);
+                //}
+   ////////////////////     ///////////////////// //////////  ///
+                
                 // zapisujemy rezultat
                 PatternRecognitionExperiment pre = new PatternRecognitionExperiment()
                 {

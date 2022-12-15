@@ -157,6 +157,7 @@ namespace PatternRecogniser.Models
             return toReturn; 
         }
 
+        // coś nam to nie działa 
         private void TrainIndividualModel(PatternData train, PatternData test) 
         {
             tf.enable_eager_execution();

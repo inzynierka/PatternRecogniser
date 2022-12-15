@@ -80,8 +80,15 @@ namespace PatternRecogniser.Services
 
             //Stream stream = info.trainingSet.OpenReadStream ();
             //info.
-            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
+            // coś nam to nie działa 
+            //model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
 
+
+            // usuń mnie po prezentacji
+            model.modelTrainingExperiment = new ModelTrainingExperiment();
+            model.modelTrainingExperiment.extendedModel = model;
+            ///////////////////////////////////////
+            ///
 
             if (new Random().NextDouble() > 0.01)
             {
