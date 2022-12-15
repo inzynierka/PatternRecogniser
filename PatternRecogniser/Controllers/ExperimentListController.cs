@@ -156,6 +156,26 @@ namespace PatternRecogniser.Controllers
                 return Ok(experiments);
         }
 
+        /// <summary>
+        /// Usuwanie listy
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpDelete("DeleteList")]
+        public async Task<IActionResult> DeleteList(string experimentListName)
+        {
+            string login = User.Identity.Name;
+            var list = await _context.experimentList.Where(a => a.name == experimentListName && a.userLogin == login).FirstOrDefaultAsync();
+
+            if (list == null)
+                return Ok(_messeges.susessfullyDeleted);
+
+            _context.experimentList.Remove(list);
+            await _context.SaveChangesAsync();
+
+            return Ok(_messeges.susessfullyDeleted);
+        }
+
 
         private bool IsExperimentListExsist(string login, string experimentName)
         {
