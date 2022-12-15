@@ -20,12 +20,12 @@ namespace PatternRecogniser.Services.NewFolder
     {
 
         private PatternRecogniserDBContext _context;
-        private DbSet<User> dbSet;
+        private DbSet<User> _dbSet;
 
         public AuthenticationRepository(PatternRecogniserDBContext context)
         {
             _context = context;
-            dbSet = context.Set<User>();
+            _dbSet = context.Set<User>();
         }
 
         public async Task AddUserToDB(User user)
@@ -39,9 +39,10 @@ namespace PatternRecogniser.Services.NewFolder
             await _context.SaveChangesAsync();
         }
 
+
         public List<User> GetUsers(Expression<Func<User, bool>> filter = null)
         {
-            IQueryable<User> query = dbSet;
+            IQueryable<User> query = _dbSet;
             if (filter != null)
             {
                 query = query.Where(filter);

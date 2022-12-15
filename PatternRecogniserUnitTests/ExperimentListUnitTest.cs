@@ -10,6 +10,11 @@ namespace PatternRecogniserUnitTests
     [TestClass]
     public class ExperimentListUnitTest
     {
+
+        public ExperimentListUnitTest()
+        {
+        }
+
         [TestMethod]
         public void Create()
         {

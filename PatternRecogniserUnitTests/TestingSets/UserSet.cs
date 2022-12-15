@@ -32,7 +32,7 @@ namespace PatternRecogniserUnitTests.TestingSets
 
         public Task SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

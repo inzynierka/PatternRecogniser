@@ -19,14 +19,11 @@ namespace PatternRecogniser.Services
 
     public class AuthenticationServicis: IAuthenticationServicis
     {
-        private PatternRecogniserDBContext _context;
-        private AuthenticationStringMesseges _message = new AuthenticationStringMesseges();
         private IPasswordHasher<User> _passwordHasher;
         private ITokenCreator _tokenCreator;
 
-        public AuthenticationServicis(PatternRecogniserDBContext context, IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
+        public AuthenticationServicis(IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
         {
-            _context = context;
             _passwordHasher = passwordHasher;
             _tokenCreator = tokenCreator;
         }
@@ -43,7 +40,6 @@ namespace PatternRecogniser.Services
 
             // samo dodaje ziarno więc luzik
             user.hashedPassword = _passwordHasher.HashPassword(user, info.password);
-            
 
             return user;
         }

@@ -78,7 +78,11 @@ namespace PatternRecogniser.Controllers
 
             await _authenticationRepo.SaveChangesAsync();
             
-            return Ok(tokens);
+            return Ok(new LogInRespond()
+            {
+                tokens = tokens,
+                email = user.email
+            });
         }
 
 

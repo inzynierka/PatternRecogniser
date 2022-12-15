@@ -12,7 +12,7 @@ namespace PatternRecogniserUnitTests
         public static IConfiguration InitConfiguration()
         {
             var config = new ConfigurationBuilder()
-               .AddJsonFile("appsettings.test.json")
+               .AddJsonFile("appsettings.json")
                 .AddEnvironmentVariables()
                 .Build();
             return config;

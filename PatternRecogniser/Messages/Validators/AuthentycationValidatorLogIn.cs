@@ -13,25 +13,26 @@ namespace PatternRecogniser.Messages.Validators
         public AuthentycationValidatorLogIn(IAuthenticationRepo AuthenticationRepo, IPasswordHasher<User> passwordHasher)
         {
 
-            User user = null;
-
-            RuleFor(x => x.login).
-               Custom((value, context) =>
-               {
-                   user = AuthenticationRepo.GetUsers(u => u.login == value).FirstOrDefault();
-                   if (user != null)
-                       context.AddFailure("login", _message.userNotFound);
-               });
-
             
+            User user = null;
+            When(x => {
+                user = AuthenticationRepo.GetUsers(u => u.login == x.login).FirstOrDefault();
+                return user == null;
+            }, ()=>
+            {
+                RuleFor(l => l.login).Custom((value, context) =>
+                {
+                    context.AddFailure("login", _message.userNotFound);
+                });
+            }).Otherwise( () => {
                 RuleFor(x => x.password).
-                    Custom((value, context) =>
-                    {
-                        user = AuthenticationRepo.GetUsers(u => u.login == value).FirstOrDefault();
-                        if (user != null)
-                            if (passwordHasher.VerifyHashedPassword(user, user.hashedPassword, value) == PasswordVerificationResult.Failed)
-                                context.AddFailure("password", _message.incorectPassword);
-                    });
+                   Custom((value, context) =>
+                   {
+                       if (passwordHasher.VerifyHashedPassword(user, user.hashedPassword, value) == PasswordVerificationResult.Failed)
+                               context.AddFailure("password", _message.incorectPassword);
+                   });
+            });
+            
         }
     }
 }
