@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
+import { ApiService, ILogIn, LogIn } from '../generated/ApiService';
 
 import MyModelsPage from '../pages/Models/MyModels';
 import { renderComponentWithRouter } from './util';
@@ -40,4 +41,28 @@ describe("MyModelsPanel", () => {
         fireEvent.change(searchInput, { target: { value: "abc" } });
         expect(searchInput).toHaveValue("abc");
     });
+})
+
+describe("MyModelsIntegrationTests", () => {
+    const mockedLoginData : ILogIn = {
+        login: "TestAccount",
+        password: "Abc123!@#"
+    }
+    const mockedModelName = "TestModel";
+    const mockedFile = new File([""], "testFile.zip", {type: "text/plain"});
+
+   const logIn = () => {
+        const apiService = new ApiService();
+        return apiService.logIn(new LogIn(mockedLoginData))
+        .then(response => response.json())
+        .then(
+            (data) => {
+                localStorage.setItem('token', data.tokens.accessToken);
+                return Promise.resolve();
+            },
+            () => {
+                return Promise.reject();
+            }
+        )
+   }
 })
