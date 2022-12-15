@@ -9,6 +9,7 @@ using PatternRecogniser.Messages.TrainModel;
 using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,6 +51,9 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
+                ExtendedModel extendedModel = new ExtendedModel ();
+                extendedModel.name = modelName;
+                extendedModel.TrainModel (distributionType, _traningUpdate, trainingSet, new List<int> { 80, 20 });
                 if (GetStatus(login, modelName) != ModelStatus.NotFound)
                     return BadRequest(_messages.modelAlreadyExist);
 
