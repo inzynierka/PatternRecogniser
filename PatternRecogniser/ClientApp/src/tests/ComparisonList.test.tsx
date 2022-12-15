@@ -5,6 +5,7 @@ import React from 'react';
 
 import ComparisonList from '../pages/ComparisonLists/ComparisonList';
 import { ComparisonListType, ExperimentType } from '../types/ComparisonType';
+import { renderComponentWithRouter } from './util';
 
 
 window.matchMedia = window.matchMedia || function() {
@@ -31,24 +32,24 @@ let signsList : ComparisonListType = {
   
 describe("ComparisonList", () => {
     it("renders model list element", () => {
-        render(<ComparisonList list={modelsList} />);
+        renderComponentWithRouter(<ComparisonList list={modelsList} />);
 
         expect(screen.getByText(modelsList.name)).toBeInTheDocument();
     });
     it("renders sign list element", () => {
-        render(<ComparisonList list={signsList} />);
+        renderComponentWithRouter(<ComparisonList list={signsList} />);
 
         expect(screen.getByText(signsList.name)).toBeInTheDocument();
     });
 
     it("renders model list element with correct buttons", () => {
-        render(<ComparisonList list={modelsList} />);
+        renderComponentWithRouter(<ComparisonList list={modelsList} />);
 
         expect(screen.getByText("Szczegóły")).toBeInTheDocument();
         expect(screen.getByTestId("delete-button")).toBeInTheDocument();
     });
     it("renders sign list element with correct buttons", () => {
-        render(<ComparisonList list={signsList} />);
+        renderComponentWithRouter(<ComparisonList list={signsList} />);
 
         expect(screen.getByText("Szczegóły")).toBeInTheDocument();
         expect(screen.getByTestId("delete-button")).toBeInTheDocument();

@@ -31,7 +31,7 @@ namespace PatternRecogniser.Controllers
         [HttpPut("createExperimentList")]
         public async Task<IActionResult> Create(string experimentListName, string experimentType)
         {
-            
+
 
             try
             {
@@ -61,20 +61,21 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpPut("addModelTrainingExperiment")]
-        public async Task<IActionResult> AddModelTrainingExperiment(string experimentListName, int experimentId)
+        public async Task<IActionResult> AddModelTrainingExperiment(string experimentListName, int modelId)
         {
             try
             {
                 string login = User.Identity.Name;
-                var list = _context.experimentList.Include(list => list.experiments). Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "ModelTrainingExperiment").FirstOrDefault();
-                var experiment = _context.modelTrainingExperiment.Include(e => e.extendedModel).Where(experiment => experiment.experimentId == experimentId && experiment.extendedModel.userLogin == login).FirstOrDefault();
+                var list = _context.experimentList.Include(list => list.experiments).Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "ModelTrainingExperiment").FirstOrDefault();
+                var experiment = _context.extendedModel.Include(model => model.modelTrainingExperiment).Where(model => model.extendedModelId == modelId && model.userLogin == login).FirstOrDefault()?.modelTrainingExperiment;
+
                 if (experiment == null || list == null)
                     return BadRequest(_messeges.listOrExperimentDontExist);
                 else
                 {
                     list.experiments.Add(experiment);
                     await _context.SaveChangesAsync();
-                    return Ok(list.experiments);
+                    return Ok(_messeges.experimentHasBeenAdded);
                 }
             }
             catch (Exception e)
@@ -105,14 +106,14 @@ namespace PatternRecogniser.Controllers
                 if (user == null)
                     BadRequest();
 
-                if(user.IsAbbleToAddPatternRecognitionExperiment())
+                if (user.IsAbbleToAddPatternRecognitionExperiment())
                 {
                     list.experiments.Add(user.lastPatternRecognitionExperiment);
                     user.exsistUnsavePatternRecognitionExperiment = false;
                 }
                 else
                 {
-                    return NotFound(_messeges.notFoundExperimentsToAdd); 
+                    return NotFound(_messeges.notFoundExperimentsToAdd);
                 }
 
 
@@ -144,15 +145,35 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetExperiments")]
-        public async Task<IActionResult>  GetExperiments(string experimentListName)
+        public async Task<IActionResult> GetExperiments(string experimentListName)
         {
             string login = User.Identity.Name;
-            var list = await _context.experimentList.Include(list => list.experiments).Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
+            var list = await _context.experimentList.Include(list => list.experiments).ThenInclude(ex => ex.extendedModel).Where(a => a.name == experimentListName && a.userLogin == login).FirstOrDefaultAsync();
             var experiments = list?.experiments;
-            if(experiments == null)
+            if (experiments == null)
                 return NotFound();
             else
                 return Ok(experiments);
+        }
+
+        /// <summary>
+        /// Usuwanie listy
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpDelete("DeleteList")]
+        public async Task<IActionResult> DeleteList(string experimentListName)
+        {
+            string login = User.Identity.Name;
+            var list = await _context.experimentList.Where(a => a.name == experimentListName && a.userLogin == login).FirstOrDefaultAsync();
+
+            if (list == null)
+                return Ok(_messeges.susessfullyDeleted);
+
+            _context.experimentList.Remove(list);
+            await _context.SaveChangesAsync();
+
+            return Ok(_messeges.susessfullyDeleted);
         }
 
 
