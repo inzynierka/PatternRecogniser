@@ -27,6 +27,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Lib.AspNetCore.ServerSentEvents;
 using PatternRecogniser.Middleware;
+using PatternRecogniser.Messages.Validators;
+using PatternRecogniser.Services.NewFolder;
 
 namespace PatternRecogniser
 {
@@ -73,6 +75,7 @@ namespace PatternRecogniser
             // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
+            services.AddScoped<IValidator<LogIn>, AuthentycationValidatorLogIn>();
             services.AddScoped<ITokenCreator, TokenCreator>();
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
@@ -132,6 +135,7 @@ namespace PatternRecogniser
             );
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IAuthenticationServicis, AuthenticationServicis>();
+            services.AddScoped<IAuthenticationRepo, AuthenticationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

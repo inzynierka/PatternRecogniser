@@ -12,6 +12,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Collections.Generic;
 using PatternRecogniser.Services;
+using PatternRecogniser.Services.NewFolder;
+using PatternRecogniser.Errors;
 
 namespace PatternRecogniser.Controllers
 {
@@ -19,10 +21,12 @@ namespace PatternRecogniser.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationServicis _authenticationServicis;
+        private readonly IAuthenticationRepo _authenticationRepo;
 
-        public AuthenticationController(IAuthenticationServicis authenticationServicis)
+        public AuthenticationController(IAuthenticationServicis authenticationServicis, IAuthenticationRepo authenticationRepo)
         {
             _authenticationServicis = authenticationServicis;
+            _authenticationRepo = authenticationRepo;
         }
 
 
@@ -46,7 +50,7 @@ namespace PatternRecogniser.Controllers
             // dodawanie refreshe token do bazy
             _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
 
-            await _authenticationServicis.SaveUser(userToAdd);
+            await _authenticationRepo.AddUserToDB(userToAdd);
 
 
             return Ok(tokens);
@@ -61,10 +65,20 @@ namespace PatternRecogniser.Controllers
         [HttpPost("LogIn")]
         public async Task<IActionResult> LogIn([FromBody] LogIn info)
         {
-           // return NotFound("asdasd");
-            var respond = await _authenticationServicis.LogIn(info);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = _authenticationRepo.GetUsers(u => u.login == info.login).First();
+
+            var tokens = _authenticationServicis.CreateTokens(user);
+
+            _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, user);
+
+            await _authenticationRepo.SaveChangesAsync();
             
-            return Ok(respond);
+            return Ok(tokens);
         }
 
 

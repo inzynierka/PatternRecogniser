@@ -14,6 +14,8 @@ using PatternRecogniser.Models.Validators;
 using FluentValidation.TestHelper;
 using FluentValidation;
 using FluentValidation.TestHelper;
+using PatternRecogniserUnitTests.TestingSets;
+using System.Collections.Generic;
 
 namespace PatternRecogniserUnitTests
 {
@@ -39,26 +41,22 @@ namespace PatternRecogniserUnitTests
         [TestMethod]
         public void InputDataValidatorTest()
         {
-            _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
-        .Returns(true);
-            _mockRepo.Setup(repo => repo.IsEmailTaken(signUpInfo.email))
-        .Returns(true);
-            var _validator = new AuthentycationValidatorSingUp(_mockRepo.Object);
+            UserTestSet us = new UserTestSet(new List<User>() { new User() { email = signUpInfo.email }, new User() { login = signUpInfo.login } });
+            var _validator = new AuthentycationValidatorSingUp(us);
             var result = _validator.Validate(signUpInfo);
-
-            //result.ShouldHaveValidationErrorFor
+            Assert.AreEqual(result.Errors.Count, 2);
 
         }
 
         [TestMethod]
-        public void SignUp_DateValidationTest()
+        public void SignUp_ReturnToken()
         {
+        //    new Mock<>
+        //    _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
+        //.Returns(true);
 
-            _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
-        .Returns(true);
-
-            var controller = new AuthenticationController(_mockRepo.Object);
-            var respond = controller.SignUp(signUpInfo);
+        //    var controller = new AuthenticationController(_mockRepo.Object, );
+        //    var respond = controller.SignUp(signUpInfo);
 
          }
 
