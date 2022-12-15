@@ -36,6 +36,7 @@ namespace PatternRecogniserUnitTests
             };
         }
 
+        [TestMethod]
         public void InputDataValidatorTest()
         {
             _mockRepo.Setup(repo => repo.IsLoginTaken(signUpInfo.login))
