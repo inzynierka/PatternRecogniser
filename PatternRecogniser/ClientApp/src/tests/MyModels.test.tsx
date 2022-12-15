@@ -49,7 +49,6 @@ describe("MyModelsIntegrationTests", () => {
         password: "Abc123!@#"
     }
     const mockedModelName = "TestModel";
-    const mockedFile = new File([""], "testFile.zip", {type: "text/plain"});
 
    const logIn = () => {
         const apiService = new ApiService();
@@ -65,4 +64,38 @@ describe("MyModelsIntegrationTests", () => {
             }
         )
    }
+    it("renders data when loggedIn", () => {
+        logIn().then(() => {
+            renderComponentWithRouter(<MyModelsPage />);
+            expect(screen.getByText("Moje modele")).toBeInTheDocument();
+        })
+        .catch(() => {
+            expect(false).toBe(true)
+        });
+    });
+    it("receives correct models from api", () => {
+        // special testing account has one model only: TestowyModel
+        logIn()
+        .then(() => {
+            let apiService = new ApiService();
+            apiService.getModels()
+                .then(response => response.json())
+                .then(
+                    (data) => {
+                        expect(data).not.toBeNull();
+                        expect(data).toHaveLength(1);
+                        expect(data[0].name).toBe(mockedModelName);
+                    },
+                    () => {
+                        expect(false).toBe(true)
+                    }
+                )
+                .catch(() => {
+                    expect(false).toBe(true)
+                });
+        })
+        .catch(() => {
+            expect(false).toBe(true)
+        });
+    });
 })
