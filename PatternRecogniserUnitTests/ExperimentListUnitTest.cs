@@ -13,6 +13,7 @@ namespace PatternRecogniserUnitTests
 
         public ExperimentListUnitTest()
         {
+
         }
 
         [TestMethod]
@@ -40,7 +41,7 @@ namespace PatternRecogniserUnitTests
         }
 
         [TestMethod]
-        public void GetExperiments(string experimentListName)
+        public void GetExperiments()
         {
             
         }

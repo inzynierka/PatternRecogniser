@@ -147,7 +147,8 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult>  GetExperiments(string experimentListName)
         {
             string login = User.Identity.Name;
-            var list = await _context.experimentList.Include(list => list.experiments).Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
+            var list = await _context.experimentList.Include(list => list.experiments)
+                .Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
             var experiments = list?.experiments;
             if(experiments == null)
                 return NotFound();
