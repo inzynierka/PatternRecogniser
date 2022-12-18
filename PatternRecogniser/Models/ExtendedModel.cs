@@ -131,28 +131,28 @@ namespace PatternRecogniser.Models
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
         {
             var toReturn = new List<RecognisedPatterns> ();
-            //var toRecognise = user.NormaliseData(picture);
-            //float[] pic = new float[toRecognise.GetLength(0) * toRecognise.GetLength(1)];
-            //int i = 0;
-            //foreach (var pixel in toRecognise)
-            //{
-            //    pic[i] = pixel;
-            //    i++;
-            //}
-            //Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
-            //var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
-            //foreach (var r in result)
-            //{
-            //    foreach (var rn in r.numpy())
-            //    {
-            //        foreach (var rnn in rn.numpy())
-            //        {
-            //            RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
-            //            recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
-            //            toReturn.Add (recognisedPattern);
-            //        }
-            //    }
-            //}
+            var toRecognise = NormaliseData (picture);
+            float[] pic = new float[toRecognise.GetLength (0) * toRecognise.GetLength (1)];
+            int i = 0;
+            foreach (var pixel in toRecognise)
+            {
+                pic[i] = pixel;
+                i++;
+            }
+            Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
+            var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
+            foreach (var r in result)
+            {
+                foreach (var rn in r.numpy ())
+                {
+                    foreach (var rnn in rn.numpy ())
+                    {
+                        RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
+                        recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
+                        toReturn.Add (recognisedPattern);
+                    }
+                }
+            }
 
             return toReturn; 
         }
