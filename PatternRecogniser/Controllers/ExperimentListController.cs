@@ -158,10 +158,10 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetExperiments")]
-        public async Task<IActionResult>  GetExperiments(string experimentListName)
+        public IActionResult  GetExperiments(string experimentListName)
         {
-            string login = User.Identity.Name;
-            var list = await _context.experimentList.Include(list => list.experiments).Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
+            string login = User.Identity.Name; 
+            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login , "experiments").FirstOrDefault();
             var experiments = list?.experiments;
             if (experiments == null)
                 return NotFound();
@@ -178,13 +178,13 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> DeleteList(string experimentListName)
         {
             string login = User.Identity.Name;
-            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login).FirstOfDefault();
+            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login).FirstOrDefault();
 
             if (list == null)
                 return Ok(_messeges.susessfullyDeleted);
 
-            _context.experimentList.Remove(list);
-            await _context.SaveChangesAsync();
+            _experimentListRepo.Delete(list);
+            await _experimentListRepo.SaveChangesAsync();
 
             return Ok(_messeges.susessfullyDeleted);
         }
