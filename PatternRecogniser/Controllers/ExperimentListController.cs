@@ -76,7 +76,7 @@ namespace PatternRecogniser.Controllers
                 var list = _experimentListRepo.Get(list => list.name == experimentListName &&
                     list.userLogin == login &&
                     list.experimentType == "ModelTrainingExperiment",
-                        "experiment")
+                        "experiments")
                     .FirstOrDefault(); 
                 var experiment = _extendedModelRepo.Get(model => model.extendedModelId == modelId && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault()?.modelTrainingExperiment;
 

@@ -30,7 +30,7 @@ namespace PatternRecogniser.Controllers
         private int defultStesNumber = 2;
         private IGenericRepository<ExtendedModel> _extendedModelRepo;
         private readonly IGenericRepository<User> _userRepo;
-        private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo
+        private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo;
 
         public TrainModelController(
             IGenericRepository<ExtendedModel> extendedModelRepo,
