@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.Messages.ExperimentList;
 using PatternRecogniser.Models;
+using PatternRecogniser.Services.Repos;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,11 +16,17 @@ namespace PatternRecogniser.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ExperimentListController : ControllerBase
     {
-        private PatternRecogniserDBContext _context;
+        private IGenericRepository<ExperimentList> _experimentListRepo;
+        private IGenericRepository<ExtendedModel> _extendedModelRepo;
+        private IGenericRepository<User> _userRepo;
         private ExperimentListStringMesseges _messeges = new ExperimentListStringMesseges();
-        public ExperimentListController(PatternRecogniserDBContext context)
+        public ExperimentListController(IGenericRepository<ExtendedModel> extendedModelRepo,
+            IGenericRepository<ExperimentList> experimentListRepo,
+            IGenericRepository<User> userRepo)
         {
-            _context = context;
+            _experimentListRepo = experimentListRepo;
+            _extendedModelRepo = extendedModelRepo;
+            _userRepo = userRepo;
         }
 
 
@@ -31,21 +38,19 @@ namespace PatternRecogniser.Controllers
         [HttpPut("createExperimentList")]
         public async Task<IActionResult> Create(string experimentListName, string experimentType)
         {
-            
-
             try
             {
                 string login = User.Identity.Name;
                 if (IsExperimentListExsist(login, experimentListName))
                     return BadRequest(_messeges.listAlreadyExist);
 
-                _context.experimentList.Add(new ExperimentList()
+                _experimentListRepo.Insert(new ExperimentList()
                 {
                     userLogin = login,
                     name = experimentListName,
                     experimentType = experimentType
                 });
-                await _context.SaveChangesAsync();
+                await _experimentListRepo.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)
@@ -61,20 +66,25 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpPut("addModelTrainingExperiment")]
-        public async Task<IActionResult> AddModelTrainingExperiment(string experimentListName, int experimentId)
+        public async Task<IActionResult> AddModelTrainingExperiment(string experimentListName, int modelId)
         {
             try
             {
                 string login = User.Identity.Name;
-                var list = _context.experimentList.Include(list => list.experiments). Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "ModelTrainingExperiment").FirstOrDefault();
-                var experiment = _context.modelTrainingExperiment.Include(e => e.extendedModel).Where(experiment => experiment.experimentId == experimentId && experiment.extendedModel.userLogin == login).FirstOrDefault();
+                var list = _experimentListRepo.Get(list => list.name == experimentListName &&
+                    list.userLogin == login &&
+                    list.experimentType == "ModelTrainingExperiment",
+                        "experiment")
+                    .FirstOrDefault(); 
+                var experiment = _extendedModelRepo.Get(model => model.extendedModelId == modelId && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault()?.modelTrainingExperiment;
+
                 if (experiment == null || list == null)
                     return BadRequest(_messeges.listOrExperimentDontExist);
                 else
                 {
                     list.experiments.Add(experiment);
-                    await _context.SaveChangesAsync();
-                    return Ok(list.experiments);
+                    await _experimentListRepo.SaveChangesAsync();
+                    return Ok(_messeges.experimentHasBeenAdded);
                 }
             }
             catch (Exception e)
@@ -90,29 +100,31 @@ namespace PatternRecogniser.Controllers
         /// <returns></returns>
         [HttpPut("addPatternRecognitionExperiment")]
         [Consumes("multipart/form-data")]
-        public IActionResult AddPatternRecognitionExperiment(string experimentListName)
+        public async Task<IActionResult> AddPatternRecognitionExperiment(string experimentListName)
         {
             try
             {
-                string login = User.Identity.Name;
-                var list = _context.experimentList.Include(list => list.experiments).Where(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment").FirstOrDefault();
+                string login = User.Identity.Name; 
+                var list = _experimentListRepo.Get(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment",
+                    "experiments").FirstOrDefault();
 
                 if (list == null)
                     return BadRequest(_messeges.listDontExisit);
-
-                var user = _context.user.Include(user => user.lastPatternRecognitionExperiment).Where(user => user.login == login).FirstOrDefault();
+                //lastPatternRecognitionExperiment
+                var user = _userRepo.Get(user => user.login == login, "lastPatternRecognitionExperiment").FirstOrDefault();
 
                 if (user == null)
                     BadRequest();
 
-                if(user.IsAbbleToAddPatternRecognitionExperiment())
+                if (user.IsAbbleToAddPatternRecognitionExperiment())
                 {
                     list.experiments.Add(user.lastPatternRecognitionExperiment);
                     user.exsistUnsavePatternRecognitionExperiment = false;
+                    await _experimentListRepo.SaveChangesAsync();
                 }
                 else
                 {
-                    return NotFound(_messeges.notFoundExperimentsToAdd); 
+                    return NotFound(_messeges.notFoundExperimentsToAdd);
                 }
 
 
@@ -134,7 +146,7 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetLists()
         {
             string login = User.Identity.Name;
-            var list = _context.experimentList.Where(a => a.userLogin == login);
+            var list = _experimentListRepo.Get(a => a.userLogin == login);
             return Ok(list);
         }
 
@@ -144,11 +156,10 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetExperiments")]
-        public async Task<IActionResult>  GetExperiments(string experimentListName)
+        public IActionResult  GetExperiments(string experimentListName)
         {
-            string login = User.Identity.Name;
-            var list = await _context.experimentList.Include(list => list.experiments)
-                .Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
+            string login = User.Identity.Name; 
+            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login, "experiments").FirstOrDefault();
             var experiments = list?.experiments;
             if(experiments == null)
                 return NotFound();
@@ -159,7 +170,7 @@ namespace PatternRecogniser.Controllers
 
         private bool IsExperimentListExsist(string login, string experimentName)
         {
-            return _context.experimentList.Where(list => list.name == experimentName && list.userLogin == login).Count() > 0;
+            return _experimentListRepo.Get(list => list.name == experimentName && list.userLogin == login).Count() > 0;
         }
     }
 }

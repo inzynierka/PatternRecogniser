@@ -6,6 +6,7 @@ using PatternRecogniser.Messages.Authorization;
 using PatternRecogniser.Messages.Token;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services;
+using PatternRecogniser.Services.Repos;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,14 +17,14 @@ namespace PatternRecogniser.Controllers
    [ Route("[controller]")]
     public class TokenController : ControllerBase
     {
-        private readonly PatternRecogniserDBContext _context;
+        private readonly IGenericRepository<User> _userRepo;
         private readonly ITokenCreator _tokenCreator;
         private IPasswordHasher<User> _passwordHasher;
         private readonly TokenStringMesseges _messeges = new TokenStringMesseges();
 
-        public TokenController(PatternRecogniserDBContext context, ITokenCreator tokenCreator, IPasswordHasher<User> passwordHasher)
+        public TokenController(IGenericRepository<User> userRepo, ITokenCreator tokenCreator, IPasswordHasher<User> passwordHasher)
         {
-            _context = context;
+            _userRepo = userRepo;
             _tokenCreator = tokenCreator;
             _passwordHasher = passwordHasher;
         }
@@ -39,7 +40,7 @@ namespace PatternRecogniser.Controllers
 
             var principal = _tokenCreator.GetPrincipalFromExpiredToken(accessToken);
             var login = principal.Identity.Name; //this is mapped to the Name claim by default
-            var user = _context.user.SingleOrDefault(u => u.login == login);
+            var user = _userRepo.Get(u => u.login == login).SingleOrDefault();
 
             if (user is null ||
                 _passwordHasher.VerifyHashedPassword(user, user.refreshToken, refreshToken) == PasswordVerificationResult.Failed||
@@ -50,7 +51,7 @@ namespace PatternRecogniser.Controllers
             var newRefreshToken = _tokenCreator.CreateRefreshToken();
             user.refreshToken = _passwordHasher.HashPassword(user, newRefreshToken);
             user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
-            await _context.SaveChangesAsync();
+            await _userRepo.SaveChangesAsync();
 
             return Ok(new Tokens()
             {
@@ -66,10 +67,10 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> Revoke()
         {
             var login = User.Identity.Name;
-            var user = _context.user.SingleOrDefault(u => u.login == login);
+            var user = _userRepo.Get(u => u.login == login).SingleOrDefault();
             if (user == null) return BadRequest();
             user.refreshToken = null;
-            await _context.SaveChangesAsync();
+            await _userRepo.SaveChangesAsync();
             return NoContent();
         }
 

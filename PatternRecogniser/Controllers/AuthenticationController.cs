@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using PatternRecogniser.Services;
 using PatternRecogniser.Services.NewFolder;
 using PatternRecogniser.Errors;
+using PatternRecogniser.Services.Repos;
 
 namespace PatternRecogniser.Controllers
 {
@@ -21,9 +22,9 @@ namespace PatternRecogniser.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationServicis _authenticationServicis;
-        private readonly IAuthenticationRepo _authenticationRepo;
+        private readonly IGenericRepository<User> _authenticationRepo;
 
-        public AuthenticationController(IAuthenticationServicis authenticationServicis, IAuthenticationRepo authenticationRepo)
+        public AuthenticationController(IAuthenticationServicis authenticationServicis, IGenericRepository<User> authenticationRepo)
         {
             _authenticationServicis = authenticationServicis;
             _authenticationRepo = authenticationRepo;
@@ -50,8 +51,8 @@ namespace PatternRecogniser.Controllers
             // dodawanie refreshe token do bazy
             _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
 
-            await _authenticationRepo.AddUserToDB(userToAdd);
-
+            _authenticationRepo.Insert(userToAdd);
+            await _authenticationRepo.SaveChangesAsync();
 
             return Ok(tokens);
         }
@@ -70,7 +71,7 @@ namespace PatternRecogniser.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = _authenticationRepo.GetUsers(u => u.login == info.login).First();
+            var user = _authenticationRepo.Get(u => u.login == info.login).First();
 
             var tokens = _authenticationServicis.CreateTokens(user);
 

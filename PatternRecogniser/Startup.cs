@@ -29,6 +29,7 @@ using Lib.AspNetCore.ServerSentEvents;
 using PatternRecogniser.Middleware;
 using PatternRecogniser.Messages.Validators;
 using PatternRecogniser.Services.NewFolder;
+using PatternRecogniser.Services.Repos;
 
 namespace PatternRecogniser
 {
@@ -135,7 +136,10 @@ namespace PatternRecogniser
             );
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IAuthenticationServicis, AuthenticationServicis>();
-            services.AddScoped<IAuthenticationRepo, AuthenticationRepository>();
+            services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
+            services.AddScoped<IGenericRepository<ExtendedModel>, GenericRepository<ExtendedModel>>();
+            services.AddScoped<IGenericRepository<ExperimentList>, GenericRepository<ExperimentList>>();
+            services.AddScoped<IGenericRepository<PatternRecognitionExperiment>, GenericRepository<PatternRecognitionExperiment>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

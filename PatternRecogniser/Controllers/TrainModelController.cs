@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.Messages.TrainModel;
 using PatternRecogniser.Models;
+using PatternRecogniser.Services.Repos;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.IO;
@@ -24,14 +25,20 @@ namespace PatternRecogniser.Controllers
 
         private readonly IBackgroundTaskQueue _trainInfoQueue;
         private readonly ITrainingUpdate _traningUpdate;
-        private PatternRecogniserDBContext _context;
         public TrainModelStringMessages _messages = new TrainModelStringMessages();
         private double defultTrainPercent = 0.8;
         private int defultStesNumber = 2;
+        private IGenericRepository<ExtendedModel> _extendedModelRepo;
+        private readonly IGenericRepository<User> _userRepo;
 
-        public TrainModelController(PatternRecogniserDBContext context, IBackgroundTaskQueue trainInfoQueue, ITrainingUpdate trainingUpdate)
+        public TrainModelController(
+            IGenericRepository<ExtendedModel> extendedModelRepo,
+            IGenericRepository<User> userRepo,
+            IBackgroundTaskQueue trainInfoQueue,
+            ITrainingUpdate trainingUpdate)
         {
-            _context = context;
+            _extendedModelRepo = extendedModelRepo;
+            _userRepo = userRepo;
             _trainInfoQueue = trainInfoQueue;
             _traningUpdate = trainingUpdate;
         }
@@ -60,20 +67,20 @@ namespace PatternRecogniser.Controllers
                 if (!(trainingSet.FileName.EndsWith(".zip")))
                     throw new Exception(_messages.incorectFileFormat);
 
-                if (distributionType == DistributionType.CrossValidation && ( trainingPercent >= 1 || trainingPercent < 0) )
+                if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
-                if (distributionType == DistributionType.TrainTest && setsNumber <= 1 )
+                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent < 0)   )
                     return BadRequest(_messages.incorectTrainTest);
 
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
                 setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
 
                 _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
-                var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+                var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
                 user.lastTrainModelName = modelName;
 
-                await _context.SaveChangesAsync();
+                await _userRepo.SaveChangesAsync();
 
                 return NumberInQueue();
             }
@@ -148,9 +155,11 @@ namespace PatternRecogniser.Controllers
         [HttpGet("GetModelStatistics")]
         public IActionResult GetModelStatistics(string modelName)
         {
-            string login = User.Identity.Name;
-            var statistics = _context.extendedModel.Include(model => model.modelTrainingExperiment ).Where(
-                model => model.userLogin == login && model.name == modelName).FirstOrDefault()?.modelTrainingExperiment;
+            string login = User.Identity.Name; 
+            var statistics = _extendedModelRepo.Get(
+                model => model.userLogin == login && model.name == modelName, 
+                "modelTrainingExperiment")
+                .FirstOrDefault()?.modelTrainingExperiment;
             if (statistics == null)
                 return NotFound();
             else
@@ -166,7 +175,7 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetModels()
         {
             string login = User.Identity.Name;
-            var models = _context.extendedModel.Where(model => model.userLogin == login);
+            var models = _extendedModelRepo.Get(model => model.userLogin == login);
             return Ok(models);
         }
 
@@ -181,13 +190,13 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                var model = _context.extendedModel.FirstOrDefault(model => model.name == modelName && model.userLogin == login);
+                var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login).FirstOrDefault();
                 if (model == null)
                     return Ok();
 
-                _context.extendedModel.Remove(model);
+                _extendedModelRepo.Delete(model);
 
-                await _context.SaveChangesAsync();
+                await _extendedModelRepo.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)
@@ -207,7 +216,7 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> GetModelStatus(string modelName)
         {
             string login = User.Identity.Name;
-            var user = _context.user.Where(user => user.login == login).FirstOrDefault();
+            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
             if (user == null)
                 return NotFound(_messages.userNotFound);
 
@@ -244,7 +253,7 @@ namespace PatternRecogniser.Controllers
 
             user.lastModelStatus = status;
             user.lastCheckModel = modelName;
-            await _context.SaveChangesAsync();
+            await _userRepo.SaveChangesAsync();
 
 
             return Ok(new GetModelStatusRespond()
@@ -264,10 +273,10 @@ namespace PatternRecogniser.Controllers
             if (_traningUpdate.IsUserModelInTraining(login, modelName))
                 return ModelStatus.Training;
 
-            if (_context.extendedModel.Where(model => model.userLogin == login && model.name == modelName).Count() > 0)
+            if (_extendedModelRepo.Get(model => model.userLogin == login && model.name == modelName).Count() > 0)
                 return ModelStatus.TrainingComplete;
 
-            var user = _context.user.Where(a => a.login == login).FirstOrDefault();
+            var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
 
             if (user != null && 
                 user.lastTrainModelName != null  && 

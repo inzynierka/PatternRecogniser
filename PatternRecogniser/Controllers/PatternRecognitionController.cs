@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PatternRecogniser.Messages.PatternRecognition;
 using PatternRecogniser.Models;
+using PatternRecogniser.Services.Repos;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,11 +18,19 @@ namespace PatternRecogniser.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PatternRecognitionController : ControllerBase
     {
-        private PatternRecogniserDBContext _context;
+        private IGenericRepository<ExtendedModel> _experimentListRepo;
+        private IGenericRepository<User> _userRepo;
+        private IGenericRepository<PatternRecognitionExperiment> _patternRecognitionExperimentRepo;
+
         private PatternRecognitionStringMessages _messages = new PatternRecognitionStringMessages();
-        public PatternRecognitionController(PatternRecogniserDBContext context)
+
+        public PatternRecognitionController(IGenericRepository<ExtendedModel > experimentListRepo,
+            IGenericRepository<User> userRepo, 
+            IGenericRepository<PatternRecognitionExperiment> patternRecognitionExperimentRepo)
         {
-            _context = context;
+            _experimentListRepo = experimentListRepo;
+            _userRepo = userRepo;
+            _patternRecognitionExperimentRepo = patternRecognitionExperimentRepo;
         }
 
         /// <summary>
@@ -37,7 +46,7 @@ namespace PatternRecogniser.Controllers
             {
                 string login = User.Identity.Name;
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
-                var model = _context.extendedModel.Where(model => model.userLogin == login && model.name == modelName)
+                var model = _experimentListRepo.Get(model => model.userLogin == login && model.name == modelName)
                     .FirstOrDefault();
 
                 if(model == null)
@@ -55,15 +64,15 @@ namespace PatternRecogniser.Controllers
                 };
 
 
-                var user = _context.user.Where(user => user.login == login).First();
+                var user = _userRepo.Get(user => user.login == login).First();
                 if (user.IsAbbleToAddPatternRecognitionExperiment())
-                    _context.patternRecognitionExperiment.Remove(user.lastPatternRecognitionExperiment);
+                   _patternRecognitionExperimentRepo.Delete(user.lastPatternRecognitionExperiment);
 
                 user.lastPatternRecognitionExperiment = pre;
                 user.exsistUnsavePatternRecognitionExperiment = true;
 
-                _context.patternRecognitionExperiment.Add(pre);
-                await _context.SaveChangesAsync();
+                _patternRecognitionExperimentRepo.Insert(pre);
+                await _patternRecognitionExperimentRepo.SaveChangesAsync();
 
 
                 if (pre == null)
