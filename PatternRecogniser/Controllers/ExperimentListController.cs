@@ -38,6 +38,8 @@ namespace PatternRecogniser.Controllers
         [HttpPut("createExperimentList")]
         public async Task<IActionResult> Create(string experimentListName, string experimentType)
         {
+            
+
             try
             {
                 string login = User.Identity.Name;
@@ -156,15 +158,35 @@ namespace PatternRecogniser.Controllers
         /// <description></description>
         /// <returns></returns>
         [HttpGet("GetExperiments")]
-        public IActionResult  GetExperiments(string experimentListName)
+        public async Task<IActionResult>  GetExperiments(string experimentListName)
         {
-            string login = User.Identity.Name; 
-            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login, "experiments").FirstOrDefault();
+            string login = User.Identity.Name;
+            var list = await _context.experimentList.Include(list => list.experiments).Where(a => a.name == experimentListName && a.userLogin == login ).FirstOrDefaultAsync();
             var experiments = list?.experiments;
-            if(experiments == null)
+            if (experiments == null)
                 return NotFound();
             else
                 return Ok(experiments);
+        }
+
+        /// <summary>
+        /// Usuwanie listy
+        /// </summary>
+        /// <description></description>
+        /// <returns></returns>
+        [HttpDelete("DeleteList")]
+        public async Task<IActionResult> DeleteList(string experimentListName)
+        {
+            string login = User.Identity.Name;
+            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login).FirstOfDefault();
+
+            if (list == null)
+                return Ok(_messeges.susessfullyDeleted);
+
+            _context.experimentList.Remove(list);
+            await _context.SaveChangesAsync();
+
+            return Ok(_messeges.susessfullyDeleted);
         }
 
 

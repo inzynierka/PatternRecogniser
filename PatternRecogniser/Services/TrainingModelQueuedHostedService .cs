@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PatternRecogniser.Models;
 using System;
@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace PatternRecogniser.Services
 {
@@ -74,14 +75,26 @@ namespace PatternRecogniser.Services
                 user = dbContext.user.First(u => u.login == info.login);
             }
 
-                var model = new ExtendedModel()
+
+            
+            var model = new ExtendedModel()
             {
                 name = info.modelName,
                 userLogin = info.login,
                 distribution = info.distributionType
             };
 
-            model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken);
+            //Stream stream = info.trainingSet.OpenReadStream ();
+            //info.
+            // coś nam to nie działa 
+            //model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
+
+
+            // usuń mnie po prezentacji
+            model.modelTrainingExperiment = new ModelTrainingExperiment();
+            model.modelTrainingExperiment.extendedModel = model;
+            ///////////////////////////////////////
+            ///
 
             if (new Random().NextDouble() > 0.1) // symulacja porażki trenowania
             {

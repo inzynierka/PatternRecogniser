@@ -30,15 +30,18 @@ namespace PatternRecogniser.Controllers
         private int defultStesNumber = 2;
         private IGenericRepository<ExtendedModel> _extendedModelRepo;
         private readonly IGenericRepository<User> _userRepo;
+        private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo
 
         public TrainModelController(
             IGenericRepository<ExtendedModel> extendedModelRepo,
             IGenericRepository<User> userRepo,
+            IGenericRepository<ModelTrainingExperiment> modelTrainingExperimentRepo,
             IBackgroundTaskQueue trainInfoQueue,
             ITrainingUpdate trainingUpdate)
         {
             _extendedModelRepo = extendedModelRepo;
             _userRepo = userRepo;
+            _modelTrainingExperimentRepo = modelTrainingExperimentRepo;
             _trainInfoQueue = trainInfoQueue;
             _traningUpdate = trainingUpdate;
         }
@@ -63,6 +66,12 @@ namespace PatternRecogniser.Controllers
                 string login = User.Identity.Name;
                 if (GetStatus(login, modelName) != ModelStatus.NotFound)
                     return BadRequest(_messages.modelAlreadyExist);
+
+                if(_trainInfoQueue.NumberInQueue(login)>=0)
+                    return BadRequest(_messages.youAlreadyWaitInTheQueue);
+
+                if(_traningUpdate.IsUserTrainingModel(login))
+                    return BadRequest(_messages.oneOfYourModelIsTraining);
 
                 if (!(trainingSet.FileName.EndsWith(".zip")))
                     throw new Exception(_messages.incorectFileFormat);
@@ -108,7 +117,7 @@ namespace PatternRecogniser.Controllers
             if (numberInQueue >= 0)
                 return Ok(numberInQueue);
             else
-                return NotFound(_messages.youAreNotInQueue);
+                return Ok(_messages.youAreNotInQueue);
         }
 
         /// <summary>
@@ -142,7 +151,7 @@ namespace PatternRecogniser.Controllers
             string login = User.Identity.Name;
             var info = _traningUpdate.ActualInfo(login, modelName);
             if (GetStatus(login, modelName) != ModelStatus.Training)
-                return NotFound(_messages.modelIsTrained);
+                return Ok(_messages.modelIsNotTraining);
             else
                 return Ok(info);
         }
@@ -193,7 +202,7 @@ namespace PatternRecogniser.Controllers
                 var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login).FirstOrDefault();
                 if (model == null)
                     return Ok();
-
+                _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);
                 _extendedModelRepo.Delete(model);
 
                 await _extendedModelRepo.SaveChangesAsync();
@@ -240,7 +249,7 @@ namespace PatternRecogniser.Controllers
                 message = _messages.modelIsInQueue;
 
             if (status == ModelStatus.Training)
-                message = _messages.modelIsTrained;
+                message = _messages.modelIsTraining;
 
             if (status == ModelStatus.TrainingComplete)
                 message = _messages.modelTrainingComplete;

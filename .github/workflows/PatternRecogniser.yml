@@ -2,7 +2,7 @@ name: Utwórz i wdróż aplikację .NET Core w aplikacji internetowej PatternRec
 on:
   push:
     branches:
-    - IN-46-Frontend-integracja-z-backendem
+    - dev
 env:
   AZURE_WEBAPP_NAME: PatternRecogniser
   AZURE_WEBAPP_PACKAGE_PATH: PatternRecogniser\published
@@ -15,8 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.8.0
       with:
+        include-prerelease: True
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"

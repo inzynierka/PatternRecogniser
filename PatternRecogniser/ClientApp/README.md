@@ -1,1 +1,0 @@
-This is frontend for the content-based book recommendation system.
