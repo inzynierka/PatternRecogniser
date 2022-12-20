@@ -135,7 +135,7 @@ namespace PatternRecogniser
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSwagger();
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()) // potencjalnie if do usunięcia
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwaggerUI(options =>
