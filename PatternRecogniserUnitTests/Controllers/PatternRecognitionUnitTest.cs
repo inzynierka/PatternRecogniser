@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PatternRecogniserUnitTests
+namespace PatternRecogniserUnitTests.Controllers
 {
     [TestClass]
     public class PatternRecognitionUnitTest

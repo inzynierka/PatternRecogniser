@@ -73,21 +73,20 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                var list = _experimentListRepo.Get(list => list.name == experimentListName &&
+                var experimentsList = _experimentListRepo.Get(list => list.name == experimentListName &&
                     list.userLogin == login &&
                     list.experimentType == "ModelTrainingExperiment",
                         "experiments")
-                    .FirstOrDefault(); 
+                    .FirstOrDefault();
                 var experiment = _extendedModelRepo.Get(model => model.extendedModelId == modelId && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault()?.modelTrainingExperiment;
 
-                if (experiment == null || list == null)
+                if (experiment == null || experimentsList == null)
                     return BadRequest(_messeges.listOrExperimentDontExist);
-                else
-                {
-                    list.experiments.Add(experiment);
-                    await _experimentListRepo.SaveChangesAsync();
-                    return Ok(_messeges.experimentHasBeenAdded);
-                }
+
+                experimentsList.experiments.Add(experiment);
+                await _experimentListRepo.SaveChangesAsync();
+                return Ok(_messeges.experimentHasBeenAdded);
+
             }
             catch (Exception e)
             {

@@ -74,7 +74,7 @@ namespace PatternRecogniser.Controllers
                     return BadRequest(_messages.oneOfYourModelIsTraining);
 
                 if (!(trainingSet.FileName.EndsWith(".zip")))
-                    throw new Exception(_messages.incorectFileFormat);
+                    return BadRequest(_messages.incorectFileFormat);
 
                 if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
                     return BadRequest(_messages.incorectCrossValidationOption);

@@ -13,8 +13,6 @@ using Moq;
 using PatternRecogniser.Models.Validators;
 using FluentValidation.TestHelper;
 using FluentValidation;
-using FluentValidation.TestHelper;
-using PatternRecogniserUnitTests.TestingSets;
 using System.Collections.Generic;
 using PatternRecogniser.Messages.Validators;
 using PatternRecogniser.Services.NewFolder;
@@ -22,7 +20,7 @@ using PatternRecogniser.Services.Repos;
 using System.Linq.Expressions;
 using System;
 
-namespace PatternRecogniserUnitTests
+namespace PatternRecogniserUnitTests.Controllers
 {
     [TestClass]
     public class AuthenticationUnitTests
@@ -37,7 +35,7 @@ namespace PatternRecogniserUnitTests
 
         public AuthenticationUnitTests()
         {
-            var conf = Helpers.InitConfiguration();
+            var conf = Helper.InitConfiguration();
             var authenticationSettings = new AuthenticationSettings();
             conf.GetSection("Authentication").Bind(authenticationSettings);
 
@@ -45,7 +43,7 @@ namespace PatternRecogniserUnitTests
             _passwordHasher = new PasswordHasher<User>();
             _tokenCreator = new TokenCreator(authenticationSettings);
             _authenticationServicis = new AuthenticationServicis(_passwordHasher, _tokenCreator);
-            _mockRepo = new Mock<IGenericRepository<User>>();
+            _mockRepo = new Mock<IGenericRepository<User>>().DefaultMockSetUp();
 
             _signUpInfo = new SignUp()
             {
@@ -63,8 +61,8 @@ namespace PatternRecogniserUnitTests
         [TestMethod]
         public void SignUp_LoginAndEmeilTaken()
         {
-            SetUpMock(new List<User>() { 
-                new User() { email = _signUpInfo.email }, 
+            _mockRepo.SetUpGet(new List<User>() {
+                new User() { email = _signUpInfo.email },
                 new User() { login = _signUpInfo.login } });
             var _validator = new AuthentycationValidatorSingUp(_mockRepo.Object);
             var result = _validator.Validate(_signUpInfo);
@@ -75,7 +73,7 @@ namespace PatternRecogniserUnitTests
         [TestMethod]
         public void SignUp_ReturnToken()
         {
-            SetUpMock(new List<User>());
+            _mockRepo.SetUpGet(new List<User>());
             var controller = new AuthenticationController(_authenticationServicis, _mockRepo.Object);
             var respond = controller.SignUp(_signUpInfo);
             var okResult = respond.Result as OkObjectResult;
@@ -90,7 +88,7 @@ namespace PatternRecogniserUnitTests
         [TestMethod]
         public void LogIn_IncorectPassword()
         {
-            SetUpMock(new List<User>() { new User()
+            _mockRepo.SetUpGet(new List<User>() { new User()
             {
                 login = _logInInfo.login,
                 hashedPassword = _passwordHasher.HashPassword(new User(), _logInInfo.password + "twist")
@@ -112,7 +110,7 @@ namespace PatternRecogniserUnitTests
                 email = "emailTestowy",
                 hashedPassword = _passwordHasher.HashPassword(new User(), _logInInfo.password)
             };
-            SetUpMock(new List<User>() { user });
+            _mockRepo.SetUpGet(new List<User>() { user });
 
             var controller = new AuthenticationController(_authenticationServicis, _mockRepo.Object);
             var respond = controller.LogIn(_logInInfo);
@@ -125,11 +123,6 @@ namespace PatternRecogniserUnitTests
             Assert.IsNotNull(tokens.accessToken);
             Assert.IsNotNull(tokens.refreshToken);
         }
-        private void SetUpMock(List<User> mockData)
-        {
-            _mockRepo.Setup(a => a.Get(It.IsAny<Expression<Func<User, bool>>> (), It.IsAny<string>()))
-                .Returns( (Expression<Func<User, bool>> filter, string include) => 
-                mockData.AsQueryable<User>().Where(filter).ToList() );
-        }
+
     }
 }
