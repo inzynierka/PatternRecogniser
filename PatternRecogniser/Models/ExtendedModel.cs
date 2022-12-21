@@ -50,13 +50,19 @@ namespace PatternRecogniser.Models
         private Model model;  // pamiętać, by dodać to do bazy
 
         // tymczasowo asynchroniczna w celu testowania
-        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
 
         {
 
             //this.distribution = distribution;
             modelTrainingExperiment = new ModelTrainingExperiment ();
             PatternData patternData = OpenZip (file);
+            
+            if (patternData.IsEmpty())
+            {
+                throw new Exception ("Zła struktura pliku");
+            }
+
             // trenowanie 
             /*for (int i = 0; i < 3; i++)
             {
