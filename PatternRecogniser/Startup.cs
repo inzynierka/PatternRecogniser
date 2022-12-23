@@ -137,7 +137,7 @@ namespace PatternRecogniser
                 opts => opts.UseNpgsql(connectionString)
             );
             services.AddScoped<ErrorHandlingMiddleware>();
-            services.AddScoped<IAuthenticationServicis, AuthenticationServicis>();
+            services.AddScoped<IAuthenticationServices, AuthenticationServices>();
             services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
             services.AddScoped<IGenericRepository<ExtendedModel>, GenericRepository<ExtendedModel>>();
             services.AddScoped<IGenericRepository<ExperimentList>, GenericRepository<ExperimentList>>();

@@ -28,7 +28,7 @@ namespace PatternRecogniserUnitTests.Controllers
         private SignUp _signUpInfo;
         private LogIn _logInInfo;
         private Mock<IGenericRepository<User>> _mockRepo;
-        private IAuthenticationServicis _authenticationServicis;
+        private IAuthenticationServices _authenticationServicis;
         private IPasswordHasher<User> _passwordHasher;
         private readonly ITokenCreator _tokenCreator;
         private readonly AuthenticationStringMesseges _messeges = new AuthenticationStringMesseges();
@@ -42,7 +42,7 @@ namespace PatternRecogniserUnitTests.Controllers
 
             _passwordHasher = new PasswordHasher<User>();
             _tokenCreator = new TokenCreator(authenticationSettings);
-            _authenticationServicis = new AuthenticationServicis(_passwordHasher, _tokenCreator);
+            _authenticationServicis = new AuthenticationServices(_passwordHasher, _tokenCreator);
             _mockRepo = new Mock<IGenericRepository<User>>().DefaultMockSetUp();
 
             _signUpInfo = new SignUp()

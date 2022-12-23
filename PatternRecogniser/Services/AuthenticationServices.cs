@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PatternRecogniser.Services
 {
-    public interface IAuthenticationServicis
+    public interface IAuthenticationServices
     {
 
 
@@ -17,12 +17,12 @@ namespace PatternRecogniser.Services
         User CreateUserFromSignUpInfo(SignUp info);
     }
 
-    public class AuthenticationServicis: IAuthenticationServicis
+    public class AuthenticationServices: IAuthenticationServices
     {
         private IPasswordHasher<User> _passwordHasher;
         private ITokenCreator _tokenCreator;
 
-        public AuthenticationServicis(IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
+        public AuthenticationServices(IPasswordHasher<User> passwordHasher, ITokenCreator tokenCreator)
         {
             _passwordHasher = passwordHasher;
             _tokenCreator = tokenCreator;

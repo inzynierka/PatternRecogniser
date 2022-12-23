@@ -21,12 +21,12 @@ namespace PatternRecogniser.Controllers
 
     public class AuthenticationController : ControllerBase
     {
-        private readonly IAuthenticationServicis _authenticationServicis;
+        private readonly IAuthenticationServices _authenticationServices;
         private readonly IGenericRepository<User> _authenticationRepo;
 
-        public AuthenticationController(IAuthenticationServicis authenticationServicis, IGenericRepository<User> authenticationRepo)
+        public AuthenticationController(IAuthenticationServices authenticationServicis, IGenericRepository<User> authenticationRepo)
         {
-            _authenticationServicis = authenticationServicis;
+            _authenticationServices = authenticationServicis;
             _authenticationRepo = authenticationRepo;
         }
 
@@ -44,12 +44,12 @@ namespace PatternRecogniser.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userToAdd = _authenticationServicis.CreateUserFromSignUpInfo(info);
+            var userToAdd = _authenticationServices.CreateUserFromSignUpInfo(info);
 
 
-            Tokens tokens = _authenticationServicis.CreateTokens(userToAdd);
+            Tokens tokens = _authenticationServices.CreateTokens(userToAdd);
             // dodawanie refreshe token do bazy
-            _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
+            _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
 
             _authenticationRepo.Insert(userToAdd);
             await _authenticationRepo.SaveChangesAsync();
@@ -73,9 +73,9 @@ namespace PatternRecogniser.Controllers
 
             var user = _authenticationRepo.Get(u => u.login == info.login).First();
 
-            var tokens = _authenticationServicis.CreateTokens(user);
+            var tokens = _authenticationServices.CreateTokens(user);
 
-            _authenticationServicis.AddRefreshTokenToUser(tokens.refreshToken, user);
+            _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, user);
 
             await _authenticationRepo.SaveChangesAsync();
             
