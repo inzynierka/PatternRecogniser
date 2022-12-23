@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatternRecogniser", "PatternRecogniser\PatternRecogniser.csproj", "{4050492B-DB70-47D7-B26A-02FB81FA6E40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatternRecogniser", "PatternRecogniser\PatternRecogniser.csproj", "{4050492B-DB70-47D7-B26A-02FB81FA6E40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatternRecogniserUnitTests", "PatternRecogniserUnitTests\PatternRecogniserUnitTests.csproj", "{A8B9DC7A-E1B8-460B-B9B5-21390B6B88DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{4050492B-DB70-47D7-B26A-02FB81FA6E40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4050492B-DB70-47D7-B26A-02FB81FA6E40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4050492B-DB70-47D7-B26A-02FB81FA6E40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8B9DC7A-E1B8-460B-B9B5-21390B6B88DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B9DC7A-E1B8-460B-B9B5-21390B6B88DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8B9DC7A-E1B8-460B-B9B5-21390B6B88DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8B9DC7A-E1B8-460B-B9B5-21390B6B88DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

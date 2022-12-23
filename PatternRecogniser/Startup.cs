@@ -26,6 +26,10 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Lib.AspNetCore.ServerSentEvents;
+using PatternRecogniser.Middleware;
+using PatternRecogniser.Messages.Validators;
+using PatternRecogniser.Services.NewFolder;
+using PatternRecogniser.Services.Repos;
 
 namespace PatternRecogniser
 {
@@ -72,6 +76,7 @@ namespace PatternRecogniser
             // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
+            services.AddScoped<IValidator<LogIn>, AuthentycationValidatorLogIn>();
             services.AddScoped<ITokenCreator, TokenCreator>();
             services.AddRazorPages();
             services.AddSwaggerGen(options =>
@@ -125,10 +130,20 @@ namespace PatternRecogniser
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
-            var connectionString = Configuration["DbContextSettings:ConnectionString"];
+            var conectionType = Configuration["DbContextSettings:ConectionType"];
+            var connectionString = Configuration[$"DbContextSettings:{conectionType}"];
+
             services.AddDbContext<PatternRecogniserDBContext>(
                 opts => opts.UseNpgsql(connectionString)
             );
+            services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddScoped<IAuthenticationServices, AuthenticationServices>();
+            services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
+            services.AddScoped<IGenericRepository<ExtendedModel>, GenericRepository<ExtendedModel>>();
+            services.AddScoped<IGenericRepository<ExperimentList>, GenericRepository<ExperimentList>>();
+            services.AddScoped<IGenericRepository<PatternRecognitionExperiment>, GenericRepository<PatternRecognitionExperiment>>();
+            services.AddScoped<IGenericRepository<ModelTrainingExperiment>, GenericRepository<ModelTrainingExperiment>>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -146,11 +161,11 @@ namespace PatternRecogniser
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                //app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

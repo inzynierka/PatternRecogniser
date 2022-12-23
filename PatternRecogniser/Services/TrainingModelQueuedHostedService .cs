@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using System.IO.Compression;
 
 namespace PatternRecogniser.Services
 {
@@ -56,18 +57,21 @@ namespace PatternRecogniser.Services
                 var info =
                      _trainInfoQueue.Dequeue(stoppingToken);
 
-               
-                
-                    await Train(info, stoppingToken);
-                
-                
+
+                await Train(info, stoppingToken);
+
             }
         }
 
         private async Task Train(TrainingInfo info,  CancellationToken stoppingToken)
         {
-
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
+            User user;
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+                user = dbContext.user.First(u => u.login == info.login);
+            }
 
 
             
@@ -81,18 +85,10 @@ namespace PatternRecogniser.Services
             //Stream stream = info.trainingSet.OpenReadStream ();
             //info.
             // coś nam to nie działa 
-            //model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
-
-
-            // usuń mnie po prezentacji
-            model.modelTrainingExperiment = new ModelTrainingExperiment();
-            model.modelTrainingExperiment.extendedModel = model;
-            ///////////////////////////////////////
-            ///
-
-            if (new Random().NextDouble() > 0.01)
+            try
             {
-                // tutaj byśmy zapisywali wyniki trenowania
+                model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
+                
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
@@ -105,12 +101,15 @@ namespace PatternRecogniser.Services
                     _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
                 }
             }
-            else
+            catch(Exception e)
             {
-                _trainingUpdate.Update($"request traininf failed {info.modelName}\n");
+                _trainingUpdate.Update(e.Message);
+                _logger.LogInformation($"error in hosted service: {e.Message}\n");
 
             }
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+
+
+
             _trainingUpdate.SetNewUserModel(null, null);
         }
     }

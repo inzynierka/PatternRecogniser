@@ -49,14 +49,15 @@ namespace PatternRecogniser.Models
 
         private Model model;  // pamiętać, by dodać to do bazy
 
-        // tymczasowo asynchroniczna w celu testowania
-        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+        
 
+
+        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
 
-            //this.distribution = distribution;
+           //this.distribution = info.distributionType;
             modelTrainingExperiment = new ModelTrainingExperiment ();
-            PatternData patternData = OpenZip (file);
+            PatternData patternData = OpenZip (trainingSet);
             
             if (patternData.IsEmpty())
             {
@@ -84,10 +85,10 @@ namespace PatternRecogniser.Models
             switch (distribution)
             {
                 case DistributionType.TrainTest:
-                    TrainModelTrainTest(patternData, parameters[0], parameters[1]); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
+                    TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
                     break;
                 case DistributionType.CrossValidation:
-                    TrainModelCrossValidation(patternData, parameters[0]);
+                    TrainModelCrossValidation(patternData, setsNumber);
                     break;
             }
             // parameters może być jedną wartością, bo w sumie train+test muszą dawać 100
@@ -269,13 +270,13 @@ namespace PatternRecogniser.Models
 
         // Obsługa zipów i Bitmap
 
-        private PatternData OpenZip (IFormFile file)
+        private PatternData OpenZip(byte[] bytes)
         {
-            PatternData data = new PatternData ();
-            if (CheckZipStructure (file) == false)
+            PatternData data = new PatternData();
+            if (CheckZipStructure(bytes) == false)
                 return data; // zwraca puste dane, potem użytkownikowi mówimy że coś nie halo
 
-            Stream stream = file.OpenReadStream ();
+            Stream stream = new MemoryStream(bytes);
             data.patterns = new List<List<Pattern>> ();
             using (ZipArchive zip = new ZipArchive(stream))
             {
@@ -309,15 +310,14 @@ namespace PatternRecogniser.Models
             return data;
         }
 
-        private bool CheckZipStructure (IFormFile file)
+        private bool CheckZipStructure(byte[] bytes)
         {
             // sprawdź czy to w ogóle zip (albo tylko zip będziemy wyświetlać, idk)
             //FileInfo fi = new FileInfo (path);
             //if (!fi.Extension.Equals (".zip"))
             //return false;
 
-            Stream data = file.OpenReadStream ();
-
+            Stream data = new MemoryStream(bytes);
             // otwieramy zip i sprawdzamy strukturę
             using (ZipArchive zip = new ZipArchive(data))
             {
