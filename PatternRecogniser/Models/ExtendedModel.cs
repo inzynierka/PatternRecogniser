@@ -49,8 +49,7 @@ namespace PatternRecogniser.Models
 
         private Model model;  // pamiętać, by dodać to do bazy
 
-        // tymczasowo asynchroniczna w celu testowania
-        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+        
 
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie

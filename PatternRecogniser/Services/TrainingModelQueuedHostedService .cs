@@ -57,9 +57,6 @@ namespace PatternRecogniser.Services
                 var info =
                      _trainInfoQueue.Dequeue(stoppingToken);
 
-                //using (ZipArchive zip = new ZipArchive(info.trainingSet))
-                //{
-                //}
 
                 await Train(info, stoppingToken);
 
@@ -88,13 +85,10 @@ namespace PatternRecogniser.Services
             //Stream stream = info.trainingSet.OpenReadStream ();
             //info.
             // coś nam to nie działa 
-            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
-            
-
-
-            if (new Random().NextDouble() > 0.1) // symulacja porażki trenowania
+            try
             {
-                // tutaj byśmy zapisywali wyniki trenowania
+                model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
+                
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
@@ -107,12 +101,15 @@ namespace PatternRecogniser.Services
                     _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
                 }
             }
-            else
+            catch(Exception e)
             {
-                _trainingUpdate.Update($"request traininf failed {info.modelName}\n");
+                _trainingUpdate.Update(e.Message);
+                _logger.LogInformation($"error in hosted service: {e.Message}\n");
 
             }
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+
+
+
             _trainingUpdate.SetNewUserModel(null, null);
         }
     }
