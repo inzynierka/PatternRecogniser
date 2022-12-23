@@ -12,13 +12,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-//using Tensorflow;
-//using Tensorflow.Keras;
-//using Tensorflow.Keras.ArgsDefinition;
-//using Tensorflow.Keras.Engine;
-//using Tensorflow.NumPy;
-//using static Tensorflow.Binding;
-//using static Tensorflow.KerasApi;
+using Tensorflow;
+using Tensorflow.Keras;
+using Tensorflow.Keras.ArgsDefinition;
+using Tensorflow.Keras.Engine;
+using Tensorflow.NumPy;
+using static Tensorflow.Binding;
+using static Tensorflow.KerasApi;
 using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Http;
 
@@ -47,10 +47,10 @@ namespace PatternRecogniser.Models
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
 
-        //private Model model;  // pamiętać, by dodać to do bazy
+        private Model model;  // pamiętać, by dodać to do bazy
 
         // tymczasowo asynchroniczna w celu testowania
-        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, CancellationToken stoppingToken, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
+        public async void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, IFormFile file, List<int> parameters) // nie potrzebne CancellationToken w późniejszym programie
 
         {
 
@@ -113,11 +113,11 @@ namespace PatternRecogniser.Models
             foreach(List<Pattern> list in data.patterns)
             {
                 // potencjalnie indeksy/zakresy do poprawienia
-                int trainSize = list.Count * (train / 100);
+                int trainSize = (int)(list.Count * (train / 100.0));
                 List<Pattern> trainList = list.GetRange (0, trainSize);
                 trainData.AddPatterns (trainList);
-                int testSize = list.Count * (test / 100);
-                testData.AddPatterns (list.GetRange (trainSize + 1, testSize));
+                int testSize = (int)(list.Count * (test / 100.0));
+                testData.AddPatterns (list.GetRange (trainSize, testSize));
             }
 
             TrainIndividualModel (trainData, testData);
@@ -131,28 +131,28 @@ namespace PatternRecogniser.Models
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
         {
             var toReturn = new List<RecognisedPatterns> ();
-            //var toRecognise = user.NormaliseData(picture);
-            //float[] pic = new float[toRecognise.GetLength(0) * toRecognise.GetLength(1)];
-            //int i = 0;
-            //foreach (var pixel in toRecognise)
-            //{
-            //    pic[i] = pixel;
-            //    i++;
-            //}
-            //Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
-            //var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
-            //foreach (var r in result)
-            //{
-            //    foreach (var rn in r.numpy())
-            //    {
-            //        foreach (var rnn in rn.numpy())
-            //        {
-            //            RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
-            //            recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
-            //            toReturn.Add (recognisedPattern);
-            //        }
-            //    }
-            //}
+            var toRecognise = NormaliseData (picture);
+            float[] pic = new float[toRecognise.GetLength (0) * toRecognise.GetLength (1)];
+            int i = 0;
+            foreach (var pixel in toRecognise)
+            {
+                pic[i] = pixel;
+                i++;
+            }
+            Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
+            var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
+            foreach (var r in result)
+            {
+                foreach (var rn in r.numpy ())
+                {
+                    foreach (var rnn in rn.numpy ())
+                    {
+                        RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
+                        recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
+                        toReturn.Add (recognisedPattern);
+                    }
+                }
+            }
 
             return toReturn; 
         }
@@ -160,104 +160,104 @@ namespace PatternRecogniser.Models
         // coś nam to nie działa 
         private void TrainIndividualModel(PatternData train, PatternData test) 
         {
-            //tf.enable_eager_execution();
+            tf.enable_eager_execution ();
 
-            ////PrepareData ();
-            //int num_classes = train.GetNumberOfClasses(); // changed
-            //float learning_rate = 0.1f; // moved from FullyConnectedKeras
-            //int display_step = 100; // moved from FullyConnectedKeras
-            //int batch_size = 256; // moved from FullyConnectedKeras
-            //int training_steps = 1000; // moved from FullyConnectedKeras
+            //PrepareData ();
+            int num_classes = train.GetNumberOfClasses (); // changed
+            float learning_rate = 0.1f; // moved from FullyConnectedKeras
+            int display_step = 100; // moved from FullyConnectedKeras
+            int batch_size = 256; // moved from FullyConnectedKeras
+            int training_steps = 1000; // moved from FullyConnectedKeras
 
-            //// matching our data to expected Tensorflow.NET data
-            //IDatasetV2 train_data;
-            //Tensor x_test, y_test, x_train, y_train;
-            //(x_train, y_train) = train.PatternToTensor();
-            //(x_test, y_test) = test.PatternToTensor();
-            //train_data = tf.data.Dataset.from_tensor_slices (x_train, y_train);
-            //train_data = train_data.repeat ()
-            //    .shuffle (5000)
-            //    .batch (batch_size)
-            //    .prefetch (1)
-            //    .take (training_steps);
+            // matching our data to expected Tensorflow.NET data
+            IDatasetV2 train_data;
+            Tensor x_test, y_test, x_train, y_train;
+            (x_train, y_train) = train.PatternToTensor ();
+            (x_test, y_test) = test.PatternToTensor ();
+            train_data = tf.data.Dataset.from_tensor_slices (x_train, y_train);
+            train_data = train_data.repeat ()
+                .shuffle (5000)
+                .batch (batch_size)
+                .prefetch (1)
+                .take (training_steps);
 
-            //// Build neural network model.
-            //var neural_net = new NeuralNet (new NeuralNetArgs
-            //{
-            //    NumClasses = num_classes,
-            //    NeuronOfHidden1 = 128,
-            //    Activation1 = keras.activations.Relu,
-            //    NeuronOfHidden2 = 256,
-            //    Activation2 = keras.activations.Relu
-            //});
+            // Build neural network model.
+            var neural_net = new NeuralNet (new NeuralNetArgs
+            {
+                NumClasses = num_classes,
+                NeuronOfHidden1 = 128,
+                Activation1 = keras.activations.Relu,
+                NeuronOfHidden2 = 256,
+                Activation2 = keras.activations.Relu
+            });
 
-            //// Cross-Entropy Loss.
-            //// Note that this will apply 'softmax' to the logits.
-            //Func<Tensor, Tensor, Tensor> cross_entropy_loss = (x, y) =>
-            //{
-            //    // Convert labels to int 64 for tf cross-entropy function.
-            //    y = tf.cast (y, tf.int64);
-            //    // Apply softmax to logits and compute cross-entropy.
-            //    var loss = tf.nn.sparse_softmax_cross_entropy_with_logits (labels: y, logits: x);
-            //    // Average loss across the batch.
-            //    return tf.reduce_mean (loss);
-            //};
+            // Cross-Entropy Loss.
+            // Note that this will apply 'softmax' to the logits.
+            Func<Tensor, Tensor, Tensor> cross_entropy_loss = (x, y) =>
+            {
+                // Convert labels to int 64 for tf cross-entropy function.
+                y = tf.cast (y, tf.int64);
+                // Apply softmax to logits and compute cross-entropy.
+                var loss = tf.nn.sparse_softmax_cross_entropy_with_logits (labels: y, logits: x);
+                // Average loss across the batch.
+                return tf.reduce_mean (loss);
+            };
 
-            //// Accuracy metric.
-            //Func<Tensor, Tensor, Tensor> accuracy = (y_pred, y_true) =>
-            //{
-            //    // Predicted class is the index of highest score in prediction vector (i.e. argmax).
-            //    var correct_prediction = tf.equal (tf.math.argmax (y_pred, 1), tf.cast (y_true, tf.int64));
-            //    return tf.reduce_mean (tf.cast (correct_prediction, tf.float32), axis: -1);
-            //};
+            // Accuracy metric.
+            Func<Tensor, Tensor, Tensor> accuracy = (y_pred, y_true) =>
+            {
+                // Predicted class is the index of highest score in prediction vector (i.e. argmax).
+                var correct_prediction = tf.equal (tf.math.argmax (y_pred, 1), tf.cast (y_true, tf.int64));
+                return tf.reduce_mean (tf.cast (correct_prediction, tf.float32), axis: -1);
+            };
 
-            //// Stochastic gradient descent optimizer.
-            //var optimizer = keras.optimizers.SGD (learning_rate);
+            // Stochastic gradient descent optimizer.
+            var optimizer = keras.optimizers.SGD (learning_rate);
 
-            //// Optimization process.
-            //Action<Tensor, Tensor> run_optimization = (x, y) =>
-            //{
-            //    // Wrap computation inside a GradientTape for automatic differentiation.
-            //    using var g = tf.GradientTape ();
-            //    // Forward pass.
-            //    var pred = neural_net.Apply (x, training: true);
-            //    var loss = cross_entropy_loss (pred, y);
+            // Optimization process.
+            Action<Tensor, Tensor> run_optimization = (x, y) =>
+            {
+                // Wrap computation inside a GradientTape for automatic differentiation.
+                using var g = tf.GradientTape ();
+                // Forward pass.
+                var pred = neural_net.Apply (x, training: true);
+                var loss = cross_entropy_loss (pred, y);
 
-            //    // Compute gradients.
-            //    var gradients = g.gradient (loss, neural_net.trainable_variables);
+                // Compute gradients.
+                var gradients = g.gradient (loss, neural_net.trainable_variables);
 
-            //    // Update W and b following gradients.
-            //    optimizer.apply_gradients (zip (gradients, neural_net.trainable_variables.Select (x => x as ResourceVariable)));
-            //};
+                // Update W and b following gradients.
+                optimizer.apply_gradients (zip (gradients, neural_net.trainable_variables.Select (x => x as ResourceVariable)));
+            };
 
 
-            //// Run training for the given number of steps.
-            //foreach (var (step, (batch_x, batch_y)) in enumerate (train_data, 1))
-            //{
-            //    // Run the optimization to update W and b values.
-            //    run_optimization (batch_x, batch_y);
+            // Run training for the given number of steps.
+            foreach (var (step, (batch_x, batch_y)) in enumerate (train_data, 1))
+            {
+                // Run the optimization to update W and b values.
+                run_optimization (batch_x, batch_y);
 
-            //    if (step % display_step == 0)
-            //    {
-            //        var pred = neural_net.Apply (batch_x, training: true);
-            //        var loss = cross_entropy_loss (pred, batch_y);
-            //        var acc = accuracy (pred, batch_y);
-            //        //print ($"step: {step}, loss: {(float)loss}, accuracy: {(float)acc}");
-            //    }
-            //}
+                if (step % display_step == 0)
+                {
+                    var pred = neural_net.Apply (batch_x, training: true);
+                    var loss = cross_entropy_loss (pred, batch_y);
+                    var acc = accuracy (pred, batch_y);
+                    //print ($"step: {step}, loss: {(float)loss}, accuracy: {(float)acc}");
+                }
+            }
 
-            //// Test model on validation set.
-            //{
-            //    var pred = neural_net.Apply (x_test, training: false);
-            //    modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
-            //    //precision (pred, y_test);
-            //    //print ($"Test Accuracy: {this.accuracy}"); // commented
-            //    // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
-            //}
+            // Test model on validation set.
+            {
+                var pred = neural_net.Apply (x_test, training: false);
+                modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
+                //precision (pred, y_test);
+                //print ($"Test Accuracy: {this.accuracy}"); // commented
+                // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
+            }
 
-            //model = neural_net; // added
-            //modelTrainingExperiment.extendedModel = this;
-            ////modelTrainingExperiment.precision = model.
+            model = neural_net; // added
+            modelTrainingExperiment.extendedModel = this;
+            //modelTrainingExperiment.precision = model.
         }
 
 

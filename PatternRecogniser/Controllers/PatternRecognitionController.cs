@@ -52,9 +52,9 @@ namespace PatternRecogniser.Controllers
                 if(model == null)
                     return NotFound(_messages.modelNotFound);
 
-                //var result = model.RecognisePattern(picture); \\ odkomentuj
+                var result = model.RecognisePattern(picture); // odkomentuj
        //////////////////////////   ////////////////////////   ///// usuń po prezentacji
-                var result = new List<RecognisedPatterns>();
+                //var result = new List<RecognisedPatterns>();
                 //for (int i = 0; i < 3; i++)
                 //{
                 //    RecognisedPatterns recognisedPattern = new RecognisedPatterns();
@@ -63,7 +63,7 @@ namespace PatternRecogniser.Controllers
                 //}
    ////////////////////     ///////////////////// //////////  ///
                 
-                // zapisujemy rezultat
+                // zapisujemy wynik
                 PatternRecognitionExperiment pre = new PatternRecognitionExperiment()
                 {
                     testedPattern = ReadAllByte(pattern.OpenReadStream()),

@@ -10,6 +10,7 @@ using PatternRecogniser.Models;
 using PatternRecogniser.Services.Repos;
 using PatternRecogniser.ThreadsComunication;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace PatternRecogniser.Controllers
         private readonly IBackgroundTaskQueue _trainInfoQueue;
         private readonly ITrainingUpdate _traningUpdate;
         public TrainModelStringMessages _messages = new TrainModelStringMessages();
-        private double defultTrainPercent = 0.8;
+        private int defultTrainPercent = 8;
         private int defultStesNumber = 2;
         private IGenericRepository<ExtendedModel> _extendedModelRepo;
         private readonly IGenericRepository<User> _userRepo;
@@ -59,11 +60,12 @@ namespace PatternRecogniser.Controllers
         [HttpPost("TrainModel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> TrainModel( string modelName,
-            DistributionType distributionType, IFormFile trainingSet, double trainingPercent, int setsNumber)
+            DistributionType distributionType, IFormFile trainingSet, int trainingPercent, int setsNumber)
         {
             try
             {
                 string login = User.Identity.Name;
+                
                 if (GetStatus(login, modelName) != ModelStatus.NotFound)
                     return BadRequest(_messages.modelAlreadyExist);
 
@@ -79,11 +81,12 @@ namespace PatternRecogniser.Controllers
                 if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
-                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent < 0)   )
+                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent <= 0)   )
                     return BadRequest(_messages.incorectTrainTest);
 
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
                 setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
+
 
                 _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
                 var user = _userRepo.Get(a => a.login == login).FirstOrDefault();

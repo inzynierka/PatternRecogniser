@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-//using Tensorflow;
+using Tensorflow;
 //using Tensorflow.NumPy;
 
 
@@ -72,11 +72,19 @@ namespace PatternRecogniser.Models
 
         public void AddPatterns(List<Pattern> list)
         {
+            if (patterns == null)
+            {
+                patterns = new List<List<Pattern>> ();
+            }
             patterns.Add(list);
         }
 
         public void AddPattern(Pattern pattern)
         {
+            if (patterns == null)
+            {
+                patterns = new List<List<Pattern>> ();
+            }
             foreach (List<Pattern> list in patterns)
             {
                 if (list[0].name == pattern.name)
@@ -96,30 +104,30 @@ namespace PatternRecogniser.Models
             return patterns.Count;
         }
 
-        //public (Tensor, Tensor) PatternToTensor() // zwraca (obrazki, etykiety)
-        //{
-        //    Tensor x_arr, y_arr;
-        //    int k = 0; // numeryczne klasy, trzeba by zrobić jakąś konwersję/połączenie
-        //    List<float[]> pictures = new List<float[]> ();
-        //    List<int> classes = new List<int> ();
-        //    foreach(List<Pattern> list in patterns)
-        //    {
-        //        foreach(Pattern pattern in list)
-        //        {
-        //            float[] arr = new float[pattern.picture.Length];
-        //            for (int i = 0; i < pattern.picture.Length; i++)
-        //            {
-        //                arr[i] = pattern.picture[i];
-        //            }
-        //            pictures.Add(arr);
-        //            classes.Add (k);
-        //        }
-        //        k++; // klasę zmieniamy gdy skończymy jedną listę 
-        //    }
-        //    x_arr = ops.convert_to_tensor (pictures.ToArray (), TF_DataType.TF_FLOAT);
-        //    y_arr = ops.convert_to_tensor(classes.ToArray(), TF_DataType.TF_INT32);
+        public (Tensor, Tensor) PatternToTensor () // zwraca (obrazki, etykiety)
+        {
+            Tensor x_arr, y_arr;
+            int k = 0; // numeryczne klasy, trzeba by zrobić jakąś konwersję/połączenie
+            List<float[]> pictures = new List<float[]> ();
+            List<int> classes = new List<int> ();
+            foreach (List<Pattern> list in patterns)
+            {
+                foreach (Pattern pattern in list)
+                {
+                    float[] arr = new float[pattern.picture.Length];
+                    for (int i = 0; i < pattern.picture.Length; i++)
+                    {
+                        arr[i] = pattern.picture[i];
+                    }
+                    pictures.Add (arr);
+                    classes.Add (k);
+                }
+                k++; // klasę zmieniamy gdy skończymy jedną listę 
+            }
+            x_arr = ops.convert_to_tensor (pictures.ToArray (), TF_DataType.TF_FLOAT);
+            y_arr = ops.convert_to_tensor (classes.ToArray (), TF_DataType.TF_INT32);
 
-        //    return (x_arr, y_arr);
-        //}
+            return (x_arr, y_arr);
+        }
     }
 }
