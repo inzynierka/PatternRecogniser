@@ -70,6 +70,15 @@ namespace PatternRecogniser.Models
     {
         public List<List<Pattern>> patterns;
 
+        public bool IsEmpty()
+        {
+            if (patterns == null || patterns.Count == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void AddPatterns(List<Pattern> list)
         {
             if (patterns == null)
