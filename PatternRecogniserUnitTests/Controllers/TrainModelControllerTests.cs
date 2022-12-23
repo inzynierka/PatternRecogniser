@@ -11,6 +11,12 @@ namespace PatternRecogniser.Controllers.Tests
     [TestClass()]
     public class TrainModelControllerTests
     {
+
+        public TrainModelControllerTests()
+        {
+
+        }
+
         [TestMethod()]
         public void TrainModelControllerTest()
         {

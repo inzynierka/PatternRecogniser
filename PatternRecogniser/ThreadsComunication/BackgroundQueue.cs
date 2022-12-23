@@ -8,6 +8,7 @@ using System.Linq;
 using System.IO.Compression;
 using Microsoft.AspNetCore.Http;
 using PatternRecogniser.Models;
+using System.IO;
 //using CSharpTest.Net.Collections;
 
 namespace PatternRecogniser.ThreadsComunication
@@ -15,24 +16,36 @@ namespace PatternRecogniser.ThreadsComunication
 
     public class TrainingInfo
     {
-        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, double trainingPercent, int sets)
+        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, int trainingPercent, int sets)
         {
             this.login = login;
-            this.trainingSet = trainingSet;
+            this.trainingSet = ReadFully(trainingSet.OpenReadStream());
             this.modelName = modelName;
             this.distributionType = distributionType;
             this.trainingPercent = trainingPercent;
             this.sets = sets;
-
-
         }
 
         public string login;
-        public IFormFile trainingSet;
+        public byte[] trainingSet;
         public string modelName;
         public DistributionType distributionType;
-        private double trainingPercent;
-        private int sets;
+        public int trainingPercent;
+        public int sets;
+
+        
+
+        private  byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+       
+
     }
 
 

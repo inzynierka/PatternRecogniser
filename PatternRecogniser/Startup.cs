@@ -130,7 +130,9 @@ namespace PatternRecogniser
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
-            var connectionString = Configuration["DbContextSettings:ConnectionString"];
+            var conectionType = Configuration["DbContextSettings:ConectionType"];
+            var connectionString = Configuration[$"DbContextSettings:{conectionType}"];
+
             services.AddDbContext<PatternRecogniserDBContext>(
                 opts => opts.UseNpgsql(connectionString)
             );

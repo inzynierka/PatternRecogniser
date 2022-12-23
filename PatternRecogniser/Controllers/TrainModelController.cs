@@ -81,12 +81,11 @@ namespace PatternRecogniser.Controllers
                 if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
-                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent <= 0)   )
+                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent < 0)   )
                     return BadRequest(_messages.incorectTrainTest);
 
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
                 setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
-
 
                 _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
                 var user = _userRepo.Get(a => a.login == login).FirstOrDefault();

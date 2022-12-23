@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using System.IO.Compression;
 
 namespace PatternRecogniser.Services
 {
@@ -56,17 +57,17 @@ namespace PatternRecogniser.Services
                 var info =
                      _trainInfoQueue.Dequeue(stoppingToken);
 
-               
-                
-                    await Train(info, stoppingToken);
-                
-                
+                //using (ZipArchive zip = new ZipArchive(info.trainingSet))
+                //{
+                //}
+
+                await Train(info, stoppingToken);
+
             }
         }
 
         private async Task Train(TrainingInfo info,  CancellationToken stoppingToken)
         {
-
             _trainingUpdate.SetNewUserModel(info.login, info.modelName);
             User user;
             using (var scope = _serviceScopeFactory.CreateScope())
@@ -87,14 +88,9 @@ namespace PatternRecogniser.Services
             //Stream stream = info.trainingSet.OpenReadStream ();
             //info.
             // coś nam to nie działa 
-            //model.TrainModel(info.distributionType, _trainingUpdate, stoppingToken, info.trainingSet, new List<int> { 80, 20}); // parametry na razie ustawione
+            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
+            
 
-
-            // usuń mnie po prezentacji
-            model.modelTrainingExperiment = new ModelTrainingExperiment();
-            model.modelTrainingExperiment.extendedModel = model;
-            ///////////////////////////////////////
-            ///
 
             if (new Random().NextDouble() > 0.1) // symulacja porażki trenowania
             {
