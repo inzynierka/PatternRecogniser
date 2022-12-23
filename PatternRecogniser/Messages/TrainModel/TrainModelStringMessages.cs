@@ -18,7 +18,7 @@
         public string youAlreadyWaitInTheQueue => "Dodałeś już model do kolejki. Poczekaj na zakończenie trenowania";
         public string oneOfYourModelIsTraining => "Twój model jest już trenowany, poczekaj na zakończenie";
         public string modelIsNotTraining => "Model nie jest trenowany";
-        public string incorectTrainTest => "Podano niewłłaściwe proporcje";
+        public string incorectTrainTest => "Podano niewłaściwe proporcje";
         public string incorectCrossValidationOption => "Podana liczba podzbiorów jest za mała";
     }
 }
