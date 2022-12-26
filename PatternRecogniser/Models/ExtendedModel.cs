@@ -30,7 +30,17 @@ namespace PatternRecogniser.Models
         TrainTest, CrossValidation
     }
 
-    
+    public struct SavedVariableData
+    {
+        public string name;
+        public long[] shape; // np. Shape(784,128) będzie zapisany jako {784, 128}
+        public List<float> values; // wszystkie wartości zapisane w jednej liście
+    }
+
+    public struct SavedLayerData
+    {
+        public SavedVariableData[] vars; // najpewniej 2 variable
+    }
 
     [Index(nameof(userLogin), nameof(name), IsUnique = true)] 
     public class ExtendedModel
@@ -50,6 +60,7 @@ namespace PatternRecogniser.Models
 
         public byte[] modelInBytes;  // pamiętać, by dodać to do bazy
         public int num_classes;
+        public SavedLayerData[] layers; // najpewniej 3 layery
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
@@ -145,9 +156,10 @@ namespace PatternRecogniser.Models
                 pic[i] = pixel;
                 i++;
             }
-            Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
+            List<float[]> picAsList = new List<float[]> { pic };
+            Tensor picTensor = ops.convert_to_tensor (picAsList.ToArray (), TF_DataType.TF_FLOAT);
             Model model = Helper.ModelBuilder.CreateModel(num_classes);
-            Helper.ModelBuilder.Load_Weights(modelInBytes, model, extendedModelId.ToString());
+            Helper.ModelBuilder.Load_Weights(layers, model, extendedModelId.ToString());
             var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
             foreach (var r in result)
             {
@@ -256,7 +268,8 @@ namespace PatternRecogniser.Models
                 // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
             }
 
-            modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net, extendedModelId.ToString()); // added
+            //modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net, extendedModelId.ToString()); // added
+            layers = Helper.ModelBuilder.SerializeModel (neural_net, extendedModelId.ToString ());
             modelTrainingExperiment.extendedModel = this;
             //modelTrainingExperiment.precision = model.
         }
