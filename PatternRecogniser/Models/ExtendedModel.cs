@@ -21,6 +21,7 @@ using static Tensorflow.Binding;
 using static Tensorflow.KerasApi;
 using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Http;
+using PatternRecogniser.Helper;
 
 namespace PatternRecogniser.Models
 {
@@ -29,7 +30,19 @@ namespace PatternRecogniser.Models
         TrainTest, CrossValidation
     }
 
-    
+    [Serializable]
+    public struct SavedVariableData
+    {
+        public string name;
+        public long[] shape; // np. Shape(784,128) będzie zapisany jako {784, 128}
+        public List<float> values; // wszystkie wartości zapisane w jednej liście
+    }
+
+    [Serializable]
+    public struct SavedLayerData
+    {
+        public SavedVariableData[] vars; // najpewniej 2 variable
+    }
 
     [Index(nameof(userLogin), nameof(name), IsUnique = true)] 
     public class ExtendedModel
@@ -41,16 +54,15 @@ namespace PatternRecogniser.Models
         public string userLogin { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
+        public byte[] modelInBytes { get; set; }  // pamiętać, by dodać to do bazy
+        public int num_classes { get; set; }
 
         public virtual User user { get; set; }
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
 
-        private Model model;  // pamiętać, by dodać to do bazy
-
         
-
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
@@ -146,7 +158,10 @@ namespace PatternRecogniser.Models
                 pic[i] = pixel;
                 i++;
             }
-            Tensor picTensor = ops.convert_to_tensor (pic, TF_DataType.TF_FLOAT);
+            List<float[]> picAsList = new List<float[]> { pic };
+            Tensor picTensor = ops.convert_to_tensor (picAsList.ToArray (), TF_DataType.TF_FLOAT);
+            Model model = Helper.ModelBuilder.CreateModel(num_classes);
+            Helper.ModelBuilder.Load_Weights(modelInBytes, model);
             var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
             foreach (var r in result)
             {
@@ -170,7 +185,7 @@ namespace PatternRecogniser.Models
             tf.enable_eager_execution ();
 
             //PrepareData ();
-            int num_classes = train.GetNumberOfClasses (); // changed
+            num_classes = train.GetNumberOfClasses (); // changed
             float learning_rate = 0.1f; // moved from FullyConnectedKeras
             int display_step = 100; // moved from FullyConnectedKeras
             int batch_size = 256; // moved from FullyConnectedKeras
@@ -189,14 +204,7 @@ namespace PatternRecogniser.Models
                 .take (training_steps);
 
             // Build neural network model.
-            var neural_net = new NeuralNet (new NeuralNetArgs
-            {
-                NumClasses = num_classes,
-                NeuronOfHidden1 = 128,
-                Activation1 = keras.activations.Relu,
-                NeuronOfHidden2 = 256,
-                Activation2 = keras.activations.Relu
-            });
+            var neural_net = Helper.ModelBuilder.CreateModel(num_classes);
 
             // Cross-Entropy Loss.
             // Note that this will apply 'softmax' to the logits.
@@ -262,7 +270,7 @@ namespace PatternRecogniser.Models
                 // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
             }
 
-            model = neural_net; // added
+            modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
             modelTrainingExperiment.extendedModel = this;
             //modelTrainingExperiment.precision = model.
         }
