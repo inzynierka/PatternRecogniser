@@ -30,6 +30,7 @@ namespace PatternRecogniser.Models
         TrainTest, CrossValidation
     }
 
+    [Serializable]
     public struct SavedVariableData
     {
         public string name;
@@ -37,6 +38,7 @@ namespace PatternRecogniser.Models
         public List<float> values; // wszystkie wartości zapisane w jednej liście
     }
 
+    [Serializable]
     public struct SavedLayerData
     {
         public SavedVariableData[] vars; // najpewniej 2 variable
@@ -52,15 +54,15 @@ namespace PatternRecogniser.Models
         public string userLogin { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
+        public byte[] modelInBytes { get; set; }  // pamiętać, by dodać to do bazy
+        public int num_classes { get; set; }
 
         public virtual User user { get; set; }
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
 
-        public byte[] modelInBytes;  // pamiętać, by dodać to do bazy
-        public int num_classes;
-        public SavedLayerData[] layers; // najpewniej 3 layery
+        
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
@@ -159,7 +161,7 @@ namespace PatternRecogniser.Models
             List<float[]> picAsList = new List<float[]> { pic };
             Tensor picTensor = ops.convert_to_tensor (picAsList.ToArray (), TF_DataType.TF_FLOAT);
             Model model = Helper.ModelBuilder.CreateModel(num_classes);
-            Helper.ModelBuilder.Load_Weights(layers, model, extendedModelId.ToString());
+            Helper.ModelBuilder.Load_Weights(modelInBytes, model);
             var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
             foreach (var r in result)
             {
@@ -268,8 +270,7 @@ namespace PatternRecogniser.Models
                 // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
             }
 
-            //modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net, extendedModelId.ToString()); // added
-            layers = Helper.ModelBuilder.SerializeModel (neural_net, extendedModelId.ToString ());
+            modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
             modelTrainingExperiment.extendedModel = this;
             //modelTrainingExperiment.precision = model.
         }

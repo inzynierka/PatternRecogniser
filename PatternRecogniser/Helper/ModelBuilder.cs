@@ -7,14 +7,23 @@ using static Tensorflow.KerasApi;
 using System.Drawing.Imaging;
 using Tensorflow;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace PatternRecogniser.Helper
 {
 
     public static class ModelBuilder
     {
-        public static void Load_Weights(SavedLayerData[] layers, Model neural_net, string modelId) 
+        public static void Load_Weights(byte[] modelInBytes, Model neural_net) 
         {
+
+            SavedLayerData[] layers;
+            using (var ms = new MemoryStream(modelInBytes))
+            {
+                var bf = new BinaryFormatter();
+                layers = (SavedLayerData[])bf.Deserialize(ms);
+            }
+
             for (int i = 0; i < layers.Length; i++)
             {
                 // warstwa
@@ -50,11 +59,11 @@ namespace PatternRecogniser.Helper
             }
         }
 
-        public static SavedLayerData[] SerializeModel(Model neural_net, string modelId)
+        public static byte[] SerializeModel(Model neural_net)
         {
             SavedLayerData[] savedLayers = new SavedLayerData[neural_net.Layers.Count];
             int i = 0;
-            foreach(var layer in neural_net.Layers)
+            foreach (var layer in neural_net.Layers)
             {
                 savedLayers[i].vars = new SavedVariableData[layer.trainable_variables.Count];
                 var trainable = layer.trainable_variables;
@@ -63,19 +72,24 @@ namespace PatternRecogniser.Helper
                 {
                     savedLayers[i].vars[j].name = variable.Name.Substring(0, variable.Name.IndexOf(":"));
                     savedLayers[i].vars[j].shape = variable.shape.dims;
-                    savedLayers[i].vars[j].values = new List<float> ();
+                    savedLayers[i].vars[j].values = new List<float>();
                     foreach (var np in variable.numpy())
                     {
-                        var arr = np.ToArray<float> ();
-                        savedLayers[i].vars[j].values.AddRange (arr);
+                        var arr = np.ToArray<float>();
+                        savedLayers[i].vars[j].values.AddRange(arr);
                     }
                     j++;
                 }
                 i++;
             }
 
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(ms, savedLayers);
+                return ms.ToArray();
+            }
 
-            return savedLayers;
         }
 
         public static Model CreateModel(int num_classes)

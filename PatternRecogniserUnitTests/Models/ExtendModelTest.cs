@@ -53,7 +53,7 @@ namespace PatternRecogniserUnitTests.Models
             Bitmap bitmap = new Bitmap(TestedFiles + "\\" + "0_0.png");
             var results = model.RecognisePattern(bitmap);
             Assert.IsNotNull(model.modelTrainingExperiment);
-            Assert.AreNotEqual(results.Count, 0);
+            Assert.AreEqual(results.Count, model.num_classes);
         }
 
 
