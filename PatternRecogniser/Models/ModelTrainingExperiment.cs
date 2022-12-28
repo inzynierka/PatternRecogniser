@@ -110,22 +110,17 @@ namespace PatternRecogniser.Models
         {
             TN = 0;
             int count = matrix.GetLength (0);
+            int all = 0;
 
-            for (int i = 0; i < count; i++)
+            for (int j = 0; j < count; j++)
             {
-                int miniTN = 0;
-                for (int j = 0; j < count; j++)
+                for (int k = 0; k < count; k++)
                 {
-                    for (int k = 0; k < count; k++)
-                    {
-                        if (j != i && k != i)
-                        {
-                            miniTN += matrix[j, k];
-                        }
-                    }
+                    all += matrix[j, k];
                 }
-                TN += miniTN;
             }
+            all *= count - 2;
+            TN = all + TP; // TP - zsumowane wartości na diagonali
         }
         private void calculateFP (int[,] matrix)
         {
