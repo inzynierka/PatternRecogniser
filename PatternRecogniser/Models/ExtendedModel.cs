@@ -68,7 +68,7 @@ namespace PatternRecogniser.Models
         {
 
            //this.distribution = info.distributionType;
-            modelTrainingExperiment = new ModelTrainingExperiment ();
+            //modelTrainingExperiment = new ModelTrainingExperiment ();
             PatternData patternData = OpenZip (trainingSet);
             
             if (patternData.IsEmpty())
@@ -179,7 +179,6 @@ namespace PatternRecogniser.Models
             return toReturn; 
         }
 
-        // coś nam to nie działa 
         private void TrainIndividualModel(PatternData train, PatternData test) 
         {
             tf.enable_eager_execution ();
@@ -257,22 +256,19 @@ namespace PatternRecogniser.Models
                     var pred = neural_net.Apply (batch_x, training: true);
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
-                    //print ($"step: {step}, loss: {(float)loss}, accuracy: {(float)acc}");
+                    // tu jakoś training update
                 }
             }
 
             // Test model on validation set.
             {
                 var pred = neural_net.Apply (x_test, training: false);
-                modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
-                //precision (pred, y_test);
-                //print ($"Test Accuracy: {this.accuracy}"); // commented
-                // tu jakoś trzeba dopisać wyniki różne do modelTrainingExperiment
+                modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
+                //modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
             }
 
             modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
             modelTrainingExperiment.extendedModel = this;
-            //modelTrainingExperiment.precision = model.
         }
 
 
