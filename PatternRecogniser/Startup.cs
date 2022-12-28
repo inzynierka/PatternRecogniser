@@ -143,6 +143,7 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<ExperimentList>, GenericRepository<ExperimentList>>();
             services.AddScoped<IGenericRepository<PatternRecognitionExperiment>, GenericRepository<PatternRecognitionExperiment>>();
             services.AddScoped<IGenericRepository<ModelTrainingExperiment>, GenericRepository<ModelTrainingExperiment>>();
+            services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
 
         }
 

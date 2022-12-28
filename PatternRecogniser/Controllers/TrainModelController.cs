@@ -32,11 +32,13 @@ namespace PatternRecogniser.Controllers
         private IGenericRepository<ExtendedModel> _extendedModelRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo;
+        private readonly IGenericRepository<Experiment> _experimentRepo;
 
         public TrainModelController(
             IGenericRepository<ExtendedModel> extendedModelRepo,
             IGenericRepository<User> userRepo,
             IGenericRepository<ModelTrainingExperiment> modelTrainingExperimentRepo,
+            IGenericRepository<Experiment> experimentRepo,
             IBackgroundTaskQueue trainInfoQueue,
             ITrainingUpdate trainingUpdate)
         {
@@ -45,6 +47,7 @@ namespace PatternRecogniser.Controllers
             _modelTrainingExperimentRepo = modelTrainingExperimentRepo;
             _trainInfoQueue = trainInfoQueue;
             _traningUpdate = trainingUpdate;
+            _experimentRepo = experimentRepo;
         }
 
 
@@ -186,8 +189,14 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetModels()
         {
             string login = User.Identity.Name;
-            var models = _extendedModelRepo.Get(model => model.userLogin == login);
-            return Ok(models);
+            var models = _extendedModelRepo.Get(model => model.userLogin == login, "modelTrainingExperiment");
+            return Ok(models.Select(model => new
+            {
+                model.extendedModelId,
+                model.name,
+                model.userLogin,
+                model.distribution
+            }));
         }
 
         /// <summary>
@@ -201,10 +210,11 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login).FirstOrDefault();
+                var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault();
                 if (model == null)
                     return Ok();
                 _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);
+                _experimentRepo.Delete(model.modelTrainingExperiment);
                 _extendedModelRepo.Delete(model);
 
                 await _extendedModelRepo.SaveChangesAsync();
