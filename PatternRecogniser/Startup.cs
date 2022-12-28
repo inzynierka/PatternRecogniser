@@ -125,7 +125,8 @@ namespace PatternRecogniser
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
             services.AddSingleton<IBackgroundTaskQueue>(a =>
-            new BackgroundQueueBlockingCollection()
+            //new BackgroundQueueBlockingCollection(),
+            new BackgroundQueueLurchTable()
             );
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();

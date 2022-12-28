@@ -176,8 +176,9 @@ namespace PatternRecogniser.Controllers
                 .FirstOrDefault()?.modelTrainingExperiment;
             if (statistics == null)
                 return NotFound();
-            else
-                return Ok(statistics);
+
+            statistics.extendedModel = null; 
+            return Ok(statistics);
         }
 
         /// <summary>
@@ -288,7 +289,7 @@ namespace PatternRecogniser.Controllers
         private ModelStatus GetStatus(string login, string modelName)
         {
 
-            if (_trainInfoQueue.IsUserModelInQueue(login, modelName))
+            if (_trainInfoQueue.IsUsersModelInQueue(login, modelName))
                 return ModelStatus.InQueue;
 
             if (_traningUpdate.IsUserModelInTraining(login, modelName))
