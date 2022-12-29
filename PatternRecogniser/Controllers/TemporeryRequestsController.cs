@@ -165,7 +165,7 @@ namespace PatternRecogniser.Controllers
                 RecognisedPatterns rp = new RecognisedPatterns()
                 {
                     pattern = paterns.ElementAt(r.Next(maxPaterns)),
-                    probability = r.NextDouble()
+                    probability = (float) r.NextDouble()
                 };
                 ps.Add(rp);
             }
