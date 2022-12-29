@@ -58,7 +58,7 @@ namespace PatternRecogniser.Controllers
                 for (int i = 0; i < 3; i++)
                 {
                     RecognisedPatterns recognisedPattern = new RecognisedPatterns();
-                    recognisedPattern.probability = new Random().NextDouble();
+                    recognisedPattern.probability = (float) new Random().NextDouble();
                     result.Add(recognisedPattern);
                 }
                 //////////////////     ///////////////////// //////////  ///

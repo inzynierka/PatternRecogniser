@@ -163,15 +163,20 @@ namespace PatternRecogniser.Models
             Model model = Helper.ModelBuilder.CreateModel(num_classes);
             Helper.ModelBuilder.Load_Weights(modelInBytes, model);
             var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
+            int patternId = 0;
             foreach (var r in result)
             {
                 foreach (var rn in r.numpy ())
                 {
+                    var arr = rn.ToArray ();
+                    float prob0 = arr[0];
                     foreach (var rnn in rn.numpy ())
                     {
                         RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
-                        recognisedPattern.patternId = rnn; // ta wartość powinna się rzutować na int, ewentualnie trzeba będzie piętro wyżej to wsadzić
+                        recognisedPattern.patternId = patternId;
+                        recognisedPattern.probability = rnn;
                         toReturn.Add (recognisedPattern);
+                        patternId++;
                     }
                 }
             }

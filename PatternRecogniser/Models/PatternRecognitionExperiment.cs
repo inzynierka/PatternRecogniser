@@ -36,7 +36,7 @@ namespace PatternRecogniser.Models
         [Key]
         public int recognisedPatternsId { get; set; }
         public int patternId { get; set; }
-        public double probability { get; set; }
+        public float probability { get; set; }
         public virtual Pattern pattern { get; set; }
     }
 
