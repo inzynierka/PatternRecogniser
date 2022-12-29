@@ -76,6 +76,13 @@ namespace PatternRecogniser.Models
                 throw new Exception ("Zła struktura pliku");
             }
 
+            // zapisanie przykładowych patternów
+            this.patterns = new List<Pattern> ();
+            foreach (List<Pattern> patternList in patternData.patterns)
+            {
+                this.patterns.Add (patternList[0]);
+            }
+
             // trenowanie 
             /*for (int i = 0; i < 3; i++)
             {
@@ -175,6 +182,7 @@ namespace PatternRecogniser.Models
                         RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
                         recognisedPattern.patternId = patternId;
                         recognisedPattern.probability = rnn;
+                        recognisedPattern.pattern = this.patterns.ElementAt(patternId);
                         toReturn.Add (recognisedPattern);
                         patternId++;
                     }
