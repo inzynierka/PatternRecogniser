@@ -18,17 +18,17 @@ namespace PatternRecogniser.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PatternRecognitionController : ControllerBase
     {
-        private IGenericRepository<ExtendedModel> _experimentListRepo;
+        private IGenericRepository<ExtendedModel> _extendModelRepo;
         private IGenericRepository<User> _userRepo;
         private IGenericRepository<PatternRecognitionExperiment> _patternRecognitionExperimentRepo;
 
         private PatternRecognitionStringMessages _messages = new PatternRecognitionStringMessages();
 
-        public PatternRecognitionController(IGenericRepository<ExtendedModel > experimentListRepo,
+        public PatternRecognitionController(IGenericRepository<ExtendedModel > extendModelRepo,
             IGenericRepository<User> userRepo, 
             IGenericRepository<PatternRecognitionExperiment> patternRecognitionExperimentRepo)
         {
-            _experimentListRepo = experimentListRepo;
+            _extendModelRepo = extendModelRepo;
             _userRepo = userRepo;
             _patternRecognitionExperimentRepo = patternRecognitionExperimentRepo;
         }
@@ -46,23 +46,14 @@ namespace PatternRecogniser.Controllers
             {
                 string login = User.Identity.Name;
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
-                var model = _experimentListRepo.Get(model => model.userLogin == login && model.name == modelName)
+                var model = _extendModelRepo.Get(model => model.userLogin == login && model.name == modelName, "patterns")
                     .FirstOrDefault();
 
                 if(model == null)
                     return NotFound(_messages.modelNotFound);
 
-                //var result = model.RecognisePattern(picture); // odkomentuj
-                ////////////////////////   ////////////////////////   ///// usuń po prezentacji
-                var result = new List<RecognisedPatterns>();
-                for (int i = 0; i < 3; i++)
-                {
-                    RecognisedPatterns recognisedPattern = new RecognisedPatterns();
-                    recognisedPattern.probability = (float) new Random().NextDouble();
-                    result.Add(recognisedPattern);
-                }
-                //////////////////     ///////////////////// //////////  ///
-
+                var result = model.RecognisePattern(picture); // odkomentuj
+               
                 // zapisujemy wynik
                 PatternRecognitionExperiment pre = new PatternRecognitionExperiment()
                 {
@@ -83,11 +74,13 @@ namespace PatternRecogniser.Controllers
                 _patternRecognitionExperimentRepo.Insert(pre);
                 await _patternRecognitionExperimentRepo.SaveChangesAsync();
 
+                
 
                 if (pre == null)
                     return NotFound();
-                else
-                    return Ok(pre);
+
+                
+                return Ok(new RecognizeRespond(pre));
             }
             catch (Exception e)
             {
