@@ -166,19 +166,24 @@ namespace PatternRecogniser.Controllers
         /// </summary>
         /// <description></description>
         /// <returns></returns>
-        [HttpGet("GetModelStatistics")]
-        public IActionResult GetModelStatistics(string modelName)
+        [HttpGet("ModelDetalis")]
+        public IActionResult GetModelDetalis(string modelName)
         {
             string login = User.Identity.Name; 
-            var statistics = _extendedModelRepo.Get(
-                model => model.userLogin == login && model.name == modelName, 
-                "modelTrainingExperiment")
-                .FirstOrDefault()?.modelTrainingExperiment;
+
+            var model = _extendedModelRepo.Get(
+                model => model.userLogin == login && model.name == modelName,
+                "patterns")
+                .FirstOrDefault();
+            if (model == null)
+                return NotFound();
+
+            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == model.extendedModelId,
+                "validationSet").FirstOrDefault();
             if (statistics == null)
                 return NotFound();
 
-            statistics.extendedModel = null; 
-            return Ok(statistics);
+            return Ok(new ModelDetalisRespond(statistics));
         }
 
         /// <summary>
