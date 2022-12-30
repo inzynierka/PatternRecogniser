@@ -66,7 +66,7 @@ namespace PatternRecogniser.Models
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
-            trainingUpdate.Update("Rozpoczęto trenowanie");
+            trainingUpdate.Update("Rozpoczęto trenowanie\n");
             //this.distribution = info.distributionType;
             //modelTrainingExperiment = new ModelTrainingExperiment ();
             PatternData patternData = OpenZip (trainingSet);
@@ -104,18 +104,15 @@ namespace PatternRecogniser.Models
             switch (distribution)
             {
                 case DistributionType.TrainTest:
-                    TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
+                    TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
                     break;
                 case DistributionType.CrossValidation:
-                    TrainModelCrossValidation(patternData, setsNumber);
+                    TrainModelCrossValidation(patternData, setsNumber, trainingUpdate);
                     break;
             }
-            // parameters może być jedną wartością, bo w sumie train+test muszą dawać 100
-
-            // zapisanie pojedynczych obrazków do patterns
         }
 
-        public void TrainModelTrainTest(PatternData data, int train, int test) 
+        public void TrainModelTrainTest(PatternData data, int train, int test, ITrainingUpdate trainingUpdate) 
         {
             // test = 100 - train;
             // randomise patterns in data
@@ -138,7 +135,6 @@ namespace PatternRecogniser.Models
 
             foreach(List<Pattern> list in data.patterns)
             {
-                // potencjalnie indeksy/zakresy do poprawienia
                 int trainSize = (int)(list.Count * (train / 100.0));
                 List<Pattern> trainList = list.GetRange (0, trainSize);
                 trainData.AddPatterns (trainList);
@@ -146,10 +142,10 @@ namespace PatternRecogniser.Models
                 testData.AddPatterns (list.GetRange (trainSize, testSize));
             }
 
-            TrainIndividualModel (trainData, testData);
+            TrainIndividualModel (trainData, testData, trainingUpdate);
         }
 
-        public void TrainModelCrossValidation(PatternData data, int n) 
+        public void TrainModelCrossValidation(PatternData data, int n, ITrainingUpdate trainingUpdate) 
         { 
             // jeszcze nie zaimplementowane
         }
@@ -192,7 +188,7 @@ namespace PatternRecogniser.Models
             return toReturn; 
         }
 
-        private void TrainIndividualModel(PatternData train, PatternData test) 
+        private void TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
         {
             tf.enable_eager_execution ();
 
@@ -269,12 +265,14 @@ namespace PatternRecogniser.Models
                     var pred = neural_net.Apply (batch_x, training: true);
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
-                    // tu jakoś training update
+
+                    trainingUpdate.Update ($"Trenowanie - krok {step} z {training_steps}\nStrata: {loss.numpy()}\nDokładność: {acc.numpy()}\n"); 
                 }
             }
 
             // Test model on validation set.
             {
+                trainingUpdate.Update ($"Rozpoczęto walidację\n");
                 var pred = neural_net.Apply (x_test, training: false);
                 modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
                 //modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
