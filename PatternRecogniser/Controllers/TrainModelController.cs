@@ -166,8 +166,8 @@ namespace PatternRecogniser.Controllers
         /// </summary>
         /// <description></description>
         /// <returns></returns>
-        [HttpGet("ModelDetalis")]
-        public IActionResult GetModelDetalis(string modelName)
+        [HttpGet("ModelDetails")]
+        public IActionResult GetModelDetails(string modelName)
         {
             string login = User.Identity.Name; 
 
@@ -201,7 +201,8 @@ namespace PatternRecogniser.Controllers
                 model.extendedModelId,
                 model.name,
                 model.userLogin,
-                model.distribution
+                model.distribution,
+                model.num_classes
             }));
         }
 
