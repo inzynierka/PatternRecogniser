@@ -1,5 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using PatternRecogniser.Controllers;
+using PatternRecogniser.Models;
+using PatternRecogniser.Services.Repos;
+using PatternRecogniser.ThreadsComunication;
+using PatternRecogniserUnitTests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,64 +16,78 @@ namespace PatternRecogniser.Controllers.Tests
     [TestClass()]
     public class TrainModelControllerTests
     {
+        private Mock<IGenericRepository<User>> _mockUserRepo;
+        private Mock<IGenericRepository<ExtendedModel>> _mockExtendedModelRepo;
+        private Mock<IGenericRepository<Experiment>> _mockExperimentRepo;
+        private readonly Mock<IGenericRepository<ModelTrainingExperiment>> _mockModelTrainingExperimentRepo;
+        private readonly ITrainingUpdate _trainingUpdate;
+        private readonly TrainModelController _controller;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
         public TrainModelControllerTests()
         {
-
+            _mockUserRepo = new Mock<IGenericRepository<User>>().DefaultMockSetUp();
+            _mockExtendedModelRepo = new Mock<IGenericRepository<ExtendedModel>>().DefaultMockSetUp();
+            _mockExperimentRepo = new Mock<IGenericRepository<Experiment>>().DefaultMockSetUp();
+            _mockModelTrainingExperimentRepo = new Mock<IGenericRepository<ModelTrainingExperiment>>().DefaultMockSetUp();
+            _trainingUpdate = new SimpleComunicationOneToMany();
+            _backgroundTaskQueue = new BackgroundQueueLurchTable();
+            _controller = new TrainModelController(
+                _mockExtendedModelRepo.Object,
+                _mockUserRepo.Object,
+                _mockModelTrainingExperimentRepo.Object,
+                _mockExperimentRepo.Object,
+                _backgroundTaskQueue,
+                _trainingUpdate
+                );
         }
 
         [TestMethod()]
         public void TrainModelControllerTest()
         {
-            throw new NotImplementedException();
+            
         }
 
         [TestMethod()]
         public void TrainModelTest()
         {
-            throw new NotImplementedException();
+            
         }
 
         [TestMethod()]
         public void NumberInQueueTest()
         {
-            throw new NotImplementedException();
+           
         }
 
         [TestMethod()]
         public void CancelTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void TrainUpdateTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void GetModelStatisticsTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void GetModelsTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void DeleteModelTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void GetModelStatusTest()
         {
-            throw new NotImplementedException();
         }
     }
 }
