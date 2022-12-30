@@ -24,6 +24,8 @@ namespace PatternRecogniser.Models
         private int FP { get; set; }
         private int FN { get; set; }
 
+        public virtual ICollection<ValidationSet> validationSet { get; set; }
+
         public ModelTrainingExperiment (Tensor predictions, Tensor trueLabels, int labelCount)
         {
             int[,] confMatrix2D = createConfusionMatrix (predictions, trueLabels, labelCount);
@@ -205,7 +207,7 @@ namespace PatternRecogniser.Models
             }
         }
 
-        public virtual ICollection<ValidationSet> validationSet { get; set; }
+        
 
         public override string GetResults()
         {
