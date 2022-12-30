@@ -66,7 +66,7 @@ namespace PatternRecogniser.Models
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
-            trainingUpdate.Update("Rozpoczęto trenowanie");
+            trainingUpdate.Update("Rozpoczęto trenowanie\n");
             //this.distribution = info.distributionType;
             //modelTrainingExperiment = new ModelTrainingExperiment ();
             PatternData patternData = OpenZip (trainingSet);
@@ -266,15 +266,13 @@ namespace PatternRecogniser.Models
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
 
-                    // tu jakoś training update
-                    trainingUpdate.Update ($"Trenowanie - krok {step} z {training_steps}\nStrata: {loss}\nDokładność: {acc}\n"); 
+                    trainingUpdate.Update ($"Trenowanie - krok {step} z {training_steps}\nStrata: {loss.numpy()}\nDokładność: {acc.numpy()}\n"); 
                 }
             }
 
             // Test model on validation set.
             {
-                // training update - walidacja
-                trainingUpdate.Update ($"Rozpoczynam walidację\n");
+                trainingUpdate.Update ($"Rozpoczęto walidację\n");
                 var pred = neural_net.Apply (x_test, training: false);
                 modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
                 //modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
