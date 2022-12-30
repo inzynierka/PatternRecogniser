@@ -66,8 +66,8 @@ namespace PatternRecogniser.Models
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
-
-           //this.distribution = info.distributionType;
+            trainingUpdate.Update("Rozpoczęto trenowanie");
+            //this.distribution = info.distributionType;
             //modelTrainingExperiment = new ModelTrainingExperiment ();
             PatternData patternData = OpenZip (trainingSet);
             
