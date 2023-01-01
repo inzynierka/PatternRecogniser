@@ -69,7 +69,8 @@ namespace PatternRecogniser.Models
             trainingUpdate.Update("Rozpoczęto trenowanie\n");
             //this.distribution = info.distributionType;
             //modelTrainingExperiment = new ModelTrainingExperiment ();
-            PatternData patternData = OpenZip (trainingSet);
+            var examplePictures = new Dictionary<string, byte[]>();
+            PatternData patternData = OpenZip (trainingSet, examplePictures);
             
             if (patternData.IsEmpty())
             {
@@ -77,10 +78,15 @@ namespace PatternRecogniser.Models
             }
 
             // zapisanie przykładowych patternów
-            this.patterns = new List<Pattern> ();
-            foreach (List<Pattern> patternList in patternData.patterns)
+            // this.patterns = new List<Pattern> ();
+            //foreach (List<Pattern> patternList in patternData.patterns)
+            //{
+            //    this.patterns.Add (patternList[0]);
+            //}
+            this.patterns = new List<Pattern>();
+            foreach (var pair in examplePictures)
             {
-                this.patterns.Add (patternList[0]);
+                this.patterns.Add(new Pattern(pair.Key, pair.Value));
             }
 
             // trenowanie 
@@ -285,7 +291,7 @@ namespace PatternRecogniser.Models
 
         // Obsługa zipów i Bitmap
 
-        private PatternData OpenZip(byte[] bytes)
+        private PatternData OpenZip(byte[] bytes, Dictionary<string, byte[]> examplePictuers)
         {
             PatternData data = new PatternData();
             if (CheckZipStructure(bytes) == false)
@@ -309,6 +315,13 @@ namespace PatternRecogniser.Models
                         MemoryStream memstream = new MemoryStream ();
                         reader.CopyTo (memstream);
                         byte[] array = memstream.ToArray ();
+
+                        // zapisuje pierwsze zdjęcia z każdego folderu
+                        if(!examplePictuers.ContainsKey(patternName))
+                        {
+                            examplePictuers.Add(patternName, array);
+                        }
+
                         MemoryStream ms = new MemoryStream (array);
                         Bitmap bmp = new Bitmap (ms);
                         int[,] matrix = NormaliseData (bmp);
