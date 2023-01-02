@@ -234,23 +234,5 @@ namespace PatternRecogniser.Controllers
             return _experimentListRepo.Get(list => list.name == experimentName && list.userLogin == login).Count() > 0;
         }
 
-        private Expression<Func<Experiment, Experiment, object>> ExperimentsSelector(string experimentType)
-        {
-            var student = new { Id = 1, FirstName = "James", LastName = "Bond" };
-            return (el, ex) => 
-                new
-                {
-                    ex,
-                    extendModel = new
-                    {
-                        ex.extendedModel.extendedModelId,
-                        ex.extendedModel.name,
-                        ex.extendedModel.userLogin,
-                        ex.extendedModel.distribution,
-                        ex.extendedModel.num_classes
-
-                    }
-            };
-        }
     }
 }
