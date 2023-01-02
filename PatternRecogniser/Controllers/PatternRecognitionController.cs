@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PatternRecogniser.Messages.PatternRecognition;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services.Repos;
@@ -46,7 +47,8 @@ namespace PatternRecogniser.Controllers
             {
                 string login = User.Identity.Name;
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
-                var model = _extendModelRepo.Get(model => model.userLogin == login && model.name == modelName, "patterns")
+                var model = _extendModelRepo.Get(model => model.userLogin == login && model.name == modelName,
+                    model => model.Include( m => m.patterns))
                     .FirstOrDefault();
 
                 if(model == null)

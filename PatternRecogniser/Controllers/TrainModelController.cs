@@ -171,19 +171,22 @@ namespace PatternRecogniser.Controllers
         {
             string login = User.Identity.Name; 
 
-            var model = _extendedModelRepo.Get(
+            var extendedModelIdAndPatterns = _extendedModelRepo.Get(
                 model => model.userLogin == login && model.name == modelName,
-                "patterns")
+               model=> model.Include( a => a.patterns), selector: model => new { 
+                   model.extendedModelId,
+                   model.patterns
+               })
                 .FirstOrDefault();
-            if (model == null)
+            if (extendedModelIdAndPatterns == null)
                 return NotFound();
 
-            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == model.extendedModelId,
-                "validationSet").FirstOrDefault();
+            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelIdAndPatterns.extendedModelId,
+                s => s.Include( a => a.validationSet)).FirstOrDefault();
             if (statistics == null)
                 return NotFound();
 
-            return Ok(new ModelDetalisRespond(statistics));
+            return Ok(new ModelDetalisRespond(statistics, extendedModelIdAndPatterns.patterns));
         }
 
         /// <summary>
@@ -195,15 +198,15 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetModels()
         {
             string login = User.Identity.Name;
-            var models = _extendedModelRepo.Get(model => model.userLogin == login, "modelTrainingExperiment");
-            return Ok(models.Select(model => new
+            var models = _extendedModelRepo.Get(model => model.userLogin == login, selector: model => new
             {
                 model.extendedModelId,
                 model.name,
                 model.userLogin,
                 model.distribution,
                 model.num_classes
-            }));
+            });
+            return Ok(models);
         }
 
         /// <summary>
@@ -217,7 +220,7 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault();
+                var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login, model => model.Include(a => a.modelTrainingExperiment)).FirstOrDefault();
                 if (model == null)
                     return Ok();
                 _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);

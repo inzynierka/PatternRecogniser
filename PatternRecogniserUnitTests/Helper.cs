@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using PatternRecogniser;
@@ -29,7 +30,7 @@ namespace PatternRecogniserUnitTests
 
         public static void SetUpGet<TEntity>(this Mock<IGenericRepository<TEntity>> mock, List<TEntity> mockData)
         {
-            mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<string>()))
+            mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>()))
                 .Returns((Expression<Func<TEntity, bool>> filter, string include) =>
                 mockData.AsQueryable<TEntity>().Where(filter).ToList());
         }

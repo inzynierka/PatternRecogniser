@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.Messages.CutedModels;
 using PatternRecogniser.Messages.ExperimentList;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services.Repos;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace PatternRecogniser.Controllers
@@ -76,9 +78,11 @@ namespace PatternRecogniser.Controllers
                 var experimentsList = _experimentListRepo.Get(list => list.name == experimentListName &&
                     list.userLogin == login &&
                     list.experimentType == "ModelTrainingExperiment",
-                        "experiments")
+                        list => list.Include( l => l.experiments))
                     .FirstOrDefault();
-                var experiment = _extendedModelRepo.Get(model => model.extendedModelId == modelId && model.userLogin == login, "modelTrainingExperiment").FirstOrDefault()?.modelTrainingExperiment;
+                var experiment = _extendedModelRepo.Get(model => model.extendedModelId == modelId && model.userLogin == login, 
+                    model => model.Include(m => m.experiments))
+                    .FirstOrDefault()?.modelTrainingExperiment;
 
                 if (experiment == null || experimentsList == null)
                     return BadRequest(_messeges.listOrExperimentDontExist);
@@ -107,12 +111,15 @@ namespace PatternRecogniser.Controllers
             {
                 string login = User.Identity.Name; 
                 var list = _experimentListRepo.Get(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment",
-                    "experiments").FirstOrDefault();
+                    list => list.Include(l => l.experiments)).FirstOrDefault();
 
                 if (list == null)
                     return BadRequest(_messeges.listDontExisit);
                 //lastPatternRecognitionExperiment
-                var user = _userRepo.Get(user => user.login == login, "lastPatternRecognitionExperiment").FirstOrDefault();
+                var user = _userRepo.Get(user => user.login == login,
+                    user => user.
+                        Include(u => u.lastPatternRecognitionExperiment))
+                    .FirstOrDefault();
 
                 if (user == null)
                     BadRequest();
@@ -159,13 +166,47 @@ namespace PatternRecogniser.Controllers
         [HttpGet("GetExperiments")]
         public IActionResult  GetExperiments(string experimentListName)
         {
-            string login = User.Identity.Name; 
-            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login , "experiments").FirstOrDefault();
-            var experiments = list?.experiments;
+            string login = User.Identity.Name;
+
+            var experiments = _experimentListRepo.Get(
+                a => a.name == experimentListName && a.userLogin == login,
+                list => list.Include(l => l.experiments)).FirstOrDefault()?.experiments;
+
+
             if (experiments == null)
                 return NotFound();
-            else
-                return Ok(experiments);
+
+            var experimentsWithModel = _experimentListRepo.GetSelectMany(
+                a => a.experiments,
+                (el, ex) => new
+                {
+                    ex.experimentId,
+                    extendModel = new
+                    {
+                        ex.extendedModel.extendedModelId,
+                        ex.extendedModel.name,
+                        ex.extendedModel.userLogin,
+                        ex.extendedModel.distribution,
+                        ex.extendedModel.num_classes
+                    }
+                },
+                a => a.name == experimentListName && a.userLogin == login,
+                list => list.Include(l => l.experiments).ThenInclude(e => e.extendedModel));
+
+            
+            foreach(var ex in experiments)
+            {
+                var tmp = experimentsWithModel.Single(a => a.experimentId == ex.experimentId).extendModel;
+                ex.extendedModel = new ExtendedModel();
+                ex.extendedModel.extendedModelId = tmp.extendedModelId;
+                ex.extendedModel.name = tmp.name;
+                ex.extendedModel.userLogin = tmp.userLogin;
+                ex.extendedModel.distribution = tmp.distribution;
+                ex.extendedModel.num_classes = tmp.num_classes;
+                ex.experimentLists = null;
+            }
+
+            return Ok(experiments);
         }
 
         /// <summary>
@@ -192,6 +233,25 @@ namespace PatternRecogniser.Controllers
         private bool IsExperimentListExsist(string login, string experimentName)
         {
             return _experimentListRepo.Get(list => list.name == experimentName && list.userLogin == login).Count() > 0;
+        }
+
+        private Expression<Func<Experiment, Experiment, object>> ExperimentsSelector(string experimentType)
+        {
+            var student = new { Id = 1, FirstName = "James", LastName = "Bond" };
+            return (el, ex) => 
+                new
+                {
+                    ex,
+                    extendModel = new
+                    {
+                        ex.extendedModel.extendedModelId,
+                        ex.extendedModel.name,
+                        ex.extendedModel.userLogin,
+                        ex.extendedModel.distribution,
+                        ex.extendedModel.num_classes
+
+                    }
+            };
         }
     }
 }
