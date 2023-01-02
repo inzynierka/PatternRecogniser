@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PatternRecogniser.Messages.CutedModels;
 using PatternRecogniser.Messages.ExperimentList;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services.Repos;
