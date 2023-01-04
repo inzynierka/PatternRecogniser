@@ -16,7 +16,7 @@ namespace PatternRecogniser.Messages.TrainModel
         public List<ValidationSet> validationSet { get; set; }
         public List<Pattern> patterns { get; set; }
 
-        public ModelDetalisRespond(ModelTrainingExperiment mte)
+        public ModelDetalisRespond(ModelTrainingExperiment mte, ICollection<Pattern> ps)
         {
             accuracy = mte.accuracy;
             precision = mte.precision;
@@ -25,7 +25,7 @@ namespace PatternRecogniser.Messages.TrainModel
             missRate = mte.missRate;
             confusionMatrix = saveConfusionMatrixAs2DimArray(mte.confusionMatrix);
             validationSet = mte.validationSet.ToList();
-            patterns = mte.extendedModel.patterns.ToList();
+            patterns = ps.ToList();
 
             foreach (var validation in validationSet)
             {
