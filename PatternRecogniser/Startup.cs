@@ -30,6 +30,7 @@ using PatternRecogniser.Middleware;
 using PatternRecogniser.Messages.Validators;
 using PatternRecogniser.Services.NewFolder;
 using PatternRecogniser.Services.Repos;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace PatternRecogniser
 {
@@ -71,7 +72,11 @@ namespace PatternRecogniser
                 };
             });
 
-
+            services.Configure<FormOptions>(options =>
+            {
+                // 1MB = 1024^2
+                options.MultipartBodyLengthLimit = 52428800;
+            });
             // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
             // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -145,7 +150,7 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<PatternRecognitionExperiment>, GenericRepository<PatternRecognitionExperiment>>();
             services.AddScoped<IGenericRepository<ModelTrainingExperiment>, GenericRepository<ModelTrainingExperiment>>();
             services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
-
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

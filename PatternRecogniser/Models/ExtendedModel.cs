@@ -89,24 +89,6 @@ namespace PatternRecogniser.Models
                 this.patterns.Add(new Pattern(pair.Key, pair.Value));
             }
 
-            // trenowanie 
-            /*for (int i = 0; i < 3; i++)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-                trainingUpdate.Update($"info dla usera {userLogin}: {DateTime.Now}\n"); // zapisuje info
-            }
-            // trenowanie
-
-            //validaja
-            await Task.Delay(TimeSpan.FromSeconds(3));
-            trainingUpdate.Update($"info dla usera {userLogin}: start validacji {DateTime.Now}\n"); // zapisuje info
-            var experyment = new ModelTrainingExperiment()
-            {
-                extendedModel = this
-            };
-            modelTrainingExperiment = experyment;*/
-            //validacja
-
             switch (distribution)
             {
                 case DistributionType.TrainTest:
@@ -264,7 +246,7 @@ namespace PatternRecogniser.Models
             foreach (var (step, (batch_x, batch_y)) in enumerate (train_data, 1))
             {
                 // Run the optimization to update W and b values.
-                run_optimization (batch_x, batch_y);
+                //run_optimization (batch_x, batch_y);
 
                 if (step % display_step == 0)
                 {
@@ -281,7 +263,6 @@ namespace PatternRecogniser.Models
                 trainingUpdate.Update ($"Rozpoczęto walidację\n");
                 var pred = neural_net.Apply (x_test, training: false);
                 modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
-                //modelTrainingExperiment.accuracy = (float)accuracy (pred, y_test); // changed
             }
 
             modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
