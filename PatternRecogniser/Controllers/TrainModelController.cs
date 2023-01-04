@@ -68,19 +68,25 @@ namespace PatternRecogniser.Controllers
             try
             {
                 string login = User.Identity.Name;
-                
-                if (GetStatus(login, modelName) != ModelStatus.NotFound)
+
+                // sprawdzam czy status modela o podanej nazwie jest prawidłowy
+                var modelStatus = GetStatus(login, modelName);
+                if (modelStatus != ModelStatus.NotFound && modelStatus != ModelStatus.TrainingFailed)
                     return BadRequest(_messages.modelAlreadyExist);
 
+                // sprawdzam czy czekamy na zakonczenie trenoania innego modelu użytkownika
                 if(_trainInfoQueue.NumberInQueue(login)>=0)
                     return BadRequest(_messages.youAlreadyWaitInTheQueue);
 
+                // sprawdzam czy inny model użytkownika jest trenowany
                 if(_traningUpdate.IsUserTrainingModel(login))
                     return BadRequest(_messages.oneOfYourModelIsTraining);
 
+                // sprawdzam czy zgadza się rozszerzenie pliku
                 if (!(trainingSet.FileName.EndsWith(".zip")))
                     return BadRequest(_messages.incorectFileFormat);
 
+                // sprawdzam czy podano właściwe ustawienia validacji
                 if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
