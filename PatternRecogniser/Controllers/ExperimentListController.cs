@@ -20,14 +20,20 @@ namespace PatternRecogniser.Controllers
         private IGenericRepository<ExperimentList> _experimentListRepo;
         private IGenericRepository<ExtendedModel> _extendedModelRepo;
         private IGenericRepository<User> _userRepo;
+        private IGenericRepository<Experiment> _experimentRepo;
+        private IGenericRepository<RecognisedPatterns> _recognisedPatternsRepo;
         private ExperimentListStringMesseges _messeges = new ExperimentListStringMesseges();
         public ExperimentListController(IGenericRepository<ExtendedModel> extendedModelRepo,
             IGenericRepository<ExperimentList> experimentListRepo,
-            IGenericRepository<User> userRepo)
+            IGenericRepository<User> userRepo,
+            IGenericRepository<Experiment> experimentRepo,
+            IGenericRepository<RecognisedPatterns> recognisedPatternsRepo)
         {
             _experimentListRepo = experimentListRepo;
             _extendedModelRepo = extendedModelRepo;
             _userRepo = userRepo;
+            _experimentRepo = experimentRepo;
+            _recognisedPatternsRepo = recognisedPatternsRepo;
         }
 
 
@@ -126,7 +132,6 @@ namespace PatternRecogniser.Controllers
                 if (user.IsAbbleToAddPatternRecognitionExperiment())
                 {
                     list.experiments.Add(user.lastPatternRecognitionExperiment);
-                    user.exsistUnsavePatternRecognitionExperiment = false;
                     await _experimentListRepo.SaveChangesAsync();
                 }
                 else
@@ -227,12 +232,21 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> DeleteList(string experimentListName)
         {
             string login = User.Identity.Name;
-            var list = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login).FirstOrDefault();
 
-            if (list == null)
+            var listIdAndType = _experimentListRepo.Get(a => a.name == experimentListName && a.userLogin == login,
+                include: list => list.Include(l => l.experiments), selector: a => new { a.experimentListId, a.experimentType }).FirstOrDefault();
+
+            if (listIdAndType == null)
                 return Ok(_messeges.susessfullyDeleted);
 
-            _experimentListRepo.Delete(list);
+            var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
+
+            if (new PatternRecognitionExperiment().IsItMe(listIdAndType.experimentType))
+            {
+                DeletePatternRecognitionExperimentsWithoutList(listIdAndType.experimentListId, user);
+            }
+
+            _experimentListRepo.Delete(listIdAndType.experimentListId);
             await _experimentListRepo.SaveChangesAsync();
 
             return Ok(_messeges.susessfullyDeleted);
@@ -242,6 +256,37 @@ namespace PatternRecogniser.Controllers
         private bool IsExperimentListExsist(string login, string experimentName)
         {
             return _experimentListRepo.Get(list => list.name == experimentName && list.userLogin == login).Count() > 0;
+        }
+
+        private void DeletePatternRecognitionExperimentsWithoutList(int listId, User user)
+        {
+            var experimentsInList = _experimentListRepo.GetSelectMany(
+                a => a.experiments,
+                (el, ex) => new
+                {
+                    ex.experimentId,
+                    numberOfConectedList = ex.experimentLists.Count
+                },
+                a => a.experimentListId == listId,
+                include: list => list.Include(l => l.experiments));
+
+
+            foreach (var ex in experimentsInList)
+            {
+                if (ex.numberOfConectedList == 1)
+                {
+                    if (user.lastPatternRecognitionExperimentexperimentId == ex.experimentId)
+                        continue;
+
+                    var rps = _recognisedPatternsRepo.Get(rp => rp.PatternRecognitionExperimentexperimentId == ex.experimentId);
+
+                    foreach (var rp in rps)
+                        _recognisedPatternsRepo.Delete(rp);
+
+                    _experimentRepo.Delete(ex.experimentId);
+
+                }
+            }
         }
 
     }

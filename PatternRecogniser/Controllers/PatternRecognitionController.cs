@@ -71,7 +71,6 @@ namespace PatternRecogniser.Controllers
                    _patternRecognitionExperimentRepo.Delete(user.lastPatternRecognitionExperiment);
 
                 user.lastPatternRecognitionExperiment = pre;
-                user.exsistUnsavePatternRecognitionExperiment = true;
 
                 _patternRecognitionExperimentRepo.Insert(pre);
                 await _patternRecognitionExperimentRepo.SaveChangesAsync();

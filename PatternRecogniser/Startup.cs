@@ -150,7 +150,7 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<PatternRecognitionExperiment>, GenericRepository<PatternRecognitionExperiment>>();
             services.AddScoped<IGenericRepository<ModelTrainingExperiment>, GenericRepository<ModelTrainingExperiment>>();
             services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
-            
+            services.AddScoped<IGenericRepository<RecognisedPatterns>, GenericRepository<RecognisedPatterns>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

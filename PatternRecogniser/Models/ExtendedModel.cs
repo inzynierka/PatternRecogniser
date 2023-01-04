@@ -54,7 +54,7 @@ namespace PatternRecogniser.Models
         public string userLogin { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
-        public byte[] modelInBytes { get; set; }  // pamiętać, by dodać to do bazy
+        public byte[] modelInBytes { get; set; }  
         public int num_classes { get; set; }
 
         public virtual User user { get; set; }
@@ -165,7 +165,7 @@ namespace PatternRecogniser.Models
                     {
                         RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
                         recognisedPattern.patternId = patternId;
-                        recognisedPattern.probability = rnn;
+                        recognisedPattern.probability =(float) rnn;
                         recognisedPattern.pattern = this.patterns.ElementAt(patternId);
                         toReturn.Add (recognisedPattern);
                         patternId++;
