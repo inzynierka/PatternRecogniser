@@ -153,7 +153,17 @@ namespace PatternRecogniser.Controllers
         public IActionResult GetLists()
         {
             string login = User.Identity.Name;
-            var list = _experimentListRepo.Get(a => a.userLogin == login);
+            var list = _experimentListRepo.Get(
+                a => a.userLogin == login, 
+                include: a => a.Include(l => l.experiments), 
+                selector: a => new
+                {
+                    a.experimentListId,
+                    a.name,
+                    a.userLogin,
+                    a.experimentType,
+                    experimentsCount = a.experiments.Count
+                });
             return Ok(list);
         }
 
