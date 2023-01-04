@@ -74,7 +74,7 @@ namespace PatternRecogniser
 
             services.Configure<FormOptions>(options =>
             {
-                // 1MB = 1024
+                // 1MB = 1024^2
                 options.MultipartBodyLengthLimit = 52428800;
             });
             // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
