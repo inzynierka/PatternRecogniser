@@ -21,6 +21,8 @@ namespace PatternRecogniserUnitTests.Controllers
         private Mock<IGenericRepository<ExperimentList>> _mockExperimentListRepo;
         private Mock<IGenericRepository<User>> _mockUserRepo;
         private Mock<IGenericRepository<ExtendedModel>> _mockExtendedModelRepo;
+        private Mock<IGenericRepository<Experiment>> _mockExperimentRepo;
+        private Mock<IGenericRepository<RecognisedPatterns>> _mockRecognisedPatternsRepo;
         private ExperimentListController _controller;
 
         public ExperimentListUnitTest()
@@ -28,10 +30,15 @@ namespace PatternRecogniserUnitTests.Controllers
             _mockExperimentListRepo = new Mock<IGenericRepository<ExperimentList>>().DefaultMockSetUp();
             _mockUserRepo = new Mock<IGenericRepository<User>>().DefaultMockSetUp();
             _mockExtendedModelRepo = new Mock<IGenericRepository<ExtendedModel>>().DefaultMockSetUp();
+            _mockExperimentRepo = new Mock<IGenericRepository<Experiment>>().DefaultMockSetUp();
+            _mockRecognisedPatternsRepo = new Mock<IGenericRepository<RecognisedPatterns>>().DefaultMockSetUp();
+
             _controller = new ExperimentListController(
                 _mockExtendedModelRepo.Object,
                 _mockExperimentListRepo.Object,
-                _mockUserRepo.Object);
+                _mockUserRepo.Object,
+                _mockExperimentRepo.Object,
+                _mockRecognisedPatternsRepo.Object);
         }
 
         [TestMethod]

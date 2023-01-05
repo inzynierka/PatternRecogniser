@@ -20,10 +20,10 @@ namespace PatternRecogniser.Models
         [Required]
         public string email { get; set; }
         public string hashedPassword { get; set; }
-        public bool exsistUnsavePatternRecognitionExperiment { get; set; } = false;
         public string lastTrainModelName { get; set; }
         public string lastCheckModel { get; set; }
         public ModelStatus lastModelStatus { get; set; }
+        public int? lastPatternRecognitionExperimentexperimentId { get; set; }
         public DateTime createDate { get; set; }
         public DateTime lastLog { get; set; }
         public string refreshToken { get; set; }
@@ -256,7 +256,7 @@ namespace PatternRecogniser.Models
 
         public bool IsAbbleToAddPatternRecognitionExperiment()
         {
-            return exsistUnsavePatternRecognitionExperiment && lastPatternRecognitionExperiment != null;
+            return lastPatternRecognitionExperiment != null;
         }
     }
 }
