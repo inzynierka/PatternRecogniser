@@ -11,6 +11,7 @@ using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.IO.Compression;
+using PatternRecogniser.Messages.HostedService;
 
 namespace PatternRecogniser.Services
 {
@@ -24,6 +25,8 @@ namespace PatternRecogniser.Services
         private IBackgroundTaskQueue _trainInfoQueue;
         private IServiceScopeFactory _serviceScopeFactory;
         private ITrainingUpdate _trainingUpdate;
+        private int _timeoutInSeconds = 60*30;
+        private HostedServiceStringMessages _messages = new HostedServiceStringMessages();
 
         public TrainingModelQueuedHostedService(
             ILogger<TrainingModelQueuedHostedService> logger,
@@ -87,8 +90,16 @@ namespace PatternRecogniser.Services
             // coś nam to nie działa 
             try
             {
-                model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
-                
+
+                ; // parametry na razie ustawione
+
+                var timeout = new TimeOutClass(
+                    () => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets),
+                    _timeoutInSeconds,
+                    _messages.timeout);
+
+                timeout.StartWork();
+
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
