@@ -30,6 +30,7 @@ namespace PatternRecogniser.Controllers
         private readonly int defultTrainPercent = 80;
         private readonly int defultStesNumber = 2;
         private readonly int minSetsNumber = 2;
+        private readonly int maxSetsNumber = 10;
         private readonly int maxTrainPercent = 99;
         private readonly int minTrainPercent = 1;
         private readonly IGenericRepository<ExtendedModel> _extendedModelRepo;
@@ -90,7 +91,7 @@ namespace PatternRecogniser.Controllers
                     return BadRequest(_messages.incorectFileFormat);
 
                 // sprawdzam czy podano właściwe ustawienia validacji
-                if (distributionType == DistributionType.CrossValidation && setsNumber <= minSetsNumber)
+                if (distributionType == DistributionType.CrossValidation && setsNumber < minSetsNumber && setsNumber > maxSetsNumber)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
                 if (distributionType == DistributionType.TrainTest && (trainingPercent > maxTrainPercent || trainingPercent < minTrainPercent)   )
