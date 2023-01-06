@@ -7,6 +7,7 @@ using PatternRecogniser.Controllers;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services;
 using PatternRecogniser.Services.Repos;
+using PatternRecogniser.UnitsOfWorks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,14 @@ namespace PatternRecogniserUnitTests.Controllers
         private Mock<IGenericRepository<ExtendedModel>> _mockExtendedModelRepo;
         private Mock<IGenericRepository<Experiment>> _mockExperimentRepo;
         private Mock<IGenericRepository<RecognisedPatterns>> _mockRecognisedPatternsRepo;
+        private Mock<IExperimentListUnitOfWork> _mockUnitOfWork;
         private ExperimentListController _controller;
+
+        private IGenericRepository<ExperimentList> _mockExperimentListRepoCalls() { return _mockExperimentListRepo.Object; }
+        private IGenericRepository<User> _mockUserRepoCalls() { return _mockUserRepo.Object; }
+        private IGenericRepository<ExtendedModel> _mockExtendedModelRepoCalls() { return _mockExtendedModelRepo.Object; }
+        private IGenericRepository<Experiment> _mockExperimentRepoCalls() { return _mockExperimentRepo.Object; }
+        private IGenericRepository<RecognisedPatterns> _mockRecognisedPatternsRepoCalls() { return _mockRecognisedPatternsRepo.Object; }
 
         public ExperimentListUnitTest()
         {
@@ -32,13 +40,15 @@ namespace PatternRecogniserUnitTests.Controllers
             _mockExtendedModelRepo = new Mock<IGenericRepository<ExtendedModel>>().DefaultMockSetUp();
             _mockExperimentRepo = new Mock<IGenericRepository<Experiment>>().DefaultMockSetUp();
             _mockRecognisedPatternsRepo = new Mock<IGenericRepository<RecognisedPatterns>>().DefaultMockSetUp();
+            _mockUnitOfWork = new Mock<IExperimentListUnitOfWork>();
+            _mockUnitOfWork.Setup(m => m.experimentListRepo).Callback(() => _mockExperimentListRepoCalls());
+            _mockUnitOfWork.Setup(m => m.userRepo).Callback(() => _mockUserRepoCalls());
+            _mockUnitOfWork.Setup(m => m.extendedModelRepo).Callback(() => _mockExtendedModelRepoCalls());
+            _mockUnitOfWork.Setup(m => m.experimentRepo).Callback(() => _mockExperimentRepoCalls());
+            _mockUnitOfWork.Setup(m => m.recognisedPatternsRepo).Callback(() => _mockRecognisedPatternsRepoCalls());
 
             _controller = new ExperimentListController(
-                _mockExtendedModelRepo.Object,
-                _mockExperimentListRepo.Object,
-                _mockUserRepo.Object,
-                _mockExperimentRepo.Object,
-                _mockRecognisedPatternsRepo.Object);
+                _mockUnitOfWork.Object);
         }
 
         [TestMethod]
