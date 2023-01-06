@@ -11,6 +11,7 @@ using PatternRecogniser.ThreadsComunication;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.IO.Compression;
+using PatternRecogniser.Messages.HostedService;
 
 namespace PatternRecogniser.Services
 {
@@ -24,17 +25,21 @@ namespace PatternRecogniser.Services
         private IBackgroundTaskQueue _trainInfoQueue;
         private IServiceScopeFactory _serviceScopeFactory;
         private ITrainingUpdate _trainingUpdate;
+        private int _timeoutInSeconds;
+        private HostedServiceStringMessages _messages = new HostedServiceStringMessages();
 
         public TrainingModelQueuedHostedService(
             ILogger<TrainingModelQueuedHostedService> logger,
             IBackgroundTaskQueue backgroundJobs,
             IServiceScopeFactory serviceScopeFactory,
-            ITrainingUpdate trainingUpdate)
+            ITrainingUpdate trainingUpdate,
+            TrainingSettings trainingSettings)
         {
             _logger = logger;
             _trainInfoQueue = backgroundJobs;
             _serviceScopeFactory = serviceScopeFactory;
             _trainingUpdate = trainingUpdate;
+            _timeoutInSeconds = trainingSettings.TimeoutInSeconds;
         }
 
         
@@ -87,8 +92,15 @@ namespace PatternRecogniser.Services
             // coś nam to nie działa 
             try
             {
-                model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets); // parametry na razie ustawione
-                
+
+                var timeout = new TimeoutClass(
+                    _timeoutInSeconds,
+                    _messages.timeout,
+                    stoppingToken);
+
+                // potrzebuje przegazać cancellationToken stworzony w timeoutclass
+                timeout.StartWork(() => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, timeout.cancellationToken));
+
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
