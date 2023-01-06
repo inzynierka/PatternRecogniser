@@ -108,6 +108,34 @@ namespace PatternRecogniser.Models
             patterns.Add(newList);
         }
 
+        public void AddPatternData (PatternData data)
+        {
+            foreach (List<Pattern> addedPatterns in data.patterns)
+            {
+                bool addedToList = false;
+
+                if (patterns == null)
+                {
+                    patterns = new List<List<Pattern>> ();
+                }
+
+                foreach (List<Pattern> thisPatterns in this.patterns)
+                {
+                    if (thisPatterns[0].name == addedPatterns[0].name)
+                    {
+                        thisPatterns.AddRange (addedPatterns);
+                        addedToList = true;
+                        break;
+                    }
+                }
+
+                if (!addedToList)
+                {
+                    this.patterns.Add (addedPatterns);
+                }
+            }
+        }
+
         public int GetNumberOfClasses()
         {
             return patterns.Count;
