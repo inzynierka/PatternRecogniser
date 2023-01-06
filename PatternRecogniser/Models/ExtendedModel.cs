@@ -22,6 +22,7 @@ using static Tensorflow.KerasApi;
 using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Http;
 using PatternRecogniser.Helper;
+using PatternRecogniser.Messages.Model;
 
 namespace PatternRecogniser.Models
 {
@@ -62,17 +63,17 @@ namespace PatternRecogniser.Models
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
 
-        
+        private ExtendedModelStringMessages _messages = new ExtendedModelStringMessages();
 
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
-            trainingUpdate.Update("Rozpoczęto trenowanie\n");
+            trainingUpdate.Update(_messages.startTraining+"\n");
             var examplePictures = new Dictionary<string, byte[]>();
             PatternData patternData = OpenZip (trainingSet, examplePictures);
             
             if (patternData.IsEmpty())
             {
-                throw new Exception ("Zła struktura pliku");
+                throw new Exception (_messages.incorectFileStructure);
             }
 
             // zapisanie przykładowych patternów
@@ -143,13 +144,13 @@ namespace PatternRecogniser.Models
             // sprawdzamy czy możemy podzielić dane na k
             if (k <= 1)
             {
-                throw new Exception ("Wartość k musi być conajmniej równa 2");
+                throw new Exception (_messages.tooSmalSetsNumber);
             }
             foreach (var list in data.patterns)
             {
                 if (list.Count < k)
                 {
-                    throw new Exception ("Za duże k");
+                    throw new Exception (_messages.tooLargeSetsNumber);
                 }
             }
 
@@ -202,7 +203,7 @@ namespace PatternRecogniser.Models
             for (int j = 0; j < k; j++)
             {
                 // patternDatas[j] - test
-                trainingUpdate.Update ($"Walidacja krzyżowa - trenowanie modelu {j}\n");
+                trainingUpdate.Update ($"{_messages.crossValidationModelTraining(j)}\n");
                 PatternData train = new PatternData ();
                 for (int i = 0; i < k; i++)
                 {
@@ -341,14 +342,14 @@ namespace PatternRecogniser.Models
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
 
-                    trainingUpdate.Update ($"Trenowanie - krok {step} z {training_steps}\nStrata: {loss.numpy()}\nDokładność: {acc.numpy()}\n"); 
+                    trainingUpdate.Update ($"{_messages.trainingProggres (step, training_steps, loss.numpy(), acc.numpy())}\n"); 
                 }
             }
 
             // Test model on validation set.
             ModelTrainingExperiment statistics;
             {
-                trainingUpdate.Update ($"Rozpoczęto walidację\n");
+                trainingUpdate.Update ($"{_messages.startValidation}\n");
                 var pred = neural_net.Apply (x_test, training: false);
                 statistics = new ModelTrainingExperiment (pred, y_test, num_classes);
             }
