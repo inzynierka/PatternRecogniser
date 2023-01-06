@@ -13,7 +13,7 @@ namespace PatternRecogniser.Models
     {
         private OurLayerArgs args;
 
-        //private IVariableV1 kernel;
+        private IVariableV1 kernel;
 
         private IVariableV1 bias;
 
@@ -36,6 +36,7 @@ namespace PatternRecogniser.Models
             int? min_ndim = 2;
             Dictionary<int, int> axes = dictionary;
             inputSpec = new InputSpec (TF_DataType.DtInvalid, null, min_ndim, axes);
+            kernel = add_weight ("kernel", new Shape (num, args.Units), initializer: args.KernelInitializer, dtype: base.DType);
             if (args.UseBias)
             {
                 bias = add_weight ("bias", new Shape (args.Units), initializer: args.BiasInitializer, dtype: base.DType);
@@ -47,6 +48,7 @@ namespace PatternRecogniser.Models
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
         {
             Tensor tensor = null;
+            int x = 4; // ideolo jakby to było variable, i jakoś się dzięki gradients zmieniało
 
             foreach (var input in inputs) // jeden input w inputs
             {
@@ -65,7 +67,8 @@ namespace PatternRecogniser.Models
                     }
                     // zliczamy zapalone komórki
                     int newSize = size - 2;
-                    float[,] resultMatrix = new float[newSize, newSize];
+                    float[] newArr = new float[newSize * newSize];
+                    float tmp;
                     for (int i = 0; i < newSize; i++)
                     {
                         for (int j = 0; j < newSize; j++)
@@ -73,18 +76,18 @@ namespace PatternRecogniser.Models
                             int mainIndI = i + 1;
                             int mainIndJ = j + 1;
 
-                            resultMatrix[i, j] = matrix[mainIndI - 1, mainIndJ - 1] + matrix[mainIndI - 1, mainIndJ] + matrix[mainIndI - 1, mainIndJ + 1] +
+                            tmp = matrix[mainIndI - 1, mainIndJ - 1] + matrix[mainIndI - 1, mainIndJ] + matrix[mainIndI - 1, mainIndJ + 1] +
                                 matrix[mainIndI, mainIndJ - 1] + matrix[mainIndI, mainIndJ] + matrix[mainIndI, mainIndJ + 1] +
                                 matrix[mainIndI + 1, mainIndJ - 1] + matrix[mainIndI + 1, mainIndJ] + matrix[mainIndI + 1, mainIndJ + 1];
-                        }
-                    }
-                    // na wektor, można by w poprzedniej pętli
-                    float[] newArr = new float[newSize * newSize];
-                    for (int i = 0; i < newSize; i++)
-                    {
-                        for (int j = 0; j < newSize; j++)
-                        {
-                            newArr[i * newSize + j] = resultMatrix[i, j];
+                            
+                            if (tmp > x)
+                            {
+                                newArr[i * newSize + j] = 1;
+                            }
+                            else
+                            {
+                                newArr[i * newSize + j] = 0;
+                            }
                         }
                     }
                     newArrList.Add (newArr);
