@@ -152,15 +152,19 @@ namespace PatternRecogniser.Controllers
             string login = User.Identity.Name;
             var list = _unitOfWork.experimentListRepo.Get(
                 a => a.userLogin == login, 
-                include: a => a.Include(l => l.experiments), 
+                include: a => a.Include(l => l.experiments).ThenInclude(l=>l.extendedModel), 
                 selector: a => new
                 {
                     a.experimentListId,
                     a.name,
                     a.userLogin,
                     a.experimentType,
-                    experimentsCount = a.experiments.Count
+                    experimentsCount = a.experiments.Count,
+                    extendedModelName = a.experiments.FirstOrDefault().extendedModel.name
                 });
+
+
+
             return Ok(list);
         }
 
