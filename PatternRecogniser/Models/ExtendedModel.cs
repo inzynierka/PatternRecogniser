@@ -334,7 +334,7 @@ namespace PatternRecogniser.Models
                 return tf.reduce_mean (loss);
             };
 
-            _cancellationToken.ThrowIfCancellationRequested();
+            //_cancellationToken.ThrowIfCancellationRequested();
             // Accuracy metric.
             Func<Tensor, Tensor, Tensor> accuracy = (y_pred, y_true) =>
             {
