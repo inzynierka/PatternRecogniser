@@ -156,6 +156,7 @@ namespace PatternRecogniser.Models
 
         public void TrainModelCrossValidation(PatternData data, int k, ITrainingUpdate trainingUpdate) 
         {
+            _cancellationToken.ThrowIfCancellationRequested();
             // k - ile podzbiorów
             Model bestModel = null;
             ModelTrainingExperiment bestStatistics = new ModelTrainingExperiment();
@@ -167,6 +168,7 @@ namespace PatternRecogniser.Models
             }
             foreach (var list in data.patterns)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
                 if (list.Count < k)
                 {
                     throw new Exception (_messages.tooLargeSetsNumber);
@@ -178,8 +180,12 @@ namespace PatternRecogniser.Models
             {
                 Random rng = new Random (); // https://stackoverflow.com/questions/273313/randomize-a-listt
                 int n = list.Count;
+                _cancellationToken.ThrowIfCancellationRequested();
+
                 while (n > 1)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
+
                     n--;
                     int r = rng.Next (n + 1);
                     Pattern value = list[r];
@@ -202,6 +208,8 @@ namespace PatternRecogniser.Models
                 int[] sizes = new int[k];
                 for (int i = 0; i < k; i++)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
+
                     if (i < leftovers)
                     {
                         sizes[i] = size + 1;
@@ -214,6 +222,7 @@ namespace PatternRecogniser.Models
 
                 for (int i = 0; i < k; i++)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
                     patternDatas[i].AddPatterns (list.GetRange (start, sizes[i]));
                     start += sizes[i];
                 }
@@ -226,6 +235,7 @@ namespace PatternRecogniser.Models
                 PatternData train = new PatternData ();
                 for (int i = 0; i < k; i++)
                 {
+                    _cancellationToken.ThrowIfCancellationRequested();
                     if (i != j)
                     {
                         train.AddPatternData (patternDatas[i]);
