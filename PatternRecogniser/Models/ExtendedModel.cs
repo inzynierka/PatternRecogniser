@@ -214,7 +214,7 @@ namespace PatternRecogniser.Models
                 }
 
                 (ModelTrainingExperiment newStatistics, Model newModel) = TrainIndividualModel (train, patternDatas[j], trainingUpdate);
-                if (bestModel == null || newStatistics.accuracy > bestStatistics.accuracy)
+                if (bestModel == null || newStatistics.recall > bestStatistics.recall)
                 {
                     bestModel = newModel;
                     bestStatistics = newStatistics;
