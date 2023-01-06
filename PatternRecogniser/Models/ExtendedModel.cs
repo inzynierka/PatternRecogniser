@@ -381,7 +381,6 @@ namespace PatternRecogniser.Models
                 }
             }
 
-            _cancellationToken.ThrowIfCancellationRequested();
             // Test model on validation set.
             ModelTrainingExperiment statistics;
             {
@@ -389,7 +388,6 @@ namespace PatternRecogniser.Models
                 var pred = neural_net.Apply (x_test, training: false);
                 statistics = new ModelTrainingExperiment (pred, y_test, num_classes);
             }
-            _cancellationToken.ThrowIfCancellationRequested();
             return (statistics, neural_net);
         }
 
