@@ -112,6 +112,10 @@ namespace PatternRecogniser.Controllers
 
                 if (list == null)
                     return BadRequest(_messeges.listDontExisit);
+
+                
+
+
                 //lastPatternRecognitionExperiment
                 var user = _unitOfWork.userRepo.Get(user => user.login == login,
                     user => user.
@@ -121,7 +125,10 @@ namespace PatternRecogniser.Controllers
                 if (user == null)
                     BadRequest();
 
-                if (user.IsAbbleToAddPatternRecognitionExperiment())
+                if (list.experiments.Count != 0 && user.lastPatternRecognitionExperiment.extendedModelId != list.experiments.First().extendedModelId)
+                    return BadRequest(_messeges.canotAddExperiment);
+
+                    if (user.IsAbbleToAddPatternRecognitionExperiment())
                 {
                     list.experiments.Add(user.lastPatternRecognitionExperiment);
                     await _unitOfWork.SaveChangesAsync();
