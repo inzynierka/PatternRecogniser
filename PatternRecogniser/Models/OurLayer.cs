@@ -13,7 +13,8 @@ namespace PatternRecogniser.Models
     {
         private OurLayerArgs args;
 
-        private IVariableV1 kernel;
+        //private IVariableV1 kernel;
+        private int x;
 
         private IVariableV1 bias;
 
@@ -36,7 +37,7 @@ namespace PatternRecogniser.Models
             int? min_ndim = 2;
             Dictionary<int, int> axes = dictionary;
             inputSpec = new InputSpec (TF_DataType.DtInvalid, null, min_ndim, axes);
-            kernel = add_weight ("kernel", new Shape (num, args.Units), initializer: args.KernelInitializer, dtype: base.DType);
+            x = args.Threshold;
             if (args.UseBias)
             {
                 bias = add_weight ("bias", new Shape (args.Units), initializer: args.BiasInitializer, dtype: base.DType);
@@ -48,7 +49,7 @@ namespace PatternRecogniser.Models
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
         {
             Tensor tensor = null;
-            int x = 4; // ideolo jakby to było variable, i jakoś się dzięki gradients zmieniało
+            //int x = 4; // ideolo jakby to było variable, i jakoś się dzięki gradients zmieniało
 
             foreach (var input in inputs) // jeden input w inputs
             {
@@ -121,6 +122,8 @@ namespace PatternRecogniser.Models
         // Summary:
         //     Positive integer, rozmiar inputów po zmianach, tzn. najpierw 26*26, potem 24*24 itd. aż dojdziemy do 16*16
         public int Units { get; set; }
+
+        public int Threshold { get; set; }
 
         //
         // Summary:
