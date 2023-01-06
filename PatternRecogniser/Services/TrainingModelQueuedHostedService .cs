@@ -25,19 +25,21 @@ namespace PatternRecogniser.Services
         private IBackgroundTaskQueue _trainInfoQueue;
         private IServiceScopeFactory _serviceScopeFactory;
         private ITrainingUpdate _trainingUpdate;
-        private int _timeoutInSeconds = 60*30;
+        private int _timeoutInSeconds;
         private HostedServiceStringMessages _messages = new HostedServiceStringMessages();
 
         public TrainingModelQueuedHostedService(
             ILogger<TrainingModelQueuedHostedService> logger,
             IBackgroundTaskQueue backgroundJobs,
             IServiceScopeFactory serviceScopeFactory,
-            ITrainingUpdate trainingUpdate)
+            ITrainingUpdate trainingUpdate,
+            TrainingSettings trainingSettings)
         {
             _logger = logger;
             _trainInfoQueue = backgroundJobs;
             _serviceScopeFactory = serviceScopeFactory;
             _trainingUpdate = trainingUpdate;
+            _timeoutInSeconds = trainingSettings.TimeoutInSeconds;
         }
 
         
@@ -91,14 +93,13 @@ namespace PatternRecogniser.Services
             try
             {
 
-                ; // parametry na razie ustawione
-
-                var timeout = new TimeOutClass(
-                    () => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets),
+                var timeout = new TimeoutClass(
                     _timeoutInSeconds,
-                    _messages.timeout);
+                    _messages.timeout,
+                    stoppingToken);
 
-                timeout.StartWork();
+                // potrzebuje przegazać cancellationToken stworzony w timeoutclass
+                timeout.StartWork(() => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, timeout.cancellationToken));
 
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {

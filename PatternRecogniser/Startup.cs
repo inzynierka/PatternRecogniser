@@ -43,6 +43,12 @@ namespace PatternRecogniser
 
         public IConfiguration Configuration { get; }
 
+        private void BindClass<BindedClassType>(IServiceCollection services, BindedClassType bindedClass, string sectionName) where BindedClassType : class
+        {
+            Configuration.GetSection(sectionName).Bind(bindedClass);
+            services.AddSingleton(bindedClass);
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -53,9 +59,12 @@ namespace PatternRecogniser
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
+            var trainingSettings = new TrainingSettings();
+            BindClass(services, trainingSettings, "TrainingSettings");
+
             var authenticationSettings = new AuthenticationSettings();
-            Configuration.GetSection("Authentication").Bind(authenticationSettings);
-            services.AddSingleton(authenticationSettings);
+            BindClass(services, authenticationSettings, "Authentication");
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(authenticationScheme: JwtBearerDefaults.AuthenticationScheme, configureOptions: cfg =>
             {
