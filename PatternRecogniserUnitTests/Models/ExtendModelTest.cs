@@ -82,7 +82,7 @@ namespace PatternRecogniserUnitTests.Models
         public void TrainingModelTest_Cross()
         {
             TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.CrossValidation,
-                80, 1);
+                80, 5);
             var model = new ExtendedModel();
             model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets);
             Assert.IsNotNull(model.modelTrainingExperiment);

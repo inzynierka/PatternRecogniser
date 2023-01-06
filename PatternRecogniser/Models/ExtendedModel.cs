@@ -67,8 +67,6 @@ namespace PatternRecogniser.Models
         public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber) // nie potrzebne CancellationToken w późniejszym programie
         {
             trainingUpdate.Update("Rozpoczęto trenowanie\n");
-            //this.distribution = info.distributionType;
-            //modelTrainingExperiment = new ModelTrainingExperiment ();
             var examplePictures = new Dictionary<string, byte[]>();
             PatternData patternData = OpenZip (trainingSet, examplePictures);
             
@@ -130,12 +128,101 @@ namespace PatternRecogniser.Models
                 testData.AddPatterns (list.GetRange (trainSize, testSize));
             }
 
-            TrainIndividualModel (trainData, testData, trainingUpdate);
+            (ModelTrainingExperiment statistics, Model model) = TrainIndividualModel (trainData, testData, trainingUpdate);
+            this.modelInBytes = Helper.ModelBuilder.SerializeModel (model);
+            this.modelTrainingExperiment = statistics;
+            this.modelTrainingExperiment.extendedModel = this;
         }
 
-        public void TrainModelCrossValidation(PatternData data, int n, ITrainingUpdate trainingUpdate) 
-        { 
-            // jeszcze nie zaimplementowane
+        public void TrainModelCrossValidation(PatternData data, int k, ITrainingUpdate trainingUpdate) 
+        {
+            // k - ile podzbiorów
+            Model bestModel = null;
+            ModelTrainingExperiment bestStatistics = new ModelTrainingExperiment();
+
+            // sprawdzamy czy możemy podzielić dane na k
+            if (k <= 1)
+            {
+                throw new Exception ("Wartość k musi być conajmniej równa 2");
+            }
+            foreach (var list in data.patterns)
+            {
+                if (list.Count < k)
+                {
+                    throw new Exception ("Za duże k");
+                }
+            }
+
+            // randomizujemy kolejność
+            foreach (List<Pattern> list in data.patterns)
+            {
+                Random rng = new Random (); // https://stackoverflow.com/questions/273313/randomize-a-listt
+                int n = list.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int r = rng.Next (n + 1);
+                    Pattern value = list[r];
+                    list[r] = list[n];
+                    list[n] = value;
+                }
+            }
+
+            PatternData[] patternDatas = new PatternData[k];
+            for (int j = 0; j < k; j++)
+            {
+                patternDatas[j] = new PatternData ();
+            }
+
+            foreach (List<Pattern> list in data.patterns)
+            {
+                int size = (int)(list.Count / k); // zawsze w dół zaokrągla
+                int start = 0;
+                int leftovers = Math.Abs (size * k - list.Count); // powinno być mniejsze od k
+                int[] sizes = new int[k];
+                for (int i = 0; i < k; i++)
+                {
+                    if (i < leftovers)
+                    {
+                        sizes[i] = size + 1;
+                    }
+                    else
+                    {
+                        sizes[i] = size;
+                    }
+                }
+
+                for (int i = 0; i < k; i++)
+                {
+                    patternDatas[i].AddPatterns (list.GetRange (start, sizes[i]));
+                    start += sizes[i];
+                }
+            }
+
+            for (int j = 0; j < k; j++)
+            {
+                // patternDatas[j] - test
+                trainingUpdate.Update ($"Walidacja krzyżowa - trenowanie modelu {j}\n");
+                PatternData train = new PatternData ();
+                for (int i = 0; i < k; i++)
+                {
+                    if (i != j)
+                    {
+                        train.AddPatternData (patternDatas[i]);
+                    }
+                }
+
+                (ModelTrainingExperiment newStatistics, Model newModel) = TrainIndividualModel (train, patternDatas[j], trainingUpdate);
+                if (bestModel == null || newStatistics.accuracy > bestStatistics.accuracy)
+                {
+                    bestModel = newModel;
+                    bestStatistics = newStatistics;
+                }
+            }
+
+            this.modelInBytes = Helper.ModelBuilder.SerializeModel (bestModel);
+            this.modelTrainingExperiment = bestStatistics;
+            this.modelTrainingExperiment.extendedModel = this;
         }
 
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
@@ -176,7 +263,7 @@ namespace PatternRecogniser.Models
             return toReturn; 
         }
 
-        private void TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
+        private (ModelTrainingExperiment statistics, Model model) TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
         {
             tf.enable_eager_execution ();
 
@@ -259,14 +346,14 @@ namespace PatternRecogniser.Models
             }
 
             // Test model on validation set.
+            ModelTrainingExperiment statistics;
             {
                 trainingUpdate.Update ($"Rozpoczęto walidację\n");
                 var pred = neural_net.Apply (x_test, training: false);
-                modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
+                statistics = new ModelTrainingExperiment (pred, y_test, num_classes);
             }
 
-            modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
-            modelTrainingExperiment.extendedModel = this;
+            return (statistics, neural_net);
         }
 
 
