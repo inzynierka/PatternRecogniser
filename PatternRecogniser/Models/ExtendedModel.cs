@@ -324,6 +324,14 @@ namespace PatternRecogniser.Models
 
                 // Compute gradients.
                 var gradients = g.gradient (loss, neural_net.trainable_variables);
+                
+                for (int i = 0; i < gradients.Length; i++)
+                {
+                    if (gradients[i] == null)
+                    {
+                        gradients[i] = ops.convert_to_tensor (neural_net.trainable_variables[i]);
+                    }
+                }
 
                 // Update W and b following gradients.
                 optimizer.apply_gradients (zip (gradients, neural_net.trainable_variables.Select (x => x as ResourceVariable)));
@@ -334,7 +342,7 @@ namespace PatternRecogniser.Models
             foreach (var (step, (batch_x, batch_y)) in enumerate (train_data, 1))
             {
                 // Run the optimization to update W and b values.
-                //run_optimization (batch_x, batch_y);
+                run_optimization (batch_x, batch_y);
 
                 if (step % display_step == 0)
                 {
