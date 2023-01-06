@@ -8,5 +8,6 @@
         public string notFoundExperimentsToAdd => "Nie masz żadnych eksperymentów możliwych do dodania";
         public string experimentHasBeenAdded => "Pomyślnie dodano eksperyment";
         public string susessfullyDeleted => "Lista została usunięta";
+        public string canotAddExperiment => "Na liscie znajdują się eksperymenty z inego modelu";
     }
 }

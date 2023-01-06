@@ -40,18 +40,6 @@ namespace PatternRecogniser.Services.Repos
         {
             _context = context;
             _dbSet = context.Set<TEntity>();
-            _context.experimentList.SelectMany(a => a.experiments, (el, ex) => new
-            {
-                extendModel = new
-                {
-                    ex.extendedModel.extendedModelId,
-                    ex.extendedModel.name,
-                    ex.extendedModel.userLogin,
-                    ex.extendedModel.distribution,
-                    ex.extendedModel.num_classes
-
-                }
-            });
         }
 
         public void Insert(TEntity entity)

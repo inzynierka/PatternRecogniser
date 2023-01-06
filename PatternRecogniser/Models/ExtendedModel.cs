@@ -22,6 +22,7 @@ using static Tensorflow.KerasApi;
 using System.Drawing.Imaging;
 using Microsoft.AspNetCore.Http;
 using PatternRecogniser.Helper;
+using PatternRecogniser.Messages.Model;
 
 namespace PatternRecogniser.Models
 {
@@ -61,7 +62,7 @@ namespace PatternRecogniser.Models
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
-
+        private ExtendedModelStringMessages _messages = new ExtendedModelStringMessages();
         private CancellationToken _cancellationToken; // nie wiem jak wykorzystać IsCancellationRequested więc wszędzie wyrzucam błąd _cancellationToken.ThrowIfCancellationRequested(); 
 
 
@@ -69,17 +70,15 @@ namespace PatternRecogniser.Models
         {
             try
             {
-                _cancellationToken = cancellationToken;
-                trainingUpdate.Update("Rozpoczęto trenowanie\n");
-                //this.distribution = info.distributionType;
-                //modelTrainingExperiment = new ModelTrainingExperiment ();
-                var examplePictures = new Dictionary<string, byte[]>();
-                PatternData patternData = OpenZip(trainingSet, examplePictures);
-
-                if (patternData.IsEmpty())
-                {
-                    throw new Exception("Zła struktura pliku");
-                }
+             _cancellationToken = cancellationToken;
+             trainingUpdate.Update(_messages.startTraining+"\n");
+            var examplePictures = new Dictionary<string, byte[]>();
+            PatternData patternData = OpenZip (trainingSet, examplePictures);
+            
+            if (patternData.IsEmpty())
+            {
+                throw new Exception (_messages.incorectFileStructure);
+            }
 
                 // zapisanie przykładowych patternów
                 // this.patterns = new List<Pattern> ();
@@ -149,13 +148,101 @@ namespace PatternRecogniser.Models
                 testData.AddPatterns (list.GetRange (trainSize, testSize));
             }
 
-            TrainIndividualModel (trainData, testData, trainingUpdate);
+            (ModelTrainingExperiment statistics, Model model) = TrainIndividualModel (trainData, testData, trainingUpdate);
+            this.modelInBytes = Helper.ModelBuilder.SerializeModel (model);
+            this.modelTrainingExperiment = statistics;
+            this.modelTrainingExperiment.extendedModel = this;
         }
 
-        public void TrainModelCrossValidation(PatternData data, int n, ITrainingUpdate trainingUpdate) 
+        public void TrainModelCrossValidation(PatternData data, int k, ITrainingUpdate trainingUpdate) 
         {
-            _cancellationToken.ThrowIfCancellationRequested();
-            // jeszcze nie zaimplementowane
+            // k - ile podzbiorów
+            Model bestModel = null;
+            ModelTrainingExperiment bestStatistics = new ModelTrainingExperiment();
+
+            // sprawdzamy czy możemy podzielić dane na k
+            if (k <= 1)
+            {
+                throw new Exception (_messages.tooSmalSetsNumber);
+            }
+            foreach (var list in data.patterns)
+            {
+                if (list.Count < k)
+                {
+                    throw new Exception (_messages.tooLargeSetsNumber);
+                }
+            }
+
+            // randomizujemy kolejność
+            foreach (List<Pattern> list in data.patterns)
+            {
+                Random rng = new Random (); // https://stackoverflow.com/questions/273313/randomize-a-listt
+                int n = list.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int r = rng.Next (n + 1);
+                    Pattern value = list[r];
+                    list[r] = list[n];
+                    list[n] = value;
+                }
+            }
+
+            PatternData[] patternDatas = new PatternData[k];
+            for (int j = 0; j < k; j++)
+            {
+                patternDatas[j] = new PatternData ();
+            }
+
+            foreach (List<Pattern> list in data.patterns)
+            {
+                int size = (int)(list.Count / k); // zawsze w dół zaokrągla
+                int start = 0;
+                int leftovers = Math.Abs (size * k - list.Count); // powinno być mniejsze od k
+                int[] sizes = new int[k];
+                for (int i = 0; i < k; i++)
+                {
+                    if (i < leftovers)
+                    {
+                        sizes[i] = size + 1;
+                    }
+                    else
+                    {
+                        sizes[i] = size;
+                    }
+                }
+
+                for (int i = 0; i < k; i++)
+                {
+                    patternDatas[i].AddPatterns (list.GetRange (start, sizes[i]));
+                    start += sizes[i];
+                }
+            }
+
+            for (int j = 0; j < k; j++)
+            {
+                // patternDatas[j] - test
+                trainingUpdate.Update ($"{_messages.crossValidationModelTraining(j)}\n");
+                PatternData train = new PatternData ();
+                for (int i = 0; i < k; i++)
+                {
+                    if (i != j)
+                    {
+                        train.AddPatternData (patternDatas[i]);
+                    }
+                }
+
+                (ModelTrainingExperiment newStatistics, Model newModel) = TrainIndividualModel (train, patternDatas[j], trainingUpdate);
+                if (bestModel == null || newStatistics.recall > bestStatistics.recall)
+                {
+                    bestModel = newModel;
+                    bestStatistics = newStatistics;
+                }
+            }
+
+            this.modelInBytes = Helper.ModelBuilder.SerializeModel (bestModel);
+            this.modelTrainingExperiment = bestStatistics;
+            this.modelTrainingExperiment.extendedModel = this;
         }
 
         public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
@@ -196,7 +283,7 @@ namespace PatternRecogniser.Models
             return toReturn; 
         }
 
-        private void TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
+        private (ModelTrainingExperiment statistics, Model model) TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
         {
             _cancellationToken.ThrowIfCancellationRequested();
             tf.enable_eager_execution ();
@@ -276,26 +363,24 @@ namespace PatternRecogniser.Models
                 _cancellationToken.ThrowIfCancellationRequested();
                 if (step % display_step == 0)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
                     var pred = neural_net.Apply (batch_x, training: true);
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
 
-                    trainingUpdate.Update ($"Trenowanie - krok {step} z {training_steps}\nStrata: {loss.numpy()}\nDokładność: {acc.numpy()}\n"); 
+                    trainingUpdate.Update ($"{_messages.trainingProggres (step, training_steps, loss.numpy(), acc.numpy())}\n"); 
                 }
             }
 
             _cancellationToken.ThrowIfCancellationRequested();
             // Test model on validation set.
+            ModelTrainingExperiment statistics;
             {
-                trainingUpdate.Update ($"Rozpoczęto walidację\n");
+                trainingUpdate.Update ($"{_messages.startValidation}\n");
                 var pred = neural_net.Apply (x_test, training: false);
-                modelTrainingExperiment = new ModelTrainingExperiment (pred, y_test, num_classes);
+                statistics = new ModelTrainingExperiment (pred, y_test, num_classes);
             }
-
             _cancellationToken.ThrowIfCancellationRequested();
-            modelInBytes = Helper.ModelBuilder.SerializeModel(neural_net); 
-            modelTrainingExperiment.extendedModel = this;
+            return (statistics, neural_net);
         }
 
 

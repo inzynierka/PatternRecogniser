@@ -31,6 +31,7 @@ using PatternRecogniser.Messages.Validators;
 using PatternRecogniser.Services.NewFolder;
 using PatternRecogniser.Services.Repos;
 using Microsoft.AspNetCore.Http.Features;
+using PatternRecogniser.UnitsOfWorks;
 
 namespace PatternRecogniser
 {
@@ -160,6 +161,7 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<ModelTrainingExperiment>, GenericRepository<ModelTrainingExperiment>>();
             services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
             services.AddScoped<IGenericRepository<RecognisedPatterns>, GenericRepository<RecognisedPatterns>>();
+            services.AddScoped<IExperimentListUnitOfWork, ExperimentListUnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

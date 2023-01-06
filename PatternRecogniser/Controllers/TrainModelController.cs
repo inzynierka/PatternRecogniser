@@ -27,9 +27,13 @@ namespace PatternRecogniser.Controllers
         private readonly IBackgroundTaskQueue _trainInfoQueue;
         private readonly ITrainingUpdate _traningUpdate;
         public TrainModelStringMessages _messages = new TrainModelStringMessages();
-        private int defultTrainPercent = 8;
-        private int defultStesNumber = 2;
-        private IGenericRepository<ExtendedModel> _extendedModelRepo;
+        private readonly int defultTrainPercent = 80;
+        private readonly int defultStesNumber = 2;
+        private readonly int minSetsNumber = 2;
+        private readonly int maxSetsNumber = 10;
+        private readonly int maxTrainPercent = 99;
+        private readonly int minTrainPercent = 1;
+        private readonly IGenericRepository<ExtendedModel> _extendedModelRepo;
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo;
         private readonly IGenericRepository<Experiment> _experimentRepo;
@@ -87,10 +91,10 @@ namespace PatternRecogniser.Controllers
                     return BadRequest(_messages.incorectFileFormat);
 
                 // sprawdzam czy podano właściwe ustawienia validacji
-                if (distributionType == DistributionType.CrossValidation && setsNumber <= 1)
+                if (distributionType == DistributionType.CrossValidation && setsNumber < minSetsNumber && setsNumber > maxSetsNumber)
                     return BadRequest(_messages.incorectCrossValidationOption);
 
-                if (distributionType == DistributionType.TrainTest && (trainingPercent >= 100 || trainingPercent < 0)   )
+                if (distributionType == DistributionType.TrainTest && (trainingPercent > maxTrainPercent || trainingPercent < minTrainPercent)   )
                     return BadRequest(_messages.incorectTrainTest);
 
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
