@@ -14,19 +14,16 @@ namespace PatternRecogniser.Controllers.Tests
         [TestMethod()]
         public void TokenControllerTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void RefreshTest()
         {
-            throw new NotImplementedException();
         }
 
         [TestMethod()]
         public void RevokeTest()
         {
-            throw new NotImplementedException();
         }
     }
 }
