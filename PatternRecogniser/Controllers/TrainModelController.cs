@@ -236,6 +236,9 @@ namespace PatternRecogniser.Controllers
                 _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);
                 _experimentRepo.Delete(model.modelTrainingExperiment);
                 _extendedModelRepo.Delete(model);
+                var user = _userRepo.Get(filter: u => u.login == login).FirstOrDefault();
+                if (user.lastTrainModelName == model.name)
+                    user.lastTrainModelName = null;
 
                 await _extendedModelRepo.SaveChangesAsync();
                 return Ok();
