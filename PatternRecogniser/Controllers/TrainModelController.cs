@@ -37,12 +37,14 @@ namespace PatternRecogniser.Controllers
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo;
         private readonly IGenericRepository<Experiment> _experimentRepo;
+        IGenericRepository<PatternRecognitionExperiment> _patternRecognitionExperimentRepo;
 
         public TrainModelController(
             IGenericRepository<ExtendedModel> extendedModelRepo,
             IGenericRepository<User> userRepo,
             IGenericRepository<ModelTrainingExperiment> modelTrainingExperimentRepo,
             IGenericRepository<Experiment> experimentRepo,
+            IGenericRepository<PatternRecognitionExperiment> patternRecognitionExperimentRepo,
             IBackgroundTaskQueue trainInfoQueue,
             ITrainingUpdate trainingUpdate)
         {
@@ -52,6 +54,7 @@ namespace PatternRecogniser.Controllers
             _trainInfoQueue = trainInfoQueue;
             _traningUpdate = trainingUpdate;
             _experimentRepo = experimentRepo;
+            _patternRecognitionExperimentRepo = patternRecognitionExperimentRepo;
         }
 
 
@@ -239,9 +242,12 @@ namespace PatternRecogniser.Controllers
                 _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);
                 _experimentRepo.Delete(model.modelTrainingExperiment);
                 _extendedModelRepo.Delete(model);
-                var user = _userRepo.Get(filter: u => u.login == login).FirstOrDefault();
+                var user = _userRepo.Get(filter: u => u.login == login, include: u => u.Include(a => a.lastPatternRecognitionExperiment)).FirstOrDefault();
                 if (user.lastTrainModelName == model.name)
                     user.lastTrainModelName = null;
+
+                if (user.lastPatternRecognitionExperiment != null && user.lastPatternRecognitionExperiment.extendedModelId == model.extendedModelId)
+                    _patternRecognitionExperimentRepo.Delete(user.lastPatternRecognitionExperiment);
 
                 await _extendedModelRepo.SaveChangesAsync();
                 return Ok();
