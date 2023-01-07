@@ -150,7 +150,10 @@ namespace PatternRecogniser.ThreadsComunication
         public int NumberInQueue(string login)
         {
             var qToList = _queue.ToList();
-            return qToList.FindIndex(a => a.Key == login);
+            int index = qToList.FindIndex(a => a.Key == login);
+            if (index <0)
+                return -1;
+            return qToList.Count - 1 - index;
         }
 
         public bool IsUsersModelInQueue(string login, string modelName = null)

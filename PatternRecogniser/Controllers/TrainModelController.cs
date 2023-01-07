@@ -183,22 +183,23 @@ namespace PatternRecogniser.Controllers
         {
             string login = User.Identity.Name; 
 
-            var extendedModelIdAndPatterns = _extendedModelRepo.Get(
+            var extendedModelSelectedData = _extendedModelRepo.Get(
                 model => model.userLogin == login && model.name == modelName,
-               model=> model.Include( a => a.patterns), selector: model => new { 
+               model=> model.Include( a =>   a.patterns), selector: model => new { 
                    model.extendedModelId,
-                   model.patterns
+                   model.patterns,
+                   model.distribution
                })
                 .FirstOrDefault();
-            if (extendedModelIdAndPatterns == null)
+            if (extendedModelSelectedData == null)
                 return NotFound();
 
-            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelIdAndPatterns.extendedModelId,
+            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelSelectedData.extendedModelId,
                 s => s.Include( a => a.validationSet)).FirstOrDefault();
             if (statistics == null)
                 return NotFound();
 
-            return Ok(new ModelDetalisRespond(statistics, extendedModelIdAndPatterns.patterns));
+            return Ok(new ModelDetalisRespond(statistics, extendedModelSelectedData.patterns, extendedModelSelectedData.distribution));
         }
 
         /// <summary>

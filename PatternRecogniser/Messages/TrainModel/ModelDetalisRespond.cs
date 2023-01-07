@@ -15,8 +15,9 @@ namespace PatternRecogniser.Messages.TrainModel
         public int[,] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
         public List<ValidationSet> validationSet { get; set; }
         public List<Pattern> patterns { get; set; }
+        public string distributionType { get; set; }
 
-        public ModelDetalisRespond(ModelTrainingExperiment mte, ICollection<Pattern> ps)
+        public ModelDetalisRespond(ModelTrainingExperiment mte, ICollection<Pattern> ps, DistributionType distributionType)
         {
             accuracy = mte.accuracy;
             precision = mte.precision;
@@ -26,6 +27,7 @@ namespace PatternRecogniser.Messages.TrainModel
             confusionMatrix = saveConfusionMatrixAs2DimArray(mte.confusionMatrix);
             validationSet = mte.validationSet.ToList();
             patterns = ps.ToList();
+            this.distributionType = distributionType.ToString();
 
             foreach (var validation in validationSet)
             {
