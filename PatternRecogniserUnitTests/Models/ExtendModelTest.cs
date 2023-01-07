@@ -5,6 +5,7 @@ using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PatternRecogniserUnitTests.Models
@@ -14,6 +15,7 @@ namespace PatternRecogniserUnitTests.Models
     {
         private IFormFile _trainingSet;
         private ITrainingUpdate _trainingUpdate;
+        private CancellationTokenSource cancellationToken = new CancellationTokenSource();
         public string TestedFiles { get; }
 
         public ExtendModelTest()
@@ -34,7 +36,7 @@ namespace PatternRecogniserUnitTests.Models
             TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.TrainTest,
                 80, 1);
             var model = new ExtendedModel();
-            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets);
+            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, cancellationToken.Token);
             Assert.IsNotNull(model.modelTrainingExperiment);
         }
 
@@ -49,7 +51,7 @@ namespace PatternRecogniserUnitTests.Models
             string login = "user";
             string modelName = "model";
             _trainingUpdate.SetNewUserModel(login, modelName);
-            Task t =Task.Run(() => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets));
+            Task t =Task.Run(() => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, cancellationToken.Token), cancellationToken.Token);
 
             while (!t.IsCompleted)
             {
@@ -70,7 +72,7 @@ namespace PatternRecogniserUnitTests.Models
             TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.TrainTest,
                 80, 1);
             var model = new ExtendedModel();
-            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets);
+            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, cancellationToken.Token);
             Bitmap bitmap = new Bitmap(TestedFiles + "\\" + "0_0.png");
             var results = model.RecognisePattern(bitmap);
             Assert.IsNotNull(model.modelTrainingExperiment);
@@ -84,7 +86,7 @@ namespace PatternRecogniserUnitTests.Models
             TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.CrossValidation,
                 80, 5);
             var model = new ExtendedModel();
-            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets);
+            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, cancellationToken.Token);
             Assert.IsNotNull(model.modelTrainingExperiment);
         }
 
