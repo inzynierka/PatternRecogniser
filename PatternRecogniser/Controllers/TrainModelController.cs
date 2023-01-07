@@ -165,10 +165,12 @@ namespace PatternRecogniser.Controllers
         {
             string login = User.Identity.Name;
             var info = _traningUpdate.ActualInfo(login, modelName);
-            if (GetStatus(login, modelName) != ModelStatus.Training)
-                return Ok(_messages.modelIsNotTraining);
-            else
-                return Ok(info);
+            return Ok(
+                new TrainUpdateRespond( 
+                    info, 
+                    ConvertStatusToMessage( GetStatus(login, modelName))
+                    )
+                );
         }
 
         /// <summary>
@@ -278,22 +280,7 @@ namespace PatternRecogniser.Controllers
                 });
 
 
-            string message = null;
-
-            if (status == ModelStatus.InQueue)
-                message = _messages.modelIsInQueue;
-
-            if (status == ModelStatus.Training)
-                message = _messages.modelIsTraining;
-
-            if (status == ModelStatus.TrainingComplete)
-                message = _messages.modelTrainingComplete;
-
-            if (status == ModelStatus.TrainingFailed)
-                message = _messages.modelTrainingFailed;
-
-            if (status == ModelStatus.NotFound)
-                message = _messages.modelNotFound;
+            string message = ConvertStatusToMessage(status);
 
             user.lastModelStatus = status;
             user.lastCheckModel = modelName;
@@ -305,6 +292,19 @@ namespace PatternRecogniser.Controllers
                 modelName = modelName,
                 messege = message
             });
+        }
+
+        private string ConvertStatusToMessage(ModelStatus status)
+        {
+            switch (status)
+            {
+                case ModelStatus.InQueue: return _messages.modelIsInQueue;
+                case ModelStatus.Training: return _messages.modelIsTraining;
+                case ModelStatus.TrainingComplete: return _messages.modelTrainingComplete;
+                case ModelStatus.TrainingFailed: return _messages.modelTrainingFailed;
+                case ModelStatus.NotFound: return _messages.modelNotFound;
+                default: return null;
+            }
         }
 
 
