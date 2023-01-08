@@ -20,6 +20,7 @@ namespace PatternRecogniser.Controllers.Tests
         private Mock<IGenericRepository<ExtendedModel>> _mockExtendedModelRepo;
         private Mock<IGenericRepository<Experiment>> _mockExperimentRepo;
         private readonly Mock<IGenericRepository<ModelTrainingExperiment>> _mockModelTrainingExperimentRepo;
+        private readonly Mock<IGenericRepository<PatternRecognitionExperiment>> _mockPatternRecognitionExperimentRepo;
         private readonly ITrainingUpdate _trainingUpdate;
         private readonly TrainModelController _controller;
         private readonly IBackgroundTaskQueue _backgroundTaskQueue;
@@ -30,6 +31,8 @@ namespace PatternRecogniser.Controllers.Tests
             _mockExtendedModelRepo = new Mock<IGenericRepository<ExtendedModel>>().DefaultMockSetUp();
             _mockExperimentRepo = new Mock<IGenericRepository<Experiment>>().DefaultMockSetUp();
             _mockModelTrainingExperimentRepo = new Mock<IGenericRepository<ModelTrainingExperiment>>().DefaultMockSetUp();
+            _mockPatternRecognitionExperimentRepo = new Mock<IGenericRepository<PatternRecognitionExperiment>>().DefaultMockSetUp();
+
             _trainingUpdate = new SimpleComunicationOneToMany();
             _backgroundTaskQueue = new BackgroundQueueLurchTable();
             _controller = new TrainModelController(
@@ -37,6 +40,7 @@ namespace PatternRecogniser.Controllers.Tests
                 _mockUserRepo.Object,
                 _mockModelTrainingExperimentRepo.Object,
                 _mockExperimentRepo.Object,
+                _mockPatternRecognitionExperimentRepo.Object,
                 _backgroundTaskQueue,
                 _trainingUpdate
                 );

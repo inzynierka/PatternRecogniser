@@ -123,11 +123,35 @@ namespace PatternRecogniser.ThreadsComunication
 
     public class BackgroundQueueLurchTable : IBackgroundTaskQueue
     {
-
-        private readonly LurchTable<string, TrainingInfo> _queue = new LurchTable<string, TrainingInfo>(1000, LurchTableOrder.Insertion);
+        private class Value
+        {
+            public TrainingInfo info;
+            public int numberInQueue;
+            public Value(TrainingInfo trainingInfo, int numberInQueue)
+            {
+                info = trainingInfo;
+                this.numberInQueue = numberInQueue;
+            }
+        }
+        private readonly LurchTable<string, Value> _queue = new LurchTable<string, Value>(1000, LurchTableOrder.Insertion);
 
 
         public int Count => _queue.Count;
+
+        public BackgroundQueueLurchTable()
+        {
+            _queue.ItemRemoved += DecrementNumbersInQueue;
+        }
+
+        private void DecrementNumbersInQueue(KeyValuePair< string, Value> keyValuePair)
+        {
+            var qToList = _queue.ToList();
+            foreach(var item in qToList)
+            {
+                if(item.Value.numberInQueue > keyValuePair.Value.numberInQueue)
+                    _queue.TryUpdate(item.Key, new Value(item.Value.info, item.Value.numberInQueue - 1));
+            }
+        }
 
         public bool Remove(string login)
         {
@@ -136,7 +160,7 @@ namespace PatternRecogniser.ThreadsComunication
 
         public TrainingInfo Dequeue(CancellationToken cancellationToken)
         {
-            TrainingInfo item = _queue.Dequeue().Value;
+            TrainingInfo item = _queue.Dequeue().Value.info;
 
             return item;
         }
@@ -144,16 +168,17 @@ namespace PatternRecogniser.ThreadsComunication
         public void Enqueue(TrainingInfo item)
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
-            _queue.TryAdd(item.login, item);
+            _queue.TryAdd(item.login, new Value(item, Count));
         }
 
         public int NumberInQueue(string login)
         {
-            var qToList = _queue.ToList();
-            int index = qToList.FindIndex(a => a.Key == login);
-            if (index <0)
+            Value v;
+            var contains = _queue.TryGetValue(login, out v);
+            if (!contains)
                 return -1;
-            return qToList.Count - 1 - index;
+            
+             return v.numberInQueue;
         }
 
         public bool IsUsersModelInQueue(string login, string modelName = null)
@@ -163,7 +188,7 @@ namespace PatternRecogniser.ThreadsComunication
             if (modelName == null)
                 return userInQueue;
             else
-                return userInQueue && item.modelName == modelName;
+                return userInQueue && item.info.modelName == modelName;
         }
     }
 
