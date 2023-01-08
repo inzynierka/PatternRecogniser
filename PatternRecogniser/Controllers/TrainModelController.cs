@@ -37,12 +37,14 @@ namespace PatternRecogniser.Controllers
         private readonly IGenericRepository<User> _userRepo;
         private readonly IGenericRepository<ModelTrainingExperiment> _modelTrainingExperimentRepo;
         private readonly IGenericRepository<Experiment> _experimentRepo;
+        IGenericRepository<PatternRecognitionExperiment> _patternRecognitionExperimentRepo;
 
         public TrainModelController(
             IGenericRepository<ExtendedModel> extendedModelRepo,
             IGenericRepository<User> userRepo,
             IGenericRepository<ModelTrainingExperiment> modelTrainingExperimentRepo,
             IGenericRepository<Experiment> experimentRepo,
+            IGenericRepository<PatternRecognitionExperiment> patternRecognitionExperimentRepo,
             IBackgroundTaskQueue trainInfoQueue,
             ITrainingUpdate trainingUpdate)
         {
@@ -52,6 +54,7 @@ namespace PatternRecogniser.Controllers
             _trainInfoQueue = trainInfoQueue;
             _traningUpdate = trainingUpdate;
             _experimentRepo = experimentRepo;
+            _patternRecognitionExperimentRepo = patternRecognitionExperimentRepo;
         }
 
 
@@ -165,10 +168,12 @@ namespace PatternRecogniser.Controllers
         {
             string login = User.Identity.Name;
             var info = _traningUpdate.ActualInfo(login, modelName);
-            if (GetStatus(login, modelName) != ModelStatus.Training)
-                return Ok(_messages.modelIsNotTraining);
-            else
-                return Ok(info);
+            return Ok(
+                new TrainUpdateRespond( 
+                    info, 
+                    ConvertStatusToMessage( GetStatus(login, modelName))
+                    )
+                );
         }
 
         /// <summary>
@@ -181,22 +186,23 @@ namespace PatternRecogniser.Controllers
         {
             string login = User.Identity.Name; 
 
-            var extendedModelIdAndPatterns = _extendedModelRepo.Get(
+            var extendedModelSelectedData = _extendedModelRepo.Get(
                 model => model.userLogin == login && model.name == modelName,
-               model=> model.Include( a => a.patterns), selector: model => new { 
+               model=> model.Include( a =>   a.patterns), selector: model => new { 
                    model.extendedModelId,
-                   model.patterns
+                   model.patterns,
+                   model.distribution
                })
                 .FirstOrDefault();
-            if (extendedModelIdAndPatterns == null)
+            if (extendedModelSelectedData == null)
                 return NotFound();
 
-            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelIdAndPatterns.extendedModelId,
+            var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelSelectedData.extendedModelId,
                 s => s.Include( a => a.validationSet)).FirstOrDefault();
             if (statistics == null)
                 return NotFound();
 
-            return Ok(new ModelDetalisRespond(statistics, extendedModelIdAndPatterns.patterns));
+            return Ok(new ModelDetalisRespond(statistics, extendedModelSelectedData.patterns, extendedModelSelectedData.distribution));
         }
 
         /// <summary>
@@ -236,9 +242,12 @@ namespace PatternRecogniser.Controllers
                 _modelTrainingExperimentRepo.Delete(model.modelTrainingExperiment);
                 _experimentRepo.Delete(model.modelTrainingExperiment);
                 _extendedModelRepo.Delete(model);
-                var user = _userRepo.Get(filter: u => u.login == login).FirstOrDefault();
+                var user = _userRepo.Get(filter: u => u.login == login, include: u => u.Include(a => a.lastPatternRecognitionExperiment)).FirstOrDefault();
                 if (user.lastTrainModelName == model.name)
                     user.lastTrainModelName = null;
+
+                if (user.lastPatternRecognitionExperiment != null && user.lastPatternRecognitionExperiment.extendedModelId == model.extendedModelId)
+                    _patternRecognitionExperimentRepo.Delete(user.lastPatternRecognitionExperiment);
 
                 await _extendedModelRepo.SaveChangesAsync();
                 return Ok();
@@ -278,22 +287,7 @@ namespace PatternRecogniser.Controllers
                 });
 
 
-            string message = null;
-
-            if (status == ModelStatus.InQueue)
-                message = _messages.modelIsInQueue;
-
-            if (status == ModelStatus.Training)
-                message = _messages.modelIsTraining;
-
-            if (status == ModelStatus.TrainingComplete)
-                message = _messages.modelTrainingComplete;
-
-            if (status == ModelStatus.TrainingFailed)
-                message = _messages.modelTrainingFailed;
-
-            if (status == ModelStatus.NotFound)
-                message = _messages.modelNotFound;
+            string message = ConvertStatusToMessage(status);
 
             user.lastModelStatus = status;
             user.lastCheckModel = modelName;
@@ -305,6 +299,19 @@ namespace PatternRecogniser.Controllers
                 modelName = modelName,
                 messege = message
             });
+        }
+
+        private string ConvertStatusToMessage(ModelStatus status)
+        {
+            switch (status)
+            {
+                case ModelStatus.InQueue: return _messages.modelIsInQueue;
+                case ModelStatus.Training: return _messages.modelIsTraining;
+                case ModelStatus.TrainingComplete: return _messages.modelTrainingComplete;
+                case ModelStatus.TrainingFailed: return _messages.modelTrainingFailed;
+                case ModelStatus.NotFound: return _messages.modelNotFound;
+                default: return null;
+            }
         }
 
 
