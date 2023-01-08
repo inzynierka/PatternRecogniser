@@ -34,7 +34,7 @@ namespace PatternRecogniser.Models
 
     // deleted FullyConnectedKeras, but majority of its code was moved to ExtendedModel.cs
 
-    public class NeuralNet : Model
+    internal class AutomataModel : Model
     {
         ILayer fc1;
         ILayer fc2;
@@ -42,92 +42,196 @@ namespace PatternRecogniser.Models
         ILayer fc4;
         ILayer fc5;
         ILayer fc6;
-        ILayer fc7;
-        ILayer fc8;
-        ILayer fc9;
-        //ILayer fc10;
-        //ILayer fc11;
+
+        ILayer dense;
         ILayer output;
 
-        public NeuralNet (NeuralNetArgs args) :
+        public AutomataModel (AutomataModelArgs args) :
             base (args)
         {
             var layers = keras.layers;
+            float[,] rule1 = new float[5, 5]
+            {
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 }
+            };
+            float[,] rule2 = new float[5, 5]
+            {
+                { 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0 },
+                { 1, 1, 1, 1, 1 },
+                { 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0 }
+            };
+            float[,] rule3 = new float[5, 5]
+            {
+                { 1, 0, 0, 0, 0 },
+                { 0, 1, 0, 0, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 0, 1, 0 },
+                { 0, 0, 0, 0, 1 }
+            };
+            float[,] rule4 = new float[5, 5]
+            {
+                { 0, 0, 0, 0, 1 },
+                { 0, 0, 0, 1, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 1, 0, 0, 0 },
+                { 1, 0, 0, 0, 0 }
+            };
+            float[,] rule5 = new float[5, 5]
+            {
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 1, 1, 1, 1, 1 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 0, 1, 0, 0 }
+            };
+            float[,] rule6 = new float[5, 5]
+            {
+                { 1, 0, 0, 0, 1 },
+                { 0, 1, 0, 1, 0 },
+                { 0, 0, 1, 0, 0 },
+                { 0, 1, 0, 1, 0 },
+                { 1, 0, 0, 0, 1 }
+            };
 
-            // First fully-connected hidden layer.
-            //fc1 = layers.Dense (args.NeuronOfHidden1, activation: args.Activation1);
+            fc1 = AutomataConvLayer (24 * 24, rule1, 5, activation: args.Activation);
+            fc2 = AutomataConvLayer (24 * 24, rule2, 5, activation: args.Activation);
+            fc3 = AutomataConvLayer (24 * 24, rule3, 5, activation: args.Activation);
+            fc4 = AutomataConvLayer (24 * 24, rule4, 5, activation: args.Activation);
+            fc5 = AutomataConvLayer (24 * 24, rule5, 8, activation: args.Activation);
+            fc6 = AutomataConvLayer (24 * 24, rule6, 8, activation: args.Activation);
 
-            // Second fully-connected hidden layer.
-            //fc2 = layers.Dense (args.NeuronOfHidden2, activation: args.Activation2);
+            //dense = layers.Dense (20);
+            output = layers.Dense (args.NumClasses, activation: "softmax");
 
-            // nasze warstwy
-            fc1 = OurLayer (26 * 26, 4, activation: args.Activation1);
-            fc2 = OurLayer (24 * 24, 4, activation: args.Activation2);
-            fc3 = OurLayer (22 * 22, 4, activation: args.Activation2);
-            fc4 = OurLayer (20 * 20, 3, activation: args.Activation2);
-            fc5 = OurLayer (18 * 18, 3, activation: args.Activation2);
-            fc6 = OurLayer (16 * 16, 3, activation: args.Activation2);
-            fc7 = OurLayer (14 * 14, 3, activation: args.Activation2);
-            fc8 = OurLayer (12 * 12, 3, activation: args.Activation2);
-            fc9 = OurLayer (10 * 10, 2, activation: args.Activation2);
-            //fc10 = OurLayer (8 * 8, activation: args.Activation2);
-            //fc11 = OurLayer (6 * 6, activation: args.Activation2);
-
-            output = layers.Dense (args.NumClasses);
-
-            StackLayers (fc1, fc2, fc3, fc4, fc5, fc6, fc7, fc8, fc9, output);
+            StackLayers (fc1, fc2, fc3, fc4, fc5, fc6, output);// fc7, fc8, fc9, fc10, fc11, output);
         }
 
-        // Set forward pass.
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
         {
-            inputs = fc1.Apply (inputs);
-            inputs = fc2.Apply (inputs);
-            inputs = fc3.Apply (inputs);
-            inputs = fc4.Apply (inputs);
-            inputs = fc5.Apply (inputs);
-            inputs = fc6.Apply (inputs);
-            inputs = fc7.Apply (inputs);
-            inputs = fc8.Apply (inputs);
-            inputs = fc9.Apply (inputs);
-            //inputs = fc10.Apply (inputs);
-            //inputs = fc11.Apply (inputs);
+            //inputs = fc1.Apply (inputs);
+            Tensors result1 = fc1.Apply (inputs);
+            Tensors result2 = fc2.Apply (inputs);
+            Tensors result3 = fc3.Apply (inputs);
+            Tensors result4 = fc4.Apply (inputs);
+            Tensors result5 = fc5.Apply (inputs);
+            Tensors result6 = fc6.Apply (inputs);
+
+            inputs = JoinResults (new List<Tensors> { result1, result2, result3, result4, result5, result6 });
+
+            //inputs = dense.Apply (inputs);
             inputs = output.Apply (inputs);
+
             if (!training.Value)
                 inputs = tf.nn.softmax (inputs);
             return inputs;
         }
 
-        private OurLayer OurLayer (int units, int threshold, Activation activation = null, IInitializer kernel_initializer = null, bool use_bias = true, IInitializer bias_initializer = null, Shape input_shape = null)
+        private Tensors JoinResults (List<Tensors> results)
         {
-            return new OurLayer (new OurLayerArgs
+            int howManyToJoin = results.Count ();
+            Tensors outputs = new Tensors ();
+            int count = results[0].Count ();
+
+            for (int i = 0; i < count; i++)
+            {
+                List<List<float[]>> allResults = new List<List<float[]>> ();
+                for (int j = 0; j < howManyToJoin; j++)
+                {
+                    List<float[]> allResultsMini = new List<float[]> ();
+                    foreach (var np in results[j][i].numpy ())
+                    {
+                        float[] arr = np.ToArray<float> ();
+                        allResultsMini.Add (arr);
+                    }
+                    allResults.Add (allResultsMini);
+                }
+
+                List<float[]> newResults = new List<float[]> ();
+                int resultsPerOne = allResults[0].Count ();
+                for (int j = 0; j < resultsPerOne; j++)
+                {
+                    List<float> newArr = new List<float> ();
+                    foreach (var res in allResults)
+                    {
+                        newArr.AddRange (res[j]);
+                    }
+                    newResults.Add (newArr.ToArray ());
+                }
+
+                outputs.Add (ops.convert_to_tensor (newResults.ToArray ()));
+            }
+
+
+            return outputs;
+        }
+
+        private Tensors JoinResults (Tensors result1, Tensors result2)
+        {
+            int count = result1.Count ();
+            // result2.Count() powinno być równe
+
+            Tensors outputs = new Tensors ();
+            for (int i = 0; i < count; i++)
+            {
+                List<float[]> allResults1 = new List<float[]> ();
+                foreach (var np in result1[i].numpy ())
+                {
+                    float[] arr = np.ToArray<float> ();
+                    allResults1.Add (arr);
+                }
+
+                List<float[]> allResults2 = new List<float[]> ();
+                foreach (var np in result2[i].numpy ())
+                {
+                    float[] arr = np.ToArray<float> ();
+                    allResults2.Add (arr);
+                }
+
+                // łączymy
+                List<float[]> allResults = new List<float[]> ();
+                for (int j = 0; j < allResults1.Count; j++)
+                {
+                    float[] newArr = new float[allResults1[j].Length];
+
+                    for (int k = 0; k < allResults1[j].Length; k++)
+                    {
+                        if (allResults1[j][k] == 1 || allResults2[j][k] == 1)
+                            newArr[k] = 1;
+                        else
+                            newArr[k] = 0;
+                    }
+
+                    allResults.Add (newArr);
+                }
+
+                outputs.Add (ops.convert_to_tensor (allResults.ToArray ()));
+            }
+
+            return outputs;
+        }
+
+        public AutomataConvLayer AutomataConvLayer (int units, float[,] rule, int threshold, Activation activation = null, Shape input_shape = null)
+        {
+            return new AutomataConvLayer (new AutomataConvLayerArgs
             {
                 Units = units,
+                Rule = rule,
                 Threshold = threshold,
                 Activation = (activation ?? KerasApi.keras.activations.Linear),
-                KernelInitializer = (kernel_initializer ?? Binding.tf.glorot_uniform_initializer),
-                BiasInitializer = (bias_initializer ?? (use_bias ? Binding.tf.zeros_initializer : null)),
                 InputShape = input_shape
             });
         }
     }
 
-    /// <summary>
-    /// Network parameters.
-    /// </summary>
-    public class NeuralNetArgs : ModelArgs
+    public class AutomataModelArgs : ModelArgs
     {
-        /// <summary>
-        /// 1st layer number of neurons.
-        /// </summary>
-        public int NeuronOfHidden1 { get; set; }
-        public Activation Activation1 { get; set; }
-
-        /// <summary>
-        /// 2nd layer number of neurons.
-        /// </summary>
-        public int NeuronOfHidden2 { get; set; }
-        public Activation Activation2 { get; set; }
+        public Activation Activation { get; set; }
 
         public int NumClasses { get; set; }
     }

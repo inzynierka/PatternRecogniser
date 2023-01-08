@@ -94,14 +94,12 @@ namespace PatternRecogniser.Helper
 
         public static Model CreateModel(int num_classes)
         {
-            return  new NeuralNet(new NeuralNetArgs
+            return new AutomataModel (new AutomataModelArgs
             {
                 NumClasses = num_classes,
-                NeuronOfHidden1 = 128,
-                Activation1 = keras.activations.Relu,
-                NeuronOfHidden2 = 256,
-                Activation2 = keras.activations.Relu
+                Activation = keras.activations.Relu
             });
+
         }
 
     }
