@@ -1,9 +1,12 @@
-﻿using System;
+﻿using PatternRecogniser.Helper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Tensorflow;
 using Tensorflow.NumPy;
@@ -19,6 +22,7 @@ namespace PatternRecogniser.Models
         public double specificity { get; set; }
         public double missRate { get; set; }
         public int[] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
+        public string serializedRocs { get; set; }
         private int TP { get; set; }
         private int TN { get; set; }
         private int FP { get; set; }
@@ -28,6 +32,10 @@ namespace PatternRecogniser.Models
 
         public ModelTrainingExperiment (Tensor predictions, Tensor trueLabels, int labelCount)
         {
+            var tmpLabels = new string[labelCount];
+            for (int i = 0; i < labelCount; i++) { tmpLabels[i] = i.ToString(); }
+            RocOvR rocOvR = new RocOvR(predictions, trueLabels, labelCount, tmpLabels);
+            serializedRoc = JsonSerializer.Serialize<RocOvR>(rocOvR);
             int[,] confMatrix2D = createConfusionMatrix (predictions, trueLabels, labelCount);
             saveConfusionMatrixAs1DimArray (confMatrix2D);
             calculateTP (confMatrix2D);
