@@ -55,7 +55,7 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
         }
 
         [TestMethod()]
-        public void DequeTest()
+        public void DequeueTest()
         {
             for (int i = 0; i < 10; i++)
             {
