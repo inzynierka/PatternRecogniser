@@ -38,8 +38,6 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
                 var info = new TrainingInfo(i.ToString(), _trainingSet, i.ToString(), PatternRecogniser.Models.DistributionType.TrainTest, 60, 5);
                 queue.Enqueue(info);
             }
-
-            Random r = new Random();
             
             for (int i = 0; i < 10; i++)
             {
