@@ -23,6 +23,7 @@ namespace PatternRecogniser.Models
         private int TN { get; set; }
         private int FP { get; set; }
         private int FN { get; set; }
+        private int[] foundPredictions { get; set; }
 
         public virtual ICollection<ValidationSet> validationSet { get; set; }
 
@@ -79,6 +80,7 @@ namespace PatternRecogniser.Models
                 i++;
             }
 
+            foundPredictions = mainPrediction;
 
             for (i = 0; i < trueLabelsArr.Length; i++)
             {
