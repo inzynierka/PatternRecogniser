@@ -12,19 +12,23 @@ namespace PatternRecogniser.Helper
     public class RocOvR
     {
         public Roc[] rocs { get; set; }
-
+        public int numbersOfPoints { get; set; } = 15;
+        public int numbersOfRocs { get; set; }
         [JsonConstructor]
-        public RocOvR(Roc[] rocs) 
+        public RocOvR(Roc[] rocs, int numbersOfPoints, int numbersOfRocs) 
         {
             this.rocs = rocs;
+            this.numbersOfPoints = numbersOfPoints;
+            this.numbersOfRocs = numbersOfRocs;
         }
         public RocOvR(Tensor predictions, Tensor trueLabels, int labelCount, string[] labels)
         {
             rocs = new Roc[labels.Length];
+            numbersOfRocs = labelCount;
             for (int i = 0; i < labelCount; i++)
             {
                 // tutaj wstawić odpowiednią etykiete
-                rocs[i] = createRocOneVsRest(predictions, trueLabels, i, 15, labels[i]);
+                rocs[i] = createRocOneVsRest(predictions, trueLabels, i, numbersOfPoints, labels[i]);
             }
         }
         private Roc createRocOneVsRest(Tensor predictions, Tensor trueLabels, int selectedTrueLable, int pointsNumber, string label)
