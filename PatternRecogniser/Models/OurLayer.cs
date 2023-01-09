@@ -9,22 +9,21 @@ using Tensorflow.Keras.Engine;
 
 namespace PatternRecogniser.Models
 {
-    public class OurLayer : Layer
+    public class AutomataConvLayer : Layer
     {
-        private OurLayerArgs args;
+        private AutomataConvLayerArgs args;
 
-        //private IVariableV1 kernel;
-        private int x;
+        private float[,] rule;
 
-        private IVariableV1 bias;
+        private int threshold;
 
         private Activation activation => args.Activation;
 
-        public OurLayer (OurLayerArgs args)
+        public AutomataConvLayer (AutomataConvLayerArgs args)
             : base (args)
         {
             this.args = args;
-            base.SupportsMasking = true;
+            base.SupportsMasking = false;
             int? min_ndim = 2;
             inputSpec = new InputSpec (TF_DataType.DtInvalid, null, min_ndim);
         }
@@ -37,25 +36,30 @@ namespace PatternRecogniser.Models
             int? min_ndim = 2;
             Dictionary<int, int> axes = dictionary;
             inputSpec = new InputSpec (TF_DataType.DtInvalid, null, min_ndim, axes);
-            x = args.Threshold;
-            if (args.UseBias)
-            {
-                bias = add_weight ("bias", new Shape (args.Units), initializer: args.BiasInitializer, dtype: base.DType);
-            }
+            rule = args.Rule;
+            threshold = args.Threshold;
 
             built = true;
+        }
+
+        private float calculateRuleOnMatrix (float[,] matrix, int mainIndI, int mainIndJ)
+        {
+            return matrix[mainIndI - 2, mainIndJ - 2] * rule[0, 0] + matrix[mainIndI - 2, mainIndJ - 1] * rule[0, 1] + matrix[mainIndI - 2, mainIndJ] * rule[0, 2] + matrix[mainIndI - 2, mainIndJ + 1] * rule[0, 3] + matrix[mainIndI - 2, mainIndJ + 2] * rule[0, 4] +
+                   matrix[mainIndI - 1, mainIndJ - 2] * rule[1, 0] + matrix[mainIndI - 1, mainIndJ - 1] * rule[1, 1] + matrix[mainIndI - 1, mainIndJ] * rule[1, 2] + matrix[mainIndI - 1, mainIndJ + 1] * rule[1, 3] + matrix[mainIndI - 1, mainIndJ + 2] * rule[1, 4] +
+                   matrix[mainIndI    , mainIndJ - 2] * rule[2, 0] + matrix[mainIndI    , mainIndJ - 1] * rule[2, 1] + matrix[mainIndI    , mainIndJ] * rule[2, 2] + matrix[mainIndI    , mainIndJ + 1] * rule[2, 3] + matrix[mainIndI    , mainIndJ + 2] * rule[2, 4] +
+                   matrix[mainIndI + 1, mainIndJ - 2] * rule[3, 0] + matrix[mainIndI + 1, mainIndJ - 1] * rule[3, 1] + matrix[mainIndI + 1, mainIndJ] * rule[3, 2] + matrix[mainIndI + 1, mainIndJ + 1] * rule[3, 3] + matrix[mainIndI + 1, mainIndJ + 2] * rule[3, 4] +
+                   matrix[mainIndI + 2, mainIndJ - 2] * rule[4, 0] + matrix[mainIndI + 2, mainIndJ - 1] * rule[4, 1] + matrix[mainIndI + 2, mainIndJ] * rule[4, 2] + matrix[mainIndI + 2, mainIndJ + 1] * rule[4, 3] + matrix[mainIndI + 2, mainIndJ + 2] * rule[4, 4];
         }
 
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
         {
             Tensor tensor = null;
-            //int x = 4; // ideolo jakby to było variable, i jakoś się dzięki gradients zmieniało
-
-            foreach (var input in inputs) // jeden input w inputs
+            foreach (var input in inputs)
             {
                 List<float[]> newArrList = new List<float[]> ();
                 foreach (var np in input.numpy ())
                 {
+                    // zmiana wejścia na macierz
                     float[] arr = np.ToArray<float> ();
                     int size = (int)Math.Sqrt (arr.GetLength (0));
                     float[,] matrix = new float[size, size];
@@ -66,39 +70,30 @@ namespace PatternRecogniser.Models
                             matrix[i, j] = arr[i * size + j];
                         }
                     }
-                    // zliczamy zapalone komórki
-                    int newSize = size - 2;
+
+                    // konwolucja
+                    int newSize = size - rule.GetLength (0) + 1; // chyba
                     float[] newArr = new float[newSize * newSize];
                     float tmp;
                     for (int i = 0; i < newSize; i++)
                     {
                         for (int j = 0; j < newSize; j++)
                         {
-                            int mainIndI = i + 1;
-                            int mainIndJ = j + 1;
+                            int mainIndI = i + 2;
+                            int mainIndJ = j + 2;
 
-                            tmp = matrix[mainIndI - 1, mainIndJ - 1] + matrix[mainIndI - 1, mainIndJ] + matrix[mainIndI - 1, mainIndJ + 1] +
-                                matrix[mainIndI, mainIndJ - 1] + matrix[mainIndI, mainIndJ] + matrix[mainIndI, mainIndJ + 1] +
-                                matrix[mainIndI + 1, mainIndJ - 1] + matrix[mainIndI + 1, mainIndJ] + matrix[mainIndI + 1, mainIndJ + 1];
-                            
-                            if (tmp > x)
-                            {
+                            tmp = calculateRuleOnMatrix (matrix, mainIndI, mainIndJ);
+
+                            if (tmp >= threshold)
                                 newArr[i * newSize + j] = 1;
-                            }
                             else
-                            {
                                 newArr[i * newSize + j] = 0;
-                            }
                         }
                     }
+
                     newArrList.Add (newArr);
                 }
                 tensor = ops.convert_to_tensor (newArrList.ToArray ());
-            }
-
-            if (args.UseBias)
-            {
-                tensor = Binding.tf.nn.bias_add (tensor, bias);
             }
 
             if (args.Activation != null)
@@ -109,19 +104,20 @@ namespace PatternRecogniser.Models
             return tensor;
         }
 
-        public static OurLayer from_config (LayerArgs args)
+        public static AutomataConvLayer from_config (LayerArgs args)
         {
-            return new OurLayer (args as OurLayerArgs);
+            return new AutomataConvLayer (args as AutomataConvLayerArgs);
         }
     }
 
-    // args analogiczne z tymi dla Dense
-    public class OurLayerArgs : LayerArgs
+    public class AutomataConvLayerArgs : LayerArgs
     {
         //
         // Summary:
         //     Positive integer, rozmiar inputów po zmianach, tzn. najpierw 26*26, potem 24*24 itd. aż dojdziemy do 16*16
         public int Units { get; set; }
+
+        public float[,] Rule { get; set; }
 
         public int Threshold { get; set; }
 
@@ -129,43 +125,5 @@ namespace PatternRecogniser.Models
         // Summary:
         //     Activation function to use.
         public Activation Activation { get; set; }
-
-        //
-        // Summary:
-        //     Whether the layer uses a bias vector.
-        public bool UseBias { get; set; } = true;
-
-
-        //
-        // Summary:
-        //     Initializer for the `kernel` weights matrix.
-        public IInitializer KernelInitializer { get; set; } = Binding.tf.glorot_uniform_initializer;
-
-
-        //
-        // Summary:
-        //     Initializer for the bias vector.
-        public IInitializer BiasInitializer { get; set; } = Binding.tf.zeros_initializer;
-
-
-        //
-        // Summary:
-        //     Regularizer function applied to the `kernel` weights matrix.
-        public IRegularizer KernelRegularizer { get; set; }
-
-        //
-        // Summary:
-        //     Regularizer function applied to the bias vector.
-        public IRegularizer BiasRegularizer { get; set; }
-
-        //
-        // Summary:
-        //     Constraint function applied to the `kernel` weights matrix.
-        public Action KernelConstraint { get; set; }
-
-        //
-        // Summary:
-        //     Constraint function applied to the bias vector.
-        public Action BiasConstraint { get; set; }
     }
 }

@@ -45,40 +45,40 @@ namespace PatternRecogniser.Models
         public SavedVariableData[] vars; // najpewniej 2 variable
     }
 
-    [Index(nameof(userLogin), nameof(name), IsUnique = true)] 
+    [Index (nameof (userLogin), nameof (name), IsUnique = true)]
     public class ExtendedModel
     {
         [Key]
         public int extendedModelId { get; set; }
         [Required]
-        [ForeignKey("User")]
+        [ForeignKey ("User")]
         public string userLogin { get; set; }
         public string name { get; set; }
         public DistributionType distribution { get; set; }
-        public byte[] modelInBytes { get; set; }  
+        public byte[] modelInBytes { get; set; }
         public int num_classes { get; set; }
 
         public virtual User user { get; set; }
         public virtual ICollection<Pattern> patterns { get; set; }
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
-        private ExtendedModelStringMessages _messages = new ExtendedModelStringMessages();
+        private ExtendedModelStringMessages _messages = new ExtendedModelStringMessages ();
         private CancellationToken _cancellationToken; // nie wiem jak wykorzystać IsCancellationRequested więc wszędzie wyrzucam błąd _cancellationToken.ThrowIfCancellationRequested(); 
 
 
-        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
+        public void TrainModel (DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
         {
             try
             {
-             _cancellationToken = cancellationToken;
-             trainingUpdate.Update(_messages.startTraining+"\n");
-            var examplePictures = new Dictionary<string, byte[]>();
-            PatternData patternData = OpenZip (trainingSet, examplePictures);
-            
-            if (patternData.IsEmpty())
-            {
-                throw new Exception (_messages.incorectFileStructure);
-            }
+                _cancellationToken = cancellationToken;
+                trainingUpdate.Update (_messages.startTraining + "\n");
+                var examplePictures = new Dictionary<string, byte[]> ();
+                PatternData patternData = OpenZip (trainingSet, examplePictures);
+
+                if (patternData.IsEmpty ())
+                {
+                    throw new Exception (_messages.incorectFileStructure);
+                }
 
                 // zapisanie przykładowych patternów
                 // this.patterns = new List<Pattern> ();
@@ -86,47 +86,47 @@ namespace PatternRecogniser.Models
                 //{
                 //    this.patterns.Add (patternList[0]);
                 //}
-                this.patterns = new List<Pattern>();
+                this.patterns = new List<Pattern> ();
                 foreach (var pair in examplePictures)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
-                    this.patterns.Add(new Pattern(pair.Key, pair.Value));
+                    _cancellationToken.ThrowIfCancellationRequested ();
+                    this.patterns.Add (new Pattern (pair.Key, pair.Value));
                 }
 
                 switch (distribution)
                 {
                     case DistributionType.TrainTest:
-                        TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
+                        TrainModelTrainTest (patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
                         break;
                     case DistributionType.CrossValidation:
-                        TrainModelCrossValidation(patternData, setsNumber, trainingUpdate);
+                        TrainModelCrossValidation (patternData, setsNumber, trainingUpdate);
                         break;
                 }
             }
-            catch(OperationCanceledException oce)
+            catch (OperationCanceledException oce)
             {
 
             }
             catch (Exception e)
             {
-                trainingUpdate.Update(e.Message);
+                trainingUpdate.Update (e.Message);
             }
         }
 
-        public void TrainModelTrainTest(PatternData data, int train, int test, ITrainingUpdate trainingUpdate) 
+        public void TrainModelTrainTest (PatternData data, int train, int test, ITrainingUpdate trainingUpdate)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
 
             // test = 100 - train;
             // randomise patterns in data
             foreach (List<Pattern> list in data.patterns)
             {
-                _cancellationToken.ThrowIfCancellationRequested();
+                _cancellationToken.ThrowIfCancellationRequested ();
                 Random rng = new Random (); // https://stackoverflow.com/questions/273313/randomize-a-listt
                 int n = list.Count;
                 while (n > 1)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     n--;
                     int k = rng.Next (n + 1);
                     Pattern value = list[k];
@@ -138,9 +138,9 @@ namespace PatternRecogniser.Models
             PatternData trainData = new PatternData ();
             PatternData testData = new PatternData ();
 
-            foreach(List<Pattern> list in data.patterns)
+            foreach (List<Pattern> list in data.patterns)
             {
-                _cancellationToken.ThrowIfCancellationRequested();
+                _cancellationToken.ThrowIfCancellationRequested ();
                 int trainSize = (int)(list.Count * (train / 100.0));
                 List<Pattern> trainList = list.GetRange (0, trainSize);
                 trainData.AddPatterns (trainList);
@@ -154,12 +154,12 @@ namespace PatternRecogniser.Models
             this.modelTrainingExperiment.extendedModel = this;
         }
 
-        public void TrainModelCrossValidation(PatternData data, int k, ITrainingUpdate trainingUpdate) 
+        public void TrainModelCrossValidation (PatternData data, int k, ITrainingUpdate trainingUpdate)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
             // k - ile podzbiorów
             Model bestModel = null;
-            ModelTrainingExperiment bestStatistics = new ModelTrainingExperiment();
+            ModelTrainingExperiment bestStatistics = new ModelTrainingExperiment ();
 
             // sprawdzamy czy możemy podzielić dane na k
             if (k <= 1)
@@ -168,7 +168,7 @@ namespace PatternRecogniser.Models
             }
             foreach (var list in data.patterns)
             {
-                _cancellationToken.ThrowIfCancellationRequested();
+                _cancellationToken.ThrowIfCancellationRequested ();
                 if (list.Count < k)
                 {
                     throw new Exception (_messages.tooLargeSetsNumber);
@@ -180,11 +180,11 @@ namespace PatternRecogniser.Models
             {
                 Random rng = new Random (); // https://stackoverflow.com/questions/273313/randomize-a-listt
                 int n = list.Count;
-                _cancellationToken.ThrowIfCancellationRequested();
+                _cancellationToken.ThrowIfCancellationRequested ();
 
                 while (n > 1)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
 
                     n--;
                     int r = rng.Next (n + 1);
@@ -208,7 +208,7 @@ namespace PatternRecogniser.Models
                 int[] sizes = new int[k];
                 for (int i = 0; i < k; i++)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
 
                     if (i < leftovers)
                     {
@@ -222,7 +222,7 @@ namespace PatternRecogniser.Models
 
                 for (int i = 0; i < k; i++)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     patternDatas[i].AddPatterns (list.GetRange (start, sizes[i]));
                     start += sizes[i];
                 }
@@ -231,11 +231,11 @@ namespace PatternRecogniser.Models
             for (int j = 0; j < k; j++)
             {
                 // patternDatas[j] - test
-                trainingUpdate.Update ($"{_messages.crossValidationModelTraining(j)}\n");
+                trainingUpdate.Update ($"{_messages.crossValidationModelTraining (j)}\n");
                 PatternData train = new PatternData ();
                 for (int i = 0; i < k; i++)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     if (i != j)
                     {
                         train.AddPatternData (patternDatas[i]);
@@ -255,7 +255,7 @@ namespace PatternRecogniser.Models
             this.modelTrainingExperiment.extendedModel = this;
         }
 
-        public List<RecognisedPatterns> RecognisePattern(Bitmap picture)
+        public List<RecognisedPatterns> RecognisePattern (Bitmap picture)
         {
             var toReturn = new List<RecognisedPatterns> ();
             var toRecognise = NormaliseData (picture);
@@ -268,8 +268,8 @@ namespace PatternRecogniser.Models
             }
             List<float[]> picAsList = new List<float[]> { pic };
             Tensor picTensor = ops.convert_to_tensor (picAsList.ToArray (), TF_DataType.TF_FLOAT);
-            Model model = Helper.ModelBuilder.CreateModel(num_classes);
-            Helper.ModelBuilder.Load_Weights(modelInBytes, model);
+            Model model = Helper.ModelBuilder.CreateModel (num_classes);
+            Helper.ModelBuilder.Load_Weights (modelInBytes, model);
             var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
             int patternId = 0;
             foreach (var r in result)
@@ -282,30 +282,30 @@ namespace PatternRecogniser.Models
                     {
                         RecognisedPatterns recognisedPattern = new RecognisedPatterns ();
                         recognisedPattern.patternId = patternId;
-                        recognisedPattern.probability =(float) rnn;
-                        recognisedPattern.pattern = this.patterns.ElementAt(patternId);
+                        recognisedPattern.probability = (float)rnn;
+                        recognisedPattern.pattern = this.patterns.ElementAt (patternId);
                         toReturn.Add (recognisedPattern);
                         patternId++;
                     }
                 }
             }
 
-            return toReturn; 
+            return toReturn;
         }
 
-        private (ModelTrainingExperiment statistics, Model model) TrainIndividualModel(PatternData train, PatternData test, ITrainingUpdate trainingUpdate) 
+        private (ModelTrainingExperiment statistics, Model model) TrainIndividualModel (PatternData train, PatternData test, ITrainingUpdate trainingUpdate)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
             tf.enable_eager_execution ();
 
             //PrepareData ();
             num_classes = train.GetNumberOfClasses (); // changed
-            float learning_rate = 0.1f; // moved from FullyConnectedKeras
-            int display_step = 100; // moved from FullyConnectedKeras
-            int batch_size = 256; // moved from FullyConnectedKeras
+            float learning_rate = 0.05f; // moved from FullyConnectedKeras
+            int display_step = 50; // moved from FullyConnectedKeras
+            int batch_size = 100; // moved from FullyConnectedKeras
             int training_steps = 1000; // moved from FullyConnectedKeras
 
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
             // matching our data to expected Tensorflow.NET data
             IDatasetV2 train_data;
             Tensor x_test, y_test, x_train, y_train;
@@ -313,15 +313,15 @@ namespace PatternRecogniser.Models
             (x_test, y_test) = test.PatternToTensor ();
             train_data = tf.data.Dataset.from_tensor_slices (x_train, y_train);
             train_data = train_data.repeat ()
-                .shuffle (5000)
+                .shuffle (50000)
                 .batch (batch_size)
                 .prefetch (1)
                 .take (training_steps);
 
             // Build neural network model.
-            var neural_net = Helper.ModelBuilder.CreateModel(num_classes);
+            var neural_net = Helper.ModelBuilder.CreateModel (num_classes);
 
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
             // Cross-Entropy Loss.
             // Note that this will apply 'softmax' to the logits.
             Func<Tensor, Tensor, Tensor> cross_entropy_loss = (x, y) =>
@@ -346,7 +346,7 @@ namespace PatternRecogniser.Models
             // Stochastic gradient descent optimizer.
             var optimizer = keras.optimizers.SGD (learning_rate);
 
-            _cancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested ();
             // Optimization process.
             Action<Tensor, Tensor> run_optimization = (x, y) =>
             {
@@ -358,7 +358,7 @@ namespace PatternRecogniser.Models
 
                 // Compute gradients.
                 var gradients = g.gradient (loss, neural_net.trainable_variables);
-                
+
                 for (int i = 0; i < gradients.Length; i++)
                 {
                     if (gradients[i] == null)
@@ -378,14 +378,19 @@ namespace PatternRecogniser.Models
                 // Run the optimization to update W and b values.
                 run_optimization (batch_x, batch_y);
 
-                _cancellationToken.ThrowIfCancellationRequested();
+                _cancellationToken.ThrowIfCancellationRequested ();
                 if (step % display_step == 0)
                 {
                     var pred = neural_net.Apply (batch_x, training: true);
                     var loss = cross_entropy_loss (pred, batch_y);
                     var acc = accuracy (pred, batch_y);
 
-                    trainingUpdate.Update ($"{_messages.trainingProggres (step, training_steps, loss.numpy(), acc.numpy())}\n"); 
+                    trainingUpdate.Update ($"{_messages.trainingProggres (step, training_steps, loss.numpy (), acc.numpy ())}\n");
+
+                    if ((float)acc >= 0.9)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -402,20 +407,20 @@ namespace PatternRecogniser.Models
 
         // Obsługa zipów i Bitmap
 
-        private PatternData OpenZip(byte[] bytes, Dictionary<string, byte[]> examplePictuers)
+        private PatternData OpenZip (byte[] bytes, Dictionary<string, byte[]> examplePictuers)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
-            PatternData data = new PatternData();
-            if (CheckZipStructure(bytes) == false)
+            _cancellationToken.ThrowIfCancellationRequested ();
+            PatternData data = new PatternData ();
+            if (CheckZipStructure (bytes) == false)
                 return data; // zwraca puste dane, potem użytkownikowi mówimy że coś nie halo
 
-            Stream stream = new MemoryStream(bytes);
+            Stream stream = new MemoryStream (bytes);
             data.patterns = new List<List<Pattern>> ();
-            using (ZipArchive zip = new ZipArchive(stream))
+            using (ZipArchive zip = new ZipArchive (stream))
             {
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     string fullName = entry.FullName;
                     string name = entry.Name;
                     if (name.Length > 0) // plik nie folder
@@ -430,9 +435,9 @@ namespace PatternRecogniser.Models
                         byte[] array = memstream.ToArray ();
 
                         // zapisuje pierwsze zdjęcia z każdego folderu
-                        if(!examplePictuers.ContainsKey(patternName))
+                        if (!examplePictuers.ContainsKey (patternName))
                         {
-                            examplePictuers.Add(patternName, array);
+                            examplePictuers.Add (patternName, array);
                         }
 
                         MemoryStream ms = new MemoryStream (array);
@@ -451,20 +456,20 @@ namespace PatternRecogniser.Models
             return data;
         }
 
-        private bool CheckZipStructure(byte[] bytes)
+        private bool CheckZipStructure (byte[] bytes)
         {
             // sprawdź czy to w ogóle zip (albo tylko zip będziemy wyświetlać, idk)
             //FileInfo fi = new FileInfo (path);
             //if (!fi.Extension.Equals (".zip"))
             //return false;
 
-            Stream data = new MemoryStream(bytes);
+            Stream data = new MemoryStream (bytes);
             // otwieramy zip i sprawdzamy strukturę
-            using (ZipArchive zip = new ZipArchive(data))
+            using (ZipArchive zip = new ZipArchive (data))
             {
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     string tmp = entry.FullName;
                     int ind = tmp.IndexOf ('/');
 
@@ -501,7 +506,7 @@ namespace PatternRecogniser.Models
             {
                 for (int j = 0; j < height; j++)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested ();
                     // sprowadzamy kolor do skali szarości
                     Color pixelColor = contrastBmp.GetPixel (i, j);
                     int avg = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
@@ -510,7 +515,7 @@ namespace PatternRecogniser.Models
                     // normalnie 0 - czarny, 255 - biały
                     // zatem dzielimy przez 255 i zamieniamy
                     // wpisujemy do pola [j, i] żeby zapobiec obróceniu obrazka
-                    float tmp = avg / 255;
+                    float tmp = (float)avg / (float)255;
                     if (tmp < 0.5) // czarny
                     {
                         binaryMatrix[j, i] = 1;

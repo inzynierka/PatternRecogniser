@@ -58,14 +58,15 @@ namespace PatternRecogniser.Models
             // find main prediction 
             foreach (var np in predictions.numpy ())
             {
-                int[] preds = new int[labelCount];
+                float[] preds = new float[labelCount];
                 int j = 0;
                 foreach (var pred in np)
                 {
                     preds[j] = pred;
                     j++;
                 }
-                int indMax = 0, max = 0;
+                int indMax = 0;
+                float max = 0;
                 for (int k = 0; k < labelCount; k++)
                 {
                     if (preds[k] > max)
