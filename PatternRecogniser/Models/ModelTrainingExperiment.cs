@@ -18,6 +18,7 @@ namespace PatternRecogniser.Models
         public double recall { get; set; }
         public double specificity { get; set; }
         public double missRate { get; set; }
+        public double F1 { get; set; }
         public int[] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
         private int TP { get; set; }
         private int TN { get; set; }
@@ -38,6 +39,8 @@ namespace PatternRecogniser.Models
             calculatePrecision ();
             calculateRecall ();
             calculateSpecificity ();
+            calculateMissRate ();
+            calculateF1 ();
         }
         public ModelTrainingExperiment () { }
 
@@ -208,7 +211,23 @@ namespace PatternRecogniser.Models
             }
         }
 
-        
+        private void calculateMissRate ()
+        {
+            // 1 - recall (TPR)
+            missRate = 1 - recall;
+        }
+
+        private void calculateF1 ()
+        {
+            if (precision == 0 && recall == 0)
+            {
+                F1 = 0;
+            }
+            else
+            {
+                F1 = 2 * precision * recall / (double)(precision + recall);
+            }
+        }
 
         public override string GetResults()
         {
