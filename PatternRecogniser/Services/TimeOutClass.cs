@@ -47,11 +47,17 @@ namespace PatternRecogniser.Services
             _worker = new Task(workingFunction, _combaineTokensSource.Token);
             Task wait = new Task(Waiter, _combaineTokensSource.Token);
             wait.Start();
-            if( ! WasEndOfWorkSignalRecivedInGivenTime())
+            if (!WasEndOfWorkSignalRecivedInGivenTime())
             {
                 SendEndOfWorkSignal();
                 throw new TimeoutException(_timeoutMessage);
             }
+            else
+            {
+                var exeption = _worker.Exception;
+                if (exeption != null)
+                    throw exeption;
+             }
         }
 
         

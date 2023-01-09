@@ -12,14 +12,16 @@ namespace PatternRecogniser.Helper
     public class RocOvR
     {
         public Roc[] rocs { get; set; }
+        public Roc avgRoc { get; set; }
         public int numbersOfPoints { get; set; } = 15;
         public int numbersOfRocs { get; set; }
         [JsonConstructor]
-        public RocOvR(Roc[] rocs, int numbersOfPoints, int numbersOfRocs) 
+        public RocOvR(Roc[] rocs, Roc avgRoc, int numbersOfPoints, int numbersOfRocs) 
         {
             this.rocs = rocs;
             this.numbersOfPoints = numbersOfPoints;
             this.numbersOfRocs = numbersOfRocs;
+            this.avgRoc = avgRoc;
         }
         public RocOvR(Tensor predictions, Tensor trueLabels, int labelCount, string[] labels)
         {
@@ -30,6 +32,7 @@ namespace PatternRecogniser.Helper
                 // tutaj wstawić odpowiednią etykiete
                 rocs[i] = createRocOneVsRest(predictions, trueLabels, i, numbersOfPoints, labels[i]);
             }
+            avgRoc = new Roc(rocs);
         }
         private Roc createRocOneVsRest(Tensor predictions, Tensor trueLabels, int selectedTrueLable, int pointsNumber, string label)
         {
@@ -63,16 +66,19 @@ namespace PatternRecogniser.Helper
         public string label { get; set; }
         public float[] tpr { get; set; }
         public float[] fpr { get; set; }
+        public  int numberOfPoints { get; set; } 
 
         [JsonConstructor]
-        public Roc(float[] recall, float[] fpr, string label)
+        public Roc(float[] recall, float[] fpr, string label, int numberOfPoints)
         {
             this.tpr = recall;
             this.fpr = fpr;
             this.label = label;
+            this.numberOfPoints = numberOfPoints;
         }
         public Roc(float[] trueLabelProbality, int[] trueLabels, int pointsNumber, string label)
         {
+            this.numberOfPoints = pointsNumber;
             this.label = label;
             int tp, fp, tn, fn;
             tpr = new float[pointsNumber];
@@ -80,7 +86,7 @@ namespace PatternRecogniser.Helper
             for (int i = 0; i < pointsNumber; i++)
             {
                 tp = fp = tn = fn = 0;
-                float axis = i /(float) pointsNumber;
+                float axis = (float)( (pointsNumber - i) / (double) pointsNumber);
                 for (int j = 0; j < trueLabelProbality.Count(); j++)
                 {
                     if (trueLabels[j] == 1)
@@ -98,8 +104,30 @@ namespace PatternRecogniser.Helper
                             tn++;
                     }
                 }
-                tpr[i] = tp == 0 ? 0 : tp / (float)(tp + fn);
-                fpr[i] = fp == 0 ? 0 : fp / (float)(fp + tn);
+                tpr[i] = tp == 0 ? 0 : (float)(tp / (double)(tp + fn));
+                fpr[i] = fp == 0 ? 0 :(float)( fp / (double)(fp + tn));
+            }
+        }
+
+        public Roc(Roc[] rocs)
+        {
+            if (rocs == null || rocs.Count() == 0)
+                throw new ArgumentNullException();
+            this.numberOfPoints = rocs[0].numberOfPoints;
+            fpr = new float[numberOfPoints];
+            tpr = new float[numberOfPoints];
+
+            for(int i = 0; i < numberOfPoints; i++)
+            {
+                fpr[i] = 0;
+                tpr[i] = 0;
+                foreach(var roc in rocs)
+                {
+                    fpr[i] += roc.fpr[i];
+                    tpr[i] += roc.tpr[i];
+                }
+                fpr[i] /= rocs.Length;
+                tpr[i] /= rocs.Length;
             }
         }
     }
