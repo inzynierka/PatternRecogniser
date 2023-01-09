@@ -22,7 +22,7 @@ namespace PatternRecogniser.Models
         public double specificity { get; set; }
         public double missRate { get; set; }
         public int[] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
-        public string serializedRocs { get; set; }
+        public string serializedRoc { get; set; }
         private int TP { get; set; }
         private int TN { get; set; }
         private int FP { get; set; }
