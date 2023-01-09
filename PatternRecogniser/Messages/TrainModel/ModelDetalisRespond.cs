@@ -13,6 +13,7 @@ namespace PatternRecogniser.Messages.TrainModel
         public double specificity { get; set; }
         public double missRate { get; set; }
         public int[,] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
+        public string serializedRoc { get; set; }
         public List<ValidationSet> validationSet { get; set; }
         public List<Pattern> patterns { get; set; }
         public string distributionType { get; set; }
@@ -28,6 +29,7 @@ namespace PatternRecogniser.Messages.TrainModel
             validationSet = mte.validationSet.ToList();
             patterns = ps.ToList();
             this.distributionType = distributionType.ToString();
+            serializedRoc = mte.serializedRoc;
 
             foreach (var validation in validationSet)
             {

@@ -40,6 +40,17 @@ namespace PatternRecogniserUnitTests.Models
             Assert.IsNotNull(model.modelTrainingExperiment);
         }
 
+        [TestMethod]
+        public void RocCreationTest_TrainTest()
+        {
+
+            TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.TrainTest,
+                80, 1);
+            var model = new ExtendedModel();
+            model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, cancellationToken.Token);
+            System.Diagnostics.Debug.WriteLine(model.modelTrainingExperiment.serializedRoc);
+        }
+
 
         [TestMethod]
         public void TrainingModelTest_UpdateTest()
