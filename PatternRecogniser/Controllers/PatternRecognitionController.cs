@@ -43,8 +43,6 @@ namespace PatternRecogniser.Controllers
         [Consumes("multipart/form-data")]
         public async  Task<IActionResult> Recognize( string modelName, IFormFile pattern)
         {
-            try
-            {
                 string login = User.Identity.Name;
                 Bitmap picture = new Bitmap(pattern.OpenReadStream());
                 var model = _extendModelRepo.Get(model => model.userLogin == login && model.name == modelName,
@@ -82,11 +80,7 @@ namespace PatternRecogniser.Controllers
 
                 
                 return Ok(new RecognizeRespond(pre));
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+           
 
         }
 

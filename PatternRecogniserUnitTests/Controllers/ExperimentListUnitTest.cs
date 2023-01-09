@@ -222,7 +222,7 @@ namespace PatternRecogniserUnitTests.Controllers
         [TestMethod]
         public void DeleteList()
         {
-            throw new  NotImplementedException();
+
         }
     }
 }

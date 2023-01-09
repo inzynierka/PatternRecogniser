@@ -36,7 +36,7 @@ public async Task InvokeAsync(HttpContext context, RequestDelegate next)
             catch (Exception e)
             {
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsync(e.Message);
+                await context.Response.WriteAsync("Coś poszło nie tak");
             }
         }
     }

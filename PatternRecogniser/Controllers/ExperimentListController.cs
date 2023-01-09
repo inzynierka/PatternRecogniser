@@ -39,8 +39,6 @@ namespace PatternRecogniser.Controllers
         {
             
 
-            try
-            {
                 string login = User.Identity.Name;
                 if (IsExperimentListExsist(login, experimentListName))
                     return BadRequest(_messeges.listAlreadyExist);
@@ -53,11 +51,6 @@ namespace PatternRecogniser.Controllers
                 });
                 await _unitOfWork.SaveChangesAsync();
                 return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
 
 
@@ -69,8 +62,6 @@ namespace PatternRecogniser.Controllers
         [HttpPut("addModelTrainingExperiment")]
         public async Task<IActionResult> AddModelTrainingExperiment(string experimentListName, int modelId)
         {
-            try
-            {
                 string login = User.Identity.Name;
                 var experimentsList = _unitOfWork.experimentListRepo.Get(list => list.name == experimentListName &&
                     list.userLogin == login &&
@@ -88,11 +79,6 @@ namespace PatternRecogniser.Controllers
                 await _unitOfWork.SaveChangesAsync();
                 return Ok(_messeges.experimentHasBeenAdded);
 
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
 
         /// <summary>
@@ -104,8 +90,6 @@ namespace PatternRecogniser.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddPatternRecognitionExperiment(string experimentListName)
         {
-            try
-            {
                 string login = User.Identity.Name; 
                 var list = _unitOfWork.experimentListRepo.Get(list => list.name == experimentListName && list.userLogin == login && list.experimentType == "PatternRecognitionExperiment",
                     list => list.Include(l => l.experiments)).FirstOrDefault();
@@ -141,11 +125,6 @@ namespace PatternRecogniser.Controllers
 
 
                 return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
         }
 
         /// <summary>
