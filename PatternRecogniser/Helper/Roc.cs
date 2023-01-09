@@ -23,18 +23,18 @@ namespace PatternRecogniser.Helper
             this.numbersOfRocs = numbersOfRocs;
             this.avgRoc = avgRoc;
         }
-        public RocOvR(Tensor predictions, Tensor trueLabels, int labelCount, string[] labels)
+        public RocOvR(Tensor predictions, Tensor trueLabels, int labelCount)
         {
-            rocs = new Roc[labels.Length];
+            rocs = new Roc[labelCount];
             numbersOfRocs = labelCount;
             for (int i = 0; i < labelCount; i++)
             {
                 // tutaj wstawić odpowiednią etykiete
-                rocs[i] = createRocOneVsRest(predictions, trueLabels, i, numbersOfPoints, labels[i]);
+                rocs[i] = createRocOneVsRest(predictions, trueLabels, i, numbersOfPoints);
             }
             avgRoc = new Roc(rocs);
         }
-        private Roc createRocOneVsRest(Tensor predictions, Tensor trueLabels, int selectedTrueLable, int pointsNumber, string label)
+        private Roc createRocOneVsRest(Tensor predictions, Tensor trueLabels, int selectedTrueLable, int pointsNumber)
         {
             int[] trueLabelsArr = new int[trueLabels.size];
             float[] selectedTrueLaabelProbality = new float[trueLabels.size];
@@ -57,29 +57,26 @@ namespace PatternRecogniser.Helper
                 i++;
             }
 
-            return new Roc(selectedTrueLaabelProbality, trueLabelsArr, pointsNumber, label);
+            return new Roc(selectedTrueLaabelProbality, trueLabelsArr, pointsNumber);
         }
     }
     [Serializable]
     public class Roc
     {
-        public string label { get; set; }
         public float[] tpr { get; set; }
         public float[] fpr { get; set; }
         public  int numberOfPoints { get; set; } 
 
         [JsonConstructor]
-        public Roc(float[] recall, float[] fpr, string label, int numberOfPoints)
+        public Roc(float[] recall, float[] fpr, int numberOfPoints)
         {
             this.tpr = recall;
             this.fpr = fpr;
-            this.label = label;
             this.numberOfPoints = numberOfPoints;
         }
-        public Roc(float[] trueLabelProbality, int[] trueLabels, int pointsNumber, string label)
+        public Roc(float[] trueLabelProbality, int[] trueLabels, int pointsNumber)
         {
             this.numberOfPoints = pointsNumber;
-            this.label = label;
             int tp, fp, tn, fn;
             tpr = new float[pointsNumber];
             fpr = new float[pointsNumber];

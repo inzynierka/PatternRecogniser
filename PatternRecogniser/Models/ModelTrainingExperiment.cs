@@ -32,10 +32,8 @@ namespace PatternRecogniser.Models
 
         public ModelTrainingExperiment (Tensor predictions, Tensor trueLabels, int labelCount)
         {
-            var tmpLabels = new string[labelCount];
-            for (int i = 0; i < labelCount; i++) { tmpLabels[i] = i.ToString(); }
-            RocOvR rocOvR = new RocOvR(predictions, trueLabels, labelCount, tmpLabels);
-            serializedRoc = JsonSerializer.Serialize<RocOvR>(rocOvR);
+            RocOvR rocOvR = new RocOvR(predictions, trueLabels, labelCount);
+            serializedRoc = JsonSerializer.Serialize<Roc>(rocOvR.avgRoc);
             int[,] confMatrix2D = createConfusionMatrix (predictions, trueLabels, labelCount);
             saveConfusionMatrixAs1DimArray (confMatrix2D);
             calculateTP (confMatrix2D);
