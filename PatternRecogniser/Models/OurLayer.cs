@@ -42,6 +42,15 @@ namespace PatternRecogniser.Models
             built = true;
         }
 
+        private float calculateRuleOnMatrix (float[,] matrix, int mainIndI, int mainIndJ)
+        {
+            return matrix[mainIndI - 2, mainIndJ - 2] * rule[0, 0] + matrix[mainIndI - 2, mainIndJ - 1] * rule[0, 1] + matrix[mainIndI - 2, mainIndJ] * rule[0, 2] + matrix[mainIndI - 2, mainIndJ + 1] * rule[0, 3] + matrix[mainIndI - 2, mainIndJ + 2] * rule[0, 4] +
+                   matrix[mainIndI - 1, mainIndJ - 2] * rule[1, 0] + matrix[mainIndI - 1, mainIndJ - 1] * rule[1, 1] + matrix[mainIndI - 1, mainIndJ] * rule[1, 2] + matrix[mainIndI - 1, mainIndJ + 1] * rule[1, 3] + matrix[mainIndI - 1, mainIndJ + 2] * rule[1, 4] +
+                   matrix[mainIndI    , mainIndJ - 2] * rule[2, 0] + matrix[mainIndI    , mainIndJ - 1] * rule[2, 1] + matrix[mainIndI    , mainIndJ] * rule[2, 2] + matrix[mainIndI    , mainIndJ + 1] * rule[2, 3] + matrix[mainIndI    , mainIndJ + 2] * rule[2, 4] +
+                   matrix[mainIndI + 1, mainIndJ - 2] * rule[3, 0] + matrix[mainIndI + 1, mainIndJ - 1] * rule[3, 1] + matrix[mainIndI + 1, mainIndJ] * rule[3, 2] + matrix[mainIndI + 1, mainIndJ + 1] * rule[3, 3] + matrix[mainIndI + 1, mainIndJ + 2] * rule[3, 4] +
+                   matrix[mainIndI + 2, mainIndJ - 2] * rule[4, 0] + matrix[mainIndI + 2, mainIndJ - 1] * rule[4, 1] + matrix[mainIndI + 2, mainIndJ] * rule[4, 2] + matrix[mainIndI + 2, mainIndJ + 1] * rule[4, 3] + matrix[mainIndI + 2, mainIndJ + 2] * rule[4, 4];
+        }
+
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
         {
             Tensor tensor = null;
@@ -73,14 +82,9 @@ namespace PatternRecogniser.Models
                             int mainIndI = i + 2;
                             int mainIndJ = j + 2;
 
-                            tmp =
-                                matrix[mainIndI - 2, mainIndJ - 2] * rule[0, 0] + matrix[mainIndI - 2, mainIndJ - 1] * rule[0, 1] + matrix[mainIndI - 2, mainIndJ] * rule[0, 2] + matrix[mainIndI - 2, mainIndJ + 1] * rule[0, 3] + matrix[mainIndI - 2, mainIndJ + 2] * rule[0, 4] +
-                                matrix[mainIndI - 1, mainIndJ - 2] * rule[1, 0] + matrix[mainIndI - 1, mainIndJ - 1] * rule[1, 1] + matrix[mainIndI - 1, mainIndJ] * rule[1, 2] + matrix[mainIndI - 1, mainIndJ + 1] * rule[1, 3] + matrix[mainIndI - 1, mainIndJ + 2] * rule[1, 4] +
-                                matrix[mainIndI, mainIndJ - 2] * rule[2, 0] + matrix[mainIndI, mainIndJ - 1] * rule[2, 1] + matrix[mainIndI, mainIndJ] * rule[2, 2] + matrix[mainIndI, mainIndJ + 1] * rule[2, 3] + matrix[mainIndI, mainIndJ + 2] * rule[2, 4] +
-                                matrix[mainIndI + 1, mainIndJ - 2] * rule[3, 0] + matrix[mainIndI + 1, mainIndJ - 1] * rule[3, 1] + matrix[mainIndI + 1, mainIndJ] * rule[3, 2] + matrix[mainIndI + 1, mainIndJ + 1] * rule[3, 3] + matrix[mainIndI + 1, mainIndJ + 2] * rule[3, 4] +
-                                matrix[mainIndI + 2, mainIndJ - 2] * rule[4, 0] + matrix[mainIndI + 2, mainIndJ - 1] * rule[4, 1] + matrix[mainIndI + 2, mainIndJ] * rule[4, 2] + matrix[mainIndI + 2, mainIndJ + 1] * rule[4, 3] + matrix[mainIndI + 2, mainIndJ + 2] * rule[4, 4];
+                            tmp = calculateRuleOnMatrix (matrix, mainIndI, mainIndJ);
 
-                            if (tmp >= threshold) // 25 - tmp zamiast tmp dla mnist
+                            if (tmp >= threshold)
                                 newArr[i * newSize + j] = 1;
                             else
                                 newArr[i * newSize + j] = 0;
