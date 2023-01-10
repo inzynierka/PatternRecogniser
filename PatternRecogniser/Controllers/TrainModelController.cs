@@ -258,14 +258,9 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> GetModelStatus(string modelName)
         {
             string login = User.Identity.Name;
-            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
-            if (user == null)
-                throw new NotFoundExeption(_messages.userNotFound);
-
-            if (string.IsNullOrEmpty(modelName))
-                modelName = user.lastTrainModelName;
 
             var status = GetStatus( login,  modelName);
+            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
 
             if (user.lastModelStatus == status && user.lastCheckModel == modelName &&
                 (status == ModelStatus.TrainingFailed || status == ModelStatus.TrainingComplete))
@@ -306,6 +301,12 @@ namespace PatternRecogniser.Controllers
 
         private ModelStatus GetStatus(string login, string modelName)
         {
+            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
+            if (user == null)
+                throw new NotFoundExeption(_messages.userNotFound);
+
+            if (string.IsNullOrEmpty(modelName))
+                modelName = user.lastTrainModelName;
 
             if (_trainInfoQueue.IsUsersModelInQueue(login, modelName))
                 return ModelStatus.InQueue;
@@ -315,8 +316,6 @@ namespace PatternRecogniser.Controllers
 
             if (_extendedModelRepo.Get(model => model.userLogin == login && model.name == modelName).Count() > 0)
                 return ModelStatus.TrainingComplete;
-
-            var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
 
             if (user != null && 
                 user.lastTrainModelName != null  && 
