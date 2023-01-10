@@ -2,16 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
 
-namespace PatternRecogniser.backupMigrations
+namespace PatternRecogniser.Migrations_BackupDB
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
-    partial class PatternRecogniserDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230109212040_addF1AndMissRate")]
+    partial class addF1AndMissRate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,9 +256,6 @@ namespace PatternRecogniser.backupMigrations
 
                     b.Property<double>("recall")
                         .HasColumnType("double precision");
-
-                    b.Property<string>("serializedRoc")
-                        .HasColumnType("text");
 
                     b.Property<double>("specificity")
                         .HasColumnType("double precision");
