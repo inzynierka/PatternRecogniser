@@ -76,7 +76,9 @@ namespace PatternRecogniser.Controllers
             var tokens = _authenticationServices.CreateTokens(user);
 
             _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, user);
+            _authenticationServices.RehashUserPassword(info.password, user);
 
+            _authenticationRepo.Update(user);
             await _authenticationRepo.SaveChangesAsync();
             
             return Ok(new LogInRespond()

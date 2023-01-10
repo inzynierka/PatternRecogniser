@@ -13,6 +13,7 @@ namespace PatternRecogniser.Services
 
 
         void AddRefreshTokenToUser(string refreshToken, User userToAdd);
+        void RehashUserPassword(string password, User user);
         Tokens CreateTokens(User userToAdd);
         User CreateUserFromSignUpInfo(SignUp info);
     }
@@ -45,6 +46,7 @@ namespace PatternRecogniser.Services
         }
 
 
+
         public Tokens CreateTokens(User user)
         {
             var accesToken = _tokenCreator.CreateAccessToken(user);
@@ -62,8 +64,9 @@ namespace PatternRecogniser.Services
             user.refreshTokenExpiryDate = _tokenCreator.RefresheTokenExpireDate();
         }
 
-
-
-       
+        public void RehashUserPassword(string password, User user)
+        {
+            user.hashedPassword = _passwordHasher.HashPassword(user, password);
+        }
     }
 }
