@@ -28,11 +28,12 @@ namespace PatternRecogniserUnitTests
             return config;
         }
 
-        public static void SetUpGet<TEntity>(this Mock<IGenericRepository<TEntity>> mock, List<TEntity> mockData)
+        public static Mock<IGenericRepository<TEntity>> SetUpGet<TEntity>(this Mock<IGenericRepository<TEntity>> mock, List<TEntity> mockData)
         {
             mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>()))
                 .Returns((Expression<Func<TEntity, bool>> filter, string include) =>
                 mockData.AsQueryable<TEntity>().Where(filter).ToList());
+            return mock;
         }
 
         public static Mock<IGenericRepository<TEntity>> DefaultMockSetUp<TEntity>(this Mock<IGenericRepository<TEntity>> mock)
