@@ -162,6 +162,9 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
             services.AddScoped<IGenericRepository<RecognisedPatterns>, GenericRepository<RecognisedPatterns>>();
             services.AddScoped<IExperimentListUnitOfWork, ExperimentListUnitOfWork>();
+
+            services.Configure<TrainingInfoSettings>(
+            Configuration.GetSection("TrainingInfoDB"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

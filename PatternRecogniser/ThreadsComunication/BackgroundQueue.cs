@@ -28,40 +28,6 @@ using CSharpTest.Net.Collections;
 namespace PatternRecogniser.ThreadsComunication
 {
 
-    public class TrainingInfo
-    {
-        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, int trainingPercent, int sets)
-        {
-            this.login = login;
-            this.trainingSet = ReadFully(trainingSet.OpenReadStream());
-            this.modelName = modelName;
-            this.distributionType = distributionType;
-            this.trainingPercent = trainingPercent;
-            this.sets = sets;
-        }
-
-        public string login;
-        public byte[] trainingSet;
-        public string modelName;
-        public DistributionType distributionType;
-        public int trainingPercent;
-        public int sets;
-
-        
-
-        private  byte[] ReadFully(Stream input)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                input.CopyTo(ms);
-                return ms.ToArray();
-            }
-        }
-
-       
-
-    }
-
 
     public interface IBackgroundTaskQueue
     {
