@@ -24,51 +24,18 @@ using Microsoft.AspNetCore.Http;
 using PatternRecogniser.Models;
 using System.IO;
 using CSharpTest.Net.Collections;
+using PatternRecogniser.Services;
 
 namespace PatternRecogniser.ThreadsComunication
 {
-
-    public class TrainingInfo
-    {
-        public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, int trainingPercent, int sets)
-        {
-            this.login = login;
-            this.trainingSet = ReadFully(trainingSet.OpenReadStream());
-            this.modelName = modelName;
-            this.distributionType = distributionType;
-            this.trainingPercent = trainingPercent;
-            this.sets = sets;
-        }
-
-        public string login;
-        public byte[] trainingSet;
-        public string modelName;
-        public DistributionType distributionType;
-        public int trainingPercent;
-        public int sets;
-
-        
-
-        private  byte[] ReadFully(Stream input)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                input.CopyTo(ms);
-                return ms.ToArray();
-            }
-        }
-
-       
-
-    }
 
 
     public interface IBackgroundTaskQueue
     {
         int Count { get; }
-        public void Enqueue(TrainingInfo item);
+        public Task Enqueue(TrainingInfo item);
 
-        public TrainingInfo Dequeue(
+        public Task<TrainingInfo> Dequeue(
             CancellationToken cancellationToken);
 
         public int NumberInQueue(string login);
@@ -77,48 +44,6 @@ namespace PatternRecogniser.ThreadsComunication
 
         public bool IsUsersModelInQueue(string login, string modelName = null );
 
-    }
-
-    public class BackgroundQueueBlockingCollection : IBackgroundTaskQueue
-    {
-
-        private readonly BlockingCollection<TrainingInfo> _queue = new BlockingCollection<TrainingInfo>(new ConcurrentQueue<TrainingInfo>());
-
-        public int Count => _queue.Count;
-
-
-        public TrainingInfo Dequeue(
-            CancellationToken cancellationToken)
-        {
-            TrainingInfo item = _queue.Take();
-            return item;
-        }
-
-        public void Enqueue(TrainingInfo item)
-        {
-            if (item == null) { throw new ArgumentNullException(nameof(item)); }
-            _queue.Add(item);
-        }
-
-        public int NumberInQueue(string login)
-        {
-            var qToList = _queue.ToList();
-            return qToList.FindIndex(a => a.login == login);
-        }
-
-        public bool Remove(string login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsUsersModelInQueue(string login, string modelName = null)
-        {
-            var qToList = _queue.ToList();
-            if(modelName == null)
-                return qToList.FindIndex(a => a.login == login ) >= 0;
-            else
-                return qToList.FindIndex(a => a.login == login && a.modelName == modelName) >= 0;
-        }
     }
 
 
@@ -135,24 +60,46 @@ namespace PatternRecogniser.ThreadsComunication
      * See the License for the specific language governing permissions and
      * limitations under the License.
      */
+
     public class BackgroundQueueLurchTable : IBackgroundTaskQueue
     {
-        private class Value
-        {
-            public TrainingInfo info;
-            public int numberInQueue;
-            public Value(TrainingInfo trainingInfo, int numberInQueue)
-            {
-                info = trainingInfo;
-                this.numberInQueue = numberInQueue;
-            }
-        }
+
+
+        private readonly ItrainingInfoService infoService;
         private readonly LurchTable<string, Value> _queue = new LurchTable<string, Value>(1000, LurchTableOrder.Insertion);
 
-
         public int Count => _queue.Count;
+       
 
-        public BackgroundQueueLurchTable()
+        private class InfoContainer
+        {
+            public string id { get; set; }
+            public string login { get; set; }
+            public string modelName { get; set; }
+            public InfoContainer(TrainingInfo trainingInfo)
+            {
+                id = trainingInfo.id;
+                login = trainingInfo.login;
+                modelName = trainingInfo.modelName;
+            }
+        }
+
+
+
+
+        public BackgroundQueueLurchTable(ItrainingInfoService trainingInfoService)
+        {
+            this.infoService = trainingInfoService;
+            var lastData = infoService.GetAsync().Result;
+            lastData.Sort((a, b) => a.addedTime > b.addedTime ? 1: -1);
+            foreach(var item in lastData)
+            {
+                _queue.TryAdd(item.login, new Value(item, Count));
+            }
+            init();
+        }
+
+        private void init()
         {
             _queue.ItemRemoved += DecrementNumbersInQueue;
         }
@@ -169,19 +116,25 @@ namespace PatternRecogniser.ThreadsComunication
 
         public bool Remove(string login)
         {
-            return _queue.TryRemove(login, null);
+            Value va;
+            bool deleted = _queue.TryRemove(login, out va);
+            if (deleted)
+                infoService.RemoveAsync(va.info.id).Wait();
+            return deleted;
         }
 
-        public TrainingInfo Dequeue(CancellationToken cancellationToken)
+        public async Task<TrainingInfo> Dequeue(CancellationToken cancellationToken)
         {
-            TrainingInfo item = _queue.Dequeue().Value.info;
-
-            return item;
+            var item = _queue.Dequeue().Value.info;
+            var data = await infoService.GetThenDelateAsync(item.id);
+            return data;
         }
 
-        public void Enqueue(TrainingInfo item)
+        public async Task Enqueue(TrainingInfo item)
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
+
+            await infoService.CreateAsync(item);
             _queue.TryAdd(item.login, new Value(item, Count));
         }
 
@@ -203,6 +156,64 @@ namespace PatternRecogniser.ThreadsComunication
                 return userInQueue;
             else
                 return userInQueue && item.info.modelName == modelName;
+        }
+
+        private class Value
+        {
+            public InfoContainer info;
+            public int numberInQueue;
+            public Value(TrainingInfo trainingInfo, int numberInQueue)
+            {
+                info = new InfoContainer(trainingInfo);
+                this.numberInQueue = numberInQueue;
+            }
+            public Value(InfoContainer trainingInfo, int numberInQueue)
+            {
+                info = trainingInfo;
+                this.numberInQueue = numberInQueue;
+            }
+        }
+    }
+
+    public class BackgroundQueueBlockingCollection : IBackgroundTaskQueue
+    {
+
+        private readonly BlockingCollection<TrainingInfo> _queue = new BlockingCollection<TrainingInfo>(new ConcurrentQueue<TrainingInfo>());
+
+        public int Count => _queue.Count;
+
+
+        public async Task<TrainingInfo> Dequeue(
+            CancellationToken cancellationToken)
+        {
+            TrainingInfo item = _queue.Take();
+            return item;
+        }
+
+        public async Task Enqueue(TrainingInfo item)
+        {
+            if (item == null) { throw new ArgumentNullException(nameof(item)); }
+            _queue.Add(item);
+        }
+
+        public int NumberInQueue(string login)
+        {
+            var qToList = _queue.ToList();
+            return qToList.FindIndex(a => a.login == login);
+        }
+
+        public bool Remove(string login)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsUsersModelInQueue(string login, string modelName = null)
+        {
+            var qToList = _queue.ToList();
+            if (modelName == null)
+                return qToList.FindIndex(a => a.login == login) >= 0;
+            else
+                return qToList.FindIndex(a => a.login == login && a.modelName == modelName) >= 0;
         }
     }
 

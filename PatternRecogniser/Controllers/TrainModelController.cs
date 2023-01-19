@@ -103,7 +103,7 @@ namespace PatternRecogniser.Controllers
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
                 setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
 
-                _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
+                await _trainInfoQueue.Enqueue(new TrainingInfo(login, trainingSet, modelName, distributionType, trainingPercent, setsNumber));
                 var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
                 user.lastTrainModelName = modelName;
 

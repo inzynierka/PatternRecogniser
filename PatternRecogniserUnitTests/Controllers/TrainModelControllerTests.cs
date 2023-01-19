@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PatternRecogniser.Controllers.Tests
+namespace PatternRecogniserUnitTests
 {
     [TestClass()]
     public class TrainModelControllerTests
@@ -34,7 +34,7 @@ namespace PatternRecogniser.Controllers.Tests
             _mockPatternRecognitionExperimentRepo = new Mock<IGenericRepository<PatternRecognitionExperiment>>().DefaultMockSetUp();
 
             _trainingUpdate = new SimpleComunicationOneToMany();
-            _backgroundTaskQueue = new BackgroundQueueLurchTable();
+            _backgroundTaskQueue = new BackgroundQueueLurchTable(Helper.CreateTrainingInfoMongoCollection());
             _controller = new TrainModelController(
                 _mockExtendedModelRepo.Object,
                 _mockUserRepo.Object,

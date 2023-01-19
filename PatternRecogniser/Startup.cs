@@ -139,9 +139,10 @@ namespace PatternRecogniser
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
-            services.AddSingleton<IBackgroundTaskQueue>(a =>
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundQueueLurchTable>(
+            //    a =>
             //new BackgroundQueueBlockingCollection(),
-            new BackgroundQueueLurchTable()
+            //new BackgroundQueueLurchTable()
             );
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
@@ -162,6 +163,10 @@ namespace PatternRecogniser
             services.AddScoped<IGenericRepository<Experiment>, GenericRepository<Experiment>>();
             services.AddScoped<IGenericRepository<RecognisedPatterns>, GenericRepository<RecognisedPatterns>>();
             services.AddScoped<IExperimentListUnitOfWork, ExperimentListUnitOfWork>();
+
+            services.Configure<TrainingInfoSettings>(
+            Configuration.GetSection("TrainingInfoDB"));
+            services.AddSingleton<ItrainingInfoService, TrainingInfoMongoCollection>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

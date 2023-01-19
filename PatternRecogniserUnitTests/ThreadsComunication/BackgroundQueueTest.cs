@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PatternRecogniser.Models;
+using PatternRecogniser.Services;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,7 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
     {
         private IFormFile _trainingSet;
         private ITrainingUpdate _trainingUpdate;
+        private ItrainingInfoService trainingInfoService;
         public string TestedFiles { get; }
         BackgroundQueueLurchTable queue;
 
@@ -26,7 +29,9 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
             string fileName = "cyfry.zip";
             string fileLocation = $"{TestedFiles}\\{fileName}";
             var file = File.OpenRead(fileLocation);
-            queue = new BackgroundQueueLurchTable();
+            trainingInfoService = Helper.CreateTrainingInfoMongoCollection();
+            trainingInfoService.ClearTrainingInfoTestDB();
+            queue = new BackgroundQueueLurchTable(trainingInfoService);
             _trainingSet = new FormFile(file, 0, file.Length, fileName, fileName);
         }
 
@@ -36,12 +41,12 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
             for (int i = 0; i < 10; i++)
             {
                 var info = new TrainingInfo(i.ToString(), _trainingSet, i.ToString(), PatternRecogniser.Models.DistributionType.TrainTest, 60, 5);
-                queue.Enqueue(info);
+                queue.Enqueue(info).Wait();
             }
             
             for (int i = 0; i < 10; i++)
             {
-                var item = queue.Dequeue(new System.Threading.CancellationToken());
+                var item = queue.Dequeue(new System.Threading.CancellationToken()).Result;
                 int nextLogin = int.Parse(item.login) + 1;
                 int placeInQueue = 0;
                 for (int j = nextLogin; j < 10; j++)
@@ -60,14 +65,14 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
             for (int i = 0; i < 10; i++)
             {
                 var info = new TrainingInfo(i.ToString(), _trainingSet, i.ToString(), PatternRecogniser.Models.DistributionType.TrainTest, 60, 5);
-                queue.Enqueue(info);
+                queue.Enqueue(info).Wait();
             }
 
             
 
             for (int i = 0; i < 10; i++)
             {
-                Assert.AreEqual(i.ToString(), queue.Dequeue(new System.Threading.CancellationToken()).login);
+                Assert.AreEqual(i.ToString(), queue.Dequeue(new System.Threading.CancellationToken()).Result.login);
                 
             }
         }
