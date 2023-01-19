@@ -29,16 +29,16 @@ namespace PatternRecogniser.Services
         private readonly IMongoCollection<TrainingInfo> _trainingInfoCollection;
 
         public TrainingInfoMongoCollection(
-            IOptions<TrainingInfoSettings> bookStoreDatabaseSettings)
+            IOptions<TrainingInfoSettings> trainingInfoDatabaseSettings)
         {
             var mongoClient = new MongoClient(
-                bookStoreDatabaseSettings.Value.ConnectionString);
+                trainingInfoDatabaseSettings.Value.ConnectionString);
 
             var mongoDatabase = mongoClient.GetDatabase(
-                bookStoreDatabaseSettings.Value.DatabaseName);
+                trainingInfoDatabaseSettings.Value.DatabaseName);
 
             _trainingInfoCollection = mongoDatabase.GetCollection<TrainingInfo>(
-                bookStoreDatabaseSettings.Value.BooksCollectionName);
+                trainingInfoDatabaseSettings.Value.CollectionName);
         }
 
         public async Task<List<TrainingInfo>> GetAsync() =>

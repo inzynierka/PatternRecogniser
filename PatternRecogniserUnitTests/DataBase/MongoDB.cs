@@ -34,12 +34,14 @@ namespace PatternRecogniserUnitTests.DataBase
             string fileLocation = $"{TestedFiles}\\{fileName}";
             var file = File.OpenRead(fileLocation);
             _trainingSet = new FormFile(file, 0, file.Length, fileName, fileName);
+
+            trainingInfoService.ClearTrainingInfoTestDB();
         }
         [TestMethod]
         public void GetMongoData()
         {
             var itemki = trainingInfoService.GetAsync().Result;
-            Assert.AreNotEqual(0, itemki.Count);
+            Assert.AreEqual(0, itemki.Count);
         }
 
         [TestMethod]
@@ -48,11 +50,11 @@ namespace PatternRecogniserUnitTests.DataBase
             
             TrainingInfo info = new TrainingInfo("test", _trainingSet, "", PatternRecogniser.Models.DistributionType.TrainTest,
                 80, 1);
-            trainingInfoService.RemoveAsync(info.login).Wait();
+            
             trainingInfoService.CreateAsync(info).Wait();
-            var item = trainingInfoService.GetAsync(info.login).Result;
+            var item = trainingInfoService.GetAsync(info.id).Result;
             Assert.AreNotEqual(info, item);
-            trainingInfoService.RemoveAsync(info.login).Wait();
+            trainingInfoService.RemoveAsync(info.id).Wait();
         }
     }
 }
