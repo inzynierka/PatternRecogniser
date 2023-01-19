@@ -102,9 +102,9 @@ namespace PatternRecogniserUnitTests
             return new TrainingInfoMongoCollection(options);
         }
 
-        public static void  ClearTrainingInfoTestDB(this trainingInfoService trainingInfoService)
+        public static void  ClearTrainingInfoTestDB(this ItrainingInfoService trainingInfoService)
         {
-            List<string> ids = trainingInfoService.GetAsync().Result.Select(a => a.login).ToList();
+            List<string> ids = trainingInfoService.GetAsync().Result.Select(a => a.id).ToList();
             foreach(var id in ids)
             {
                 trainingInfoService.RemoveAsync(id);

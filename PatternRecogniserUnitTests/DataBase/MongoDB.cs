@@ -16,7 +16,7 @@ namespace PatternRecogniserUnitTests.DataBase
     [TestClass]
     public class MongoDB
     {
-        trainingInfoService trainingInfoService;
+        ItrainingInfoService trainingInfoService;
         public string TestedFiles { get; }
         private IFormFile _trainingSet;
 

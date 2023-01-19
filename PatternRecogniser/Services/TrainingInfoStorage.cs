@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PatternRecogniser.Services
 {
-    public interface trainingInfoService
+    public interface ItrainingInfoService
     {
         public  Task<List<TrainingInfo>> GetAsync();
 
@@ -24,7 +24,7 @@ namespace PatternRecogniser.Services
 
         public  Task RemoveAsync(string id);
     }
-    public class TrainingInfoMongoCollection: trainingInfoService
+    public class TrainingInfoMongoCollection: ItrainingInfoService
     {
         private readonly IMongoCollection<TrainingInfo> _trainingInfoCollection;
 
@@ -45,16 +45,16 @@ namespace PatternRecogniser.Services
             await _trainingInfoCollection.Find(_ => true).ToListAsync();
 
         public async Task<TrainingInfo?> GetAsync(string id) =>
-            await _trainingInfoCollection.Find(x => x.login == id).FirstOrDefaultAsync();
+            await _trainingInfoCollection.Find(x => x.id == id).FirstOrDefaultAsync();
 
         public async Task CreateAsync(TrainingInfo trainingInfo) =>
             await _trainingInfoCollection.InsertOneAsync(trainingInfo);
 
         public async Task UpdateAsync(string id, TrainingInfo updateTrainingInfo) =>
-            await _trainingInfoCollection.ReplaceOneAsync(x => x.login == id, updateTrainingInfo);
+            await _trainingInfoCollection.ReplaceOneAsync(x => x.id == id, updateTrainingInfo);
 
         public async Task RemoveAsync(string id) =>
-            await _trainingInfoCollection.DeleteOneAsync(x => x.login == id);
+            await _trainingInfoCollection.DeleteOneAsync(x => x.id == id);
 
         }
     }

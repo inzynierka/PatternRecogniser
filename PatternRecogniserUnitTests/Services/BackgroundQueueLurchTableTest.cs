@@ -13,7 +13,7 @@ namespace PatternRecogniserUnitTests.Controllers.Services
     public class BackgroundQueueLurchTableTest
     {
         IBackgroundTaskQueue backgroundTaskQueue;
-        private readonly trainingInfoService infoService;
+        private readonly ItrainingInfoService infoService;
 
         public BackgroundQueueLurchTableTest()
         {
@@ -26,22 +26,19 @@ namespace PatternRecogniserUnitTests.Controllers.Services
         public void EnqueueTest()
         {
             var info = Helper.CreateSimpleTrainingInfo("EnqueueTest", "");
-            infoService.RemoveAsync(info.login).Wait();
-            backgroundTaskQueue.Enqueue(info);
-            Assert.IsNotNull( infoService.GetAsync(info.login).Result);
-            infoService.ClearTrainingInfoTestDB();
+            backgroundTaskQueue.Enqueue(info).Wait();
+            Assert.IsNotNull( infoService.GetAsync(info.id).Result);
         }
 
         [TestMethod]
         public void DequeueTest()
         {
             var info = Helper.CreateSimpleTrainingInfo("DequeueTest", "");
-            infoService.RemoveAsync(info.login).Wait();
-            backgroundTaskQueue.Enqueue(info);
-            var itemFromQueue = backgroundTaskQueue.Dequeue(new System.Threading.CancellationToken());
+            backgroundTaskQueue.Enqueue(info).Wait();
+            var itemFromQueue = backgroundTaskQueue.Dequeue(new System.Threading.CancellationToken()).Result;
             Assert.IsNotNull(itemFromQueue);
             Assert.AreEqual(itemFromQueue.login, info.login);
-            Assert.IsNull(infoService.GetAsync(itemFromQueue.login).Result);
+            Assert.IsNull(infoService.GetAsync(itemFromQueue.id).Result);
 
         }
     }

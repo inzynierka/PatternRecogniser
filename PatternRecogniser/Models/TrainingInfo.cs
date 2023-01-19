@@ -7,10 +7,13 @@ using System.IO;
 
 namespace PatternRecogniser.Models
 {
+    [BsonIgnoreExtraElements]
     public class TrainingInfo
     {
 
         [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
         public string login { get; set; }
         public byte[] trainingSet { get; set; }
         public string modelName { get; set; }

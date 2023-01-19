@@ -33,9 +33,9 @@ namespace PatternRecogniser.ThreadsComunication
     public interface IBackgroundTaskQueue
     {
         int Count { get; }
-        public void Enqueue(TrainingInfo item);
+        public Task Enqueue(TrainingInfo item);
 
-        public TrainingInfo Dequeue(
+        public Task<TrainingInfo> Dequeue(
             CancellationToken cancellationToken);
 
         public int NumberInQueue(string login);
@@ -63,42 +63,31 @@ namespace PatternRecogniser.ThreadsComunication
 
     public class BackgroundQueueLurchTable : IBackgroundTaskQueue
     {
-        private class Value
-        {
-            public InfoContainer info;
-            public int numberInQueue;
-            public Value(TrainingInfo trainingInfo, int numberInQueue)
-            {
-                info = new InfoContainer(trainingInfo);
-                this.numberInQueue = numberInQueue;
-            }
-            public Value(InfoContainer trainingInfo, int numberInQueue)
-            {
-                info = trainingInfo;
-                this.numberInQueue = numberInQueue;
-            }
-        }
+
+
+        private readonly ItrainingInfoService infoService;
+        private readonly LurchTable<string, Value> _queue = new LurchTable<string, Value>(1000, LurchTableOrder.Insertion);
+
+        public int Count => _queue.Count;
+       
 
         private class InfoContainer
         {
+            public string id { get; set; }
             public string login { get; set; }
             public string modelName { get; set; }
             public InfoContainer(TrainingInfo trainingInfo)
             {
+                id = trainingInfo.id;
                 login = trainingInfo.login;
                 modelName = trainingInfo.modelName;
             }
         }
 
 
-        private readonly trainingInfoService infoService;
-        private readonly LurchTable<string, Value> _queue = new LurchTable<string, Value>(1000, LurchTableOrder.Insertion);
 
 
-        public int Count => _queue.Count;
-
-
-        public BackgroundQueueLurchTable(trainingInfoService trainingInfoService)
+        public BackgroundQueueLurchTable(ItrainingInfoService trainingInfoService)
         {
             this.infoService = trainingInfoService;
             var lastData = infoService.GetAsync().Result;
@@ -127,24 +116,26 @@ namespace PatternRecogniser.ThreadsComunication
 
         public bool Remove(string login)
         {
-            bool deleted = _queue.TryRemove(login, null);
+            Value va;
+            bool deleted = _queue.TryRemove(login, out va);
             if (deleted)
-                infoService.RemoveAsync(login).Wait();
+                infoService.RemoveAsync(va.info.id).Wait();
             return deleted;
         }
 
-        public TrainingInfo Dequeue(CancellationToken cancellationToken)
+        public async Task<TrainingInfo> Dequeue(CancellationToken cancellationToken)
         {
             var item = _queue.Dequeue().Value.info;
-            return infoService.GetThenDelateAsync(item.login).Result;
+            var data = await infoService.GetThenDelateAsync(item.id);
+            return data;
         }
 
-        public void Enqueue(TrainingInfo item)
+        public async Task Enqueue(TrainingInfo item)
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
 
+            await infoService.CreateAsync(item);
             _queue.TryAdd(item.login, new Value(item, Count));
-            infoService.CreateAsync(item).Wait();
         }
 
         public int NumberInQueue(string login)
@@ -166,6 +157,22 @@ namespace PatternRecogniser.ThreadsComunication
             else
                 return userInQueue && item.info.modelName == modelName;
         }
+
+        private class Value
+        {
+            public InfoContainer info;
+            public int numberInQueue;
+            public Value(TrainingInfo trainingInfo, int numberInQueue)
+            {
+                info = new InfoContainer(trainingInfo);
+                this.numberInQueue = numberInQueue;
+            }
+            public Value(InfoContainer trainingInfo, int numberInQueue)
+            {
+                info = trainingInfo;
+                this.numberInQueue = numberInQueue;
+            }
+        }
     }
 
     public class BackgroundQueueBlockingCollection : IBackgroundTaskQueue
@@ -176,14 +183,14 @@ namespace PatternRecogniser.ThreadsComunication
         public int Count => _queue.Count;
 
 
-        public TrainingInfo Dequeue(
+        public async Task<TrainingInfo> Dequeue(
             CancellationToken cancellationToken)
         {
             TrainingInfo item = _queue.Take();
             return item;
         }
 
-        public void Enqueue(TrainingInfo item)
+        public async Task Enqueue(TrainingInfo item)
         {
             if (item == null) { throw new ArgumentNullException(nameof(item)); }
             _queue.Add(item);
