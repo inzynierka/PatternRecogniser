@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.IO;
 
 namespace PatternRecogniser.Models
@@ -10,13 +11,13 @@ namespace PatternRecogniser.Models
     {
 
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
         public string login { get; set; }
         public byte[] trainingSet { get; set; }
         public string modelName { get; set; }
         public DistributionType distributionType { get; set; }
         public int trainingPercent { get; set; }
         public int sets { get; set; }
+        public DateTime addedTime {get; set;}
 
         
         public TrainingInfo(string login, byte[] trainingSet, string modelName, DistributionType distributionType, int trainingPercent, int sets)
@@ -27,6 +28,7 @@ namespace PatternRecogniser.Models
             this.distributionType = distributionType;
             this.trainingPercent = trainingPercent;
             this.sets = sets;
+            addedTime = DateTime.Now;
         }
         public TrainingInfo(string login, IFormFile trainingSet, string modelName, DistributionType distributionType, int trainingPercent, int sets)
         {
@@ -36,9 +38,11 @@ namespace PatternRecogniser.Models
             this.distributionType = distributionType;
             this.trainingPercent = trainingPercent;
             this.sets = sets;
+            addedTime = DateTime.Now;
+
         }
 
-        
+
 
 
 

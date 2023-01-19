@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Moq;
 using PatternRecogniser;
 using PatternRecogniser.Models;
@@ -9,6 +10,7 @@ using PatternRecogniser.Services;
 using PatternRecogniser.Services.Repos;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
@@ -19,6 +21,7 @@ namespace PatternRecogniserUnitTests
 {
     public static class Helper
     {
+
         public static IConfiguration InitConfiguration()
         {
             var config = new ConfigurationBuilder()
@@ -75,6 +78,37 @@ namespace PatternRecogniserUnitTests
             }
 
             return controller;
+        }
+
+        public static TrainingInfo CreateSimpleTrainingInfo(string login, string modelName)
+        {
+            string projectDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            var testedFiles = projectDirectory + "\\TestedFiles";
+            string fileName = "cyfry.zip";
+            string fileLocation = $"{testedFiles}\\{fileName}";
+            var file = File.OpenRead(fileLocation);
+            var trainingSet = new FormFile(file, 0, file.Length, fileName, fileName);
+
+            return new TrainingInfo(login, trainingSet, modelName, PatternRecogniser.Models.DistributionType.TrainTest,
+                80, 1);
+        }
+
+        public static TrainingInfoMongoCollection CreateTrainingInfoMongoCollection()
+        {
+            var conf = Helper.InitConfiguration();
+            TrainingInfoSettings tis = new TrainingInfoSettings();
+            conf.GetSection("TrainingInfoDBTest").Bind(tis);
+            IOptions<TrainingInfoSettings> options = Options.Create<TrainingInfoSettings>(tis);
+            return new TrainingInfoMongoCollection(options);
+        }
+
+        public static void  ClearTrainingInfoTestDB(this trainingInfoService trainingInfoService)
+        {
+            List<string> ids = trainingInfoService.GetAsync().Result.Select(a => a.login).ToList();
+            foreach(var id in ids)
+            {
+                trainingInfoService.RemoveAsync(id);
+            }
         }
     }
 }

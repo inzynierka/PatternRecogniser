@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace PatternRecogniserUnitTests.ThreadsComunication
             string fileName = "cyfry.zip";
             string fileLocation = $"{TestedFiles}\\{fileName}";
             var file = File.OpenRead(fileLocation);
-            queue = new BackgroundQueueLurchTable();
+            queue = new BackgroundQueueLurchTable(Helper.CreateTrainingInfoMongoCollection());
             _trainingSet = new FormFile(file, 0, file.Length, fileName, fileName);
         }
 
