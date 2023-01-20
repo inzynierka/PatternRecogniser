@@ -105,7 +105,7 @@ namespace PatternRecogniser.Models
             {
                 trainingUpdate.Update (e.Message);
             }
-        }
+       }
 
         public void TrainModelTrainTest (PatternData data, int train, int test, ITrainingUpdate trainingUpdate)
         {
