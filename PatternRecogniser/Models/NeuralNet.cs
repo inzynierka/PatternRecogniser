@@ -153,14 +153,14 @@ namespace PatternRecogniser.Models
                 { 0, 0, 0, 0, 1 },
                 { 1, 1, 1, 1, 1 }
             };
-            float[,] rule13 = new float[5, 5]
-            {
-                { 0, 0, 1, 0, 0 },
-                { 0, 0, 1, 0, 0 },
-                { 1, 1, 1, 1, 1 },
-                { 0, 0, 1, 0, 0 },
-                { 0, 0, 1, 0, 0 }
-            };
+            //float[,] rule13 = new float[5, 5]
+            //{
+            //    { 0, 0, 1, 0, 0 },
+            //    { 0, 0, 1, 0, 0 },
+            //    { 1, 1, 1, 1, 1 },
+            //    { 0, 0, 1, 0, 0 },
+            //    { 0, 0, 1, 0, 0 }
+            //};
 
             fc1 = AutomataConvLayer (24 * 24, rule1, 5, activation: args.Activation);
             fc2 = AutomataConvLayer (24 * 24, rule2, 5, activation: args.Activation);
@@ -174,12 +174,12 @@ namespace PatternRecogniser.Models
             fc10 = AutomataConvLayer (24 * 24, rule10, 8, activation: args.Activation);
             fc11 = AutomataConvLayer (24 * 24, rule11, 8, activation: args.Activation);
             fc12 = AutomataConvLayer (24 * 24, rule12, 8, activation: args.Activation);
-            fc13 = AutomataConvLayer (24 * 24, rule12, 8, activation: args.Activation);
+            //fc13 = AutomataConvLayer (24 * 24, rule13, 8, activation: args.Activation);
 
             //dense = layers.Dense (20);
             output = layers.Dense (args.NumClasses, activation: "softmax");
 
-            StackLayers (fc1, fc2, fc3, fc4, fc5, fc6, fc7, fc8, fc9, fc10, fc11, fc12, fc13, output);
+            StackLayers (fc1, fc2, fc3, fc4, fc5, fc6, fc7, fc8, fc9, fc10, fc11, fc12, output);
         }
 
         protected override Tensors Call (Tensors inputs, Tensor state = null, bool? training = null)
@@ -197,9 +197,9 @@ namespace PatternRecogniser.Models
             Tensors result10 = fc10.Apply (inputs);
             Tensors result11 = fc11.Apply (inputs);
             Tensors result12 = fc12.Apply (inputs);
-            Tensors result13 = fc13.Apply (inputs);
+            //Tensors result13 = fc13.Apply (inputs);
 
-            inputs = JoinResults (new List<Tensors> { result1, result2, result3, result4, result5, result6, result7, result8, result9, result10, result11, result12, result13});
+            inputs = JoinResults (new List<Tensors> { result1, result2, result3, result4, result5, result6, result7, result8, result9, result10, result11, result12});
 
             //inputs = dense.Apply (inputs);
             inputs = output.Apply (inputs);
