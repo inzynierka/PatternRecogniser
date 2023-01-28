@@ -12,6 +12,7 @@ namespace PatternRecogniser.Messages.TrainModel
         public double recall { get; set; }
         public double specificity { get; set; }
         public double missRate { get; set; }
+        public double F1 { get; set; }
         public int[,] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
         public string serializedRoc { get; set; }
         public List<ValidationSet> validationSet { get; set; }
@@ -25,6 +26,7 @@ namespace PatternRecogniser.Messages.TrainModel
             recall = mte.recall;
             specificity = mte.specificity;
             missRate = mte.missRate;
+            F1 = mte.F1;
             confusionMatrix = saveConfusionMatrixAs2DimArray(mte.confusionMatrix);
             validationSet = mte.validationSet.ToList();
             patterns = ps.ToList();

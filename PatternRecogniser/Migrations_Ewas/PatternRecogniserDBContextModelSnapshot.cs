@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
 
-namespace PatternRecogniser.backupMigrations
+namespace PatternRecogniser.EwaMigrations
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
     partial class PatternRecogniserDBContextModelSnapshot : ModelSnapshot

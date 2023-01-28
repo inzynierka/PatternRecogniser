@@ -60,7 +60,7 @@ namespace PatternRecogniser.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var info =
-                     _trainInfoQueue.Dequeue(stoppingToken);
+                     _trainInfoQueue.Dequeue(stoppingToken).Result;
 
 
                 await Train(info, stoppingToken);
