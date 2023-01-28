@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using PatternRecogniser.Messages.Authorization;
 using PatternRecogniser.Models;
 using System;
-using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

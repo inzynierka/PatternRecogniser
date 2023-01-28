@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PatternRecogniser.Errors;
+using PatternRecogniser.Messages.Middleware;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace PatternRecogniser.Middleware
 {
     public class ErrorHandlingMiddleware: IMiddleware
     {
+        public ErrorHandlingMiddlewareStringMessages message = new ErrorHandlingMiddlewareStringMessages();
         public ErrorHandlingMiddleware()
         {
         }
@@ -36,7 +38,7 @@ public async Task InvokeAsync(HttpContext context, RequestDelegate next)
             catch (Exception e)
             {
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsync("Coś poszło nie tak");
+                await context.Response.WriteAsync(message.UnhandledErrorMessage);
             }
         }
     }

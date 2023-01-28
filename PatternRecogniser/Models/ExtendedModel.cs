@@ -66,41 +66,36 @@ namespace PatternRecogniser.Models
         private CancellationToken _cancellationToken; // nie wiem jak wykorzystać IsCancellationRequested więc wszędzie wyrzucam błąd _cancellationToken.ThrowIfCancellationRequested(); 
 
 
-        public void TrainModel (DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
+        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
         {
-            try
+
+            _cancellationToken = cancellationToken;
+            trainingUpdate.Update(_messages.startTraining + "\n");
+            var examplePictures = new Dictionary<string, byte[]>();
+            PatternData patternData = OpenZip(trainingSet, examplePictures);
+
+            if (patternData.IsEmpty())
             {
-                _cancellationToken = cancellationToken;
-                trainingUpdate.Update (_messages.startTraining + "\n");
-                var examplePictures = new Dictionary<string, byte[]> ();
-                PatternData patternData = OpenZip (trainingSet, examplePictures);
-
-                if (patternData.IsEmpty ())
-                {
-                    throw new Exception (_messages.incorectFileStructure);
-                }
-
-                this.patterns = new List<Pattern> ();
-                foreach (var pair in examplePictures)
-                {
-                    _cancellationToken.ThrowIfCancellationRequested ();
-                    this.patterns.Add (new Pattern (pair.Key, pair.Value));
-                }
-
-                switch (distribution)
-                {
-                    case DistributionType.TrainTest:
-                        TrainModelTrainTest (patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
-                        break;
-                    case DistributionType.CrossValidation:
-                        TrainModelCrossValidation (patternData, setsNumber, trainingUpdate);
-                        break;
-                }
+                throw new Exception(_messages.incorectFileStructure);
             }
-            catch (OperationCanceledException oce)
+
+            this.patterns = new List<Pattern>();
+            foreach (var pair in examplePictures)
             {
-
+                _cancellationToken.ThrowIfCancellationRequested();
+                this.patterns.Add(new Pattern(pair.Key, pair.Value));
             }
+
+            switch (distribution)
+            {
+                case DistributionType.TrainTest:
+                    TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
+                    break;
+                case DistributionType.CrossValidation:
+                    TrainModelCrossValidation(patternData, setsNumber, trainingUpdate);
+                    break;
+            }
+
         }
 
         public void TrainModelTrainTest (PatternData data, int train, int test, ITrainingUpdate trainingUpdate)
