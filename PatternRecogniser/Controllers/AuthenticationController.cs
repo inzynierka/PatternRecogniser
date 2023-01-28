@@ -47,7 +47,7 @@ namespace PatternRecogniser.Controllers
 
 
             Tokens tokens = _authenticationServices.CreateTokens(userToAdd);
-            // dodawanie refreshe token do bazy
+            
             _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
 
             _authenticationRepo.Insert(userToAdd);

@@ -13,7 +13,7 @@ namespace PatternRecogniser.Messages.TrainModel
         public double specificity { get; set; }
         public double missRate { get; set; }
         public double F1 { get; set; }
-        public int[,] confusionMatrix { get; set; } // zmieniłem by umożliwić mapowanie
+        public int[,] confusionMatrix { get; set; } 
         public string serializedRoc { get; set; }
         public List<ValidationSet> validationSet { get; set; }
         public List<Pattern> patterns { get; set; }

@@ -52,7 +52,7 @@ namespace PatternRecogniser.Controllers
                 if(model == null)
                     return NotFound(_messages.modelNotFound);
 
-                var result = model.RecognisePattern(picture); // odkomentuj
+                var result = model.RecognisePattern(picture); 
                
                 // zapisujemy wynik
                 PatternRecognitionExperiment pre = new PatternRecognitionExperiment()

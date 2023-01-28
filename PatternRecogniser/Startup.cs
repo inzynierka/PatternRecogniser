@@ -87,8 +87,6 @@ namespace PatternRecogniser
                 // 1MB = 1024^2
                 options.MultipartBodyLengthLimit = 52428800;
             });
-            // ciekawostka, user nie wp³ywa na to jak has³o jest hashowane. Jest po to by aplikacja wiedzia³a jak¹
-            // funkcje hashowania u¿yæ do jakiego usera gdy jest wiêcej ni¿ jeden typ
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<SignUp>, AuthentycationValidatorSingUp>();
             services.AddScoped<IValidator<LogIn>, AuthentycationValidatorLogIn>();
@@ -101,20 +99,7 @@ namespace PatternRecogniser
                 {
                     Version = "v1",
                     Title = "Pattern Recogniser Api",
-                    Description = "Design and creation by Ewa, Piotr and Michal ",
-                    //TermsOfService = new Uri("https://example.com/terms"),
-                    //Contact = new OpenApiContact
-                    //{
-                    //    Name = "Example Contact",
-                    //    Url = new Uri("https://example.com/contact")
-                    //},
-                    //License = new OpenApiLicense
-                    //{
-                    //    Name = "Example License",
-                    //    Url = new Uri("https://example.com/license")
-                    //}
-
-
+                    Description = "Design and creation by Ewa Pasterz, Piotr Skibiński, Paulina Szostek",
                 });
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {
                    {
@@ -139,11 +124,7 @@ namespace PatternRecogniser
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });
-            services.AddSingleton<IBackgroundTaskQueue, BackgroundQueueLurchTable>(
-            //    a =>
-            //new BackgroundQueueBlockingCollection(),
-            //new BackgroundQueueLurchTable()
-            );
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundQueueLurchTable>();
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
@@ -173,7 +154,7 @@ namespace PatternRecogniser
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSwagger();
-            if (env.IsDevelopment()) // potencjalnie if do usunięcia
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwaggerUI(options =>
