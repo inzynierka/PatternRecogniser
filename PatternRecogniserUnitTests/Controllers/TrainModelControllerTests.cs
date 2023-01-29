@@ -78,11 +78,6 @@ namespace PatternRecogniserUnitTests
             _trainingSet = new FormFile(file, 0, file.Length, fileName, fileName);
         }
 
-        [TestMethod()]
-        public void TrainModelControllerTest()
-        {
-            
-        }
 
         [TestMethod()]
         public void TrainModelTest()
@@ -138,40 +133,5 @@ namespace PatternRecogniserUnitTests
             Assert.IsNotNull(captureModels[0].modelTrainingExperiment);
         }
 
-        [TestMethod()]
-        public void NumberInQueueTest()
-        {
-           
-        }
-
-        [TestMethod()]
-        public void CancelTest()
-        {
-        }
-
-        [TestMethod()]
-        public void TrainUpdateTest()
-        {
-        }
-
-        [TestMethod()]
-        public void GetModelStatisticsTest()
-        {
-        }
-
-        [TestMethod()]
-        public void GetModelsTest()
-        {
-        }
-
-        [TestMethod()]
-        public void DeleteModelTest()
-        {
-        }
-
-        [TestMethod()]
-        public void GetModelStatusTest()
-        {
-        }
     }
 }

@@ -11,19 +11,19 @@ namespace PatternRecogniser.Controllers.Tests
     [TestClass()]
     public class TokenControllerTests
     {
-        [TestMethod()]
-        public void TokenControllerTest()
-        {
-        }
+        //[TestMethod()]
+        //public void TokenControllerTest()
+        //{
+        //}
 
-        [TestMethod()]
-        public void RefreshTest()
-        {
-        }
+        //[TestMethod()]
+        //public void RefreshTest()
+        //{
+        //}
 
-        [TestMethod()]
-        public void RevokeTest()
-        {
-        }
+        //[TestMethod()]
+        //public void RevokeTest()
+        //{
+        //}
     }
 }
