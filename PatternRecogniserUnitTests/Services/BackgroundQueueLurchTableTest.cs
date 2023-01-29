@@ -39,7 +39,6 @@ namespace PatternRecogniserUnitTests.Controllers.Services
             Assert.IsNotNull(itemFromQueue);
             Assert.AreEqual(itemFromQueue.login, info.login);
             Assert.IsNull(infoService.GetAsync(itemFromQueue.id).Result);
-
         }
     }
 }

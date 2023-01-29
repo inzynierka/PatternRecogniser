@@ -7,7 +7,7 @@ namespace PatternRecogniser.Messages.PatternRecognition
     public class RecognizeRespond
     {
         public byte[] testedPattern { get; set; }
-        public  List<RecognisedPatterns> recognisedPatterns { get; set; } // albo json
+        public  List<RecognisedPatterns> recognisedPatterns { get; set; } 
 
         public RecognizeRespond(PatternRecognitionExperiment pre)
         {

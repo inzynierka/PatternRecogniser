@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PatternRecogniser.Errors;
 using PatternRecogniser.Messages.TrainModel;
 using PatternRecogniser.Models;
 using PatternRecogniser.Services.Repos;
@@ -72,33 +73,31 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> TrainModel( string modelName,
             DistributionType distributionType, IFormFile trainingSet, int trainingPercent, int setsNumber)
         {
-            try
-            {
                 string login = User.Identity.Name;
 
                 // sprawdzam czy status modela o podanej nazwie jest prawidłowy
                 var modelStatus = GetStatus(login, modelName);
                 if (modelStatus != ModelStatus.NotFound && modelStatus != ModelStatus.TrainingFailed)
-                    return BadRequest(_messages.modelAlreadyExist);
+                    throw new BadRequestExeption(_messages.modelAlreadyExist);
 
                 // sprawdzam czy czekamy na zakonczenie trenoania innego modelu użytkownika
                 if(_trainInfoQueue.NumberInQueue(login)>=0)
-                    return BadRequest(_messages.youAlreadyWaitInTheQueue);
+                    throw new BadRequestExeption(_messages.youAlreadyWaitInTheQueue);
 
                 // sprawdzam czy inny model użytkownika jest trenowany
                 if(_traningUpdate.IsUserTrainingModel(login))
-                    return BadRequest(_messages.oneOfYourModelIsTraining);
+                    throw new BadRequestExeption(_messages.oneOfYourModelIsTraining);
 
                 // sprawdzam czy zgadza się rozszerzenie pliku
                 if (!(trainingSet.FileName.EndsWith(".zip")))
-                    return BadRequest(_messages.incorectFileFormat);
+                    throw new BadRequestExeption(_messages.incorectFileFormat);
 
                 // sprawdzam czy podano właściwe ustawienia validacji
                 if (distributionType == DistributionType.CrossValidation && setsNumber < minSetsNumber && setsNumber > maxSetsNumber)
-                    return BadRequest(_messages.incorectCrossValidationOption);
+                    throw new BadRequestExeption(_messages.incorectCrossValidationOption);
 
                 if (distributionType == DistributionType.TrainTest && (trainingPercent > maxTrainPercent || trainingPercent < minTrainPercent)   )
-                    return BadRequest(_messages.incorectTrainTest);
+                    throw new BadRequestExeption(_messages.incorectTrainTest);
 
                 trainingPercent = trainingPercent == 0 ? defultTrainPercent : trainingPercent;
                 setsNumber = setsNumber == 0 ? defultStesNumber : setsNumber;
@@ -110,11 +109,7 @@ namespace PatternRecogniser.Controllers
                 await _userRepo.SaveChangesAsync();
 
                 return NumberInQueue();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+           
         }
 
 
@@ -146,10 +141,10 @@ namespace PatternRecogniser.Controllers
         /// 
         /// </returns>
         [HttpDelete("Cancel")]
-        public IActionResult Cancel()
+        public async Task<IActionResult> Cancel()
         {
             string login = User.Identity.Name;
-            bool deleted = _trainInfoQueue.Remove(login);
+            bool deleted = await _trainInfoQueue.Remove(login);
             if (deleted)
                 return Ok(_messages.deletedFromQueue);
             else
@@ -195,12 +190,12 @@ namespace PatternRecogniser.Controllers
                })
                 .FirstOrDefault();
             if (extendedModelSelectedData == null)
-                return NotFound();
+                throw new NotFoundExeption(null);
 
             var statistics = _modelTrainingExperimentRepo.Get(s => s.extendedModelId == extendedModelSelectedData.extendedModelId,
                 s => s.Include( a => a.validationSet)).FirstOrDefault();
             if (statistics == null)
-                return NotFound();
+                throw new NotFoundExeption(null);
 
             return Ok(new ModelDetalisRespond(statistics, extendedModelSelectedData.patterns, extendedModelSelectedData.distribution));
         }
@@ -233,8 +228,6 @@ namespace PatternRecogniser.Controllers
         [HttpDelete("DeleteModel")]
         public async Task<IActionResult> DeleteModel(string modelName)
         {
-            try
-            {
                 string login = User.Identity.Name;
                 var model = _extendedModelRepo.Get(model => model.name == modelName && model.userLogin == login, model => model.Include(a => a.modelTrainingExperiment)).FirstOrDefault();
                 if (model == null)
@@ -251,11 +244,7 @@ namespace PatternRecogniser.Controllers
 
                 await _extendedModelRepo.SaveChangesAsync();
                 return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            
 
         }
 
@@ -269,14 +258,9 @@ namespace PatternRecogniser.Controllers
         public async Task<IActionResult> GetModelStatus(string modelName)
         {
             string login = User.Identity.Name;
-            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
-            if (user == null)
-                return NotFound(_messages.userNotFound);
-
-            if (string.IsNullOrEmpty(modelName))
-                modelName = user.lastTrainModelName;
 
             var status = GetStatus( login,  modelName);
+            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
 
             if (user.lastModelStatus == status && user.lastCheckModel == modelName &&
                 (status == ModelStatus.TrainingFailed || status == ModelStatus.TrainingComplete))
@@ -317,6 +301,12 @@ namespace PatternRecogniser.Controllers
 
         private ModelStatus GetStatus(string login, string modelName)
         {
+            var user = _userRepo.Get(user => user.login == login).FirstOrDefault();
+            if (user == null)
+                throw new NotFoundExeption(_messages.userNotFound);
+
+            if (string.IsNullOrEmpty(modelName))
+                modelName = user.lastTrainModelName;
 
             if (_trainInfoQueue.IsUsersModelInQueue(login, modelName))
                 return ModelStatus.InQueue;
@@ -326,8 +316,6 @@ namespace PatternRecogniser.Controllers
 
             if (_extendedModelRepo.Get(model => model.userLogin == login && model.name == modelName).Count() > 0)
                 return ModelStatus.TrainingComplete;
-
-            var user = _userRepo.Get(a => a.login == login).FirstOrDefault();
 
             if (user != null && 
                 user.lastTrainModelName != null  && 

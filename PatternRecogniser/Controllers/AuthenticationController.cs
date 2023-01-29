@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using PatternRecogniser.Messages.Authorization;
 using PatternRecogniser.Models;
 using System;
-using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,7 +47,7 @@ namespace PatternRecogniser.Controllers
 
 
             Tokens tokens = _authenticationServices.CreateTokens(userToAdd);
-            // dodawanie refreshe token do bazy
+            
             _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, userToAdd);
 
             _authenticationRepo.Insert(userToAdd);
@@ -76,7 +75,9 @@ namespace PatternRecogniser.Controllers
             var tokens = _authenticationServices.CreateTokens(user);
 
             _authenticationServices.AddRefreshTokenToUser(tokens.refreshToken, user);
+            _authenticationServices.RehashUserPassword(info.password, user);
 
+            _authenticationRepo.Update(user);
             await _authenticationRepo.SaveChangesAsync();
             
             return Ok(new LogInRespond()

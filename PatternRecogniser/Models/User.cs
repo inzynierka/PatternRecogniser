@@ -29,7 +29,7 @@ namespace PatternRecogniser.Models
         public string refreshToken { get; set; }
         public DateTime refreshTokenExpiryDate { get; set; }
 
-        private const int maxBitmapSize = 128; // do ustalenia
+        private const int maxBitmapSize = 128; 
         
 
         public virtual ICollection<ExtendedModel> extendedModel { get; set; }

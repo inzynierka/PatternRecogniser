@@ -40,7 +40,7 @@ namespace PatternRecogniser.ThreadsComunication
 
         public int NumberInQueue(string login);
 
-        public bool Remove(string login);
+        public Task<bool> Remove(string login);
 
         public bool IsUsersModelInQueue(string login, string modelName = null );
 
@@ -114,12 +114,12 @@ namespace PatternRecogniser.ThreadsComunication
             }
         }
 
-        public bool Remove(string login)
+        public async Task<bool> Remove(string login)
         {
             Value va;
             bool deleted = _queue.TryRemove(login, out va);
             if (deleted)
-                infoService.RemoveAsync(va.info.id).Wait();
+                await infoService.RemoveAsync(va.info.id);
             return deleted;
         }
 
@@ -172,48 +172,6 @@ namespace PatternRecogniser.ThreadsComunication
                 info = trainingInfo;
                 this.numberInQueue = numberInQueue;
             }
-        }
-    }
-
-    public class BackgroundQueueBlockingCollection : IBackgroundTaskQueue
-    {
-
-        private readonly BlockingCollection<TrainingInfo> _queue = new BlockingCollection<TrainingInfo>(new ConcurrentQueue<TrainingInfo>());
-
-        public int Count => _queue.Count;
-
-
-        public async Task<TrainingInfo> Dequeue(
-            CancellationToken cancellationToken)
-        {
-            TrainingInfo item = _queue.Take();
-            return item;
-        }
-
-        public async Task Enqueue(TrainingInfo item)
-        {
-            if (item == null) { throw new ArgumentNullException(nameof(item)); }
-            _queue.Add(item);
-        }
-
-        public int NumberInQueue(string login)
-        {
-            var qToList = _queue.ToList();
-            return qToList.FindIndex(a => a.login == login);
-        }
-
-        public bool Remove(string login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsUsersModelInQueue(string login, string modelName = null)
-        {
-            var qToList = _queue.ToList();
-            if (modelName == null)
-                return qToList.FindIndex(a => a.login == login) >= 0;
-            else
-                return qToList.FindIndex(a => a.login == login && a.modelName == modelName) >= 0;
         }
     }
 

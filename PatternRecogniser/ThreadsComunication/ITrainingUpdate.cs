@@ -4,14 +4,15 @@ namespace PatternRecogniser.ThreadsComunication
 {
     public interface ITrainingUpdate
     {
-        // Dopisuje nowe info
+        // Dopisuje wiadomość
         public void Update(string update);
-        // Pobiera najnowsze info
+        // Pobiera dopisane wiadomości
         public string ActualInfo(string login, string modelName);
         // Ustalamy dla kogo jest komunikat
         public void SetNewUserModel(string login, string modelName);
-
+        // Sprawdza czy model danego użytkownika jest trenowany
         public bool IsUserModelInTraining(string login, string modelName);
+        // sprawdza czy dany użytkownik trenuje 
         public bool IsUserTrainingModel(string login);
 
     }
@@ -33,7 +34,6 @@ namespace PatternRecogniser.ThreadsComunication
 
         public void SetNewUserModel(string login, string modelName)
         {
-            // lokuje by nikt nie dostał nie swoje info, potencjalnie nie potrzebne
             lock (this) 
             { 
                 _login = login;
@@ -45,9 +45,7 @@ namespace PatternRecogniser.ThreadsComunication
 
         public void Update(string update)
         {
-            // bezpiecznie bo tylko jeden wątek zapisuje
             _infoMaker.Append(update);
-            // bezpiecznie bo zmieniamy tylko referencje 
             _infoPublisher = _infoMaker.ToString();
         }
 

@@ -63,49 +63,40 @@ namespace PatternRecogniser.Models
         public virtual ModelTrainingExperiment modelTrainingExperiment { get; set; } // statistics w diagramie klas
         public virtual ICollection<Experiment> experiments { get; set; }
         private ExtendedModelStringMessages _messages = new ExtendedModelStringMessages ();
-        private CancellationToken _cancellationToken; // nie wiem jak wykorzystać IsCancellationRequested więc wszędzie wyrzucam błąd _cancellationToken.ThrowIfCancellationRequested(); 
+        private CancellationToken _cancellationToken; 
 
 
-        public void TrainModel (DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
+        public void TrainModel(DistributionType distribution, ITrainingUpdate trainingUpdate, byte[] trainingSet, int trainingPercent, int setsNumber, CancellationToken cancellationToken) // nie potrzebne CancellationToken w późniejszym programie
         {
-            try
+
+            _cancellationToken = cancellationToken;
+            trainingUpdate.Update(_messages.startTraining + "\n");
+            var examplePictures = new Dictionary<string, byte[]>();
+            PatternData patternData = OpenZip(trainingSet, examplePictures);
+
+            if (patternData.IsEmpty())
             {
-                _cancellationToken = cancellationToken;
-                trainingUpdate.Update (_messages.startTraining + "\n");
-                var examplePictures = new Dictionary<string, byte[]> ();
-                PatternData patternData = OpenZip (trainingSet, examplePictures);
-
-                if (patternData.IsEmpty ())
-                {
-                    throw new Exception (_messages.incorectFileStructure);
-                }
-
-                this.patterns = new List<Pattern> ();
-                foreach (var pair in examplePictures)
-                {
-                    _cancellationToken.ThrowIfCancellationRequested ();
-                    this.patterns.Add (new Pattern (pair.Key, pair.Value));
-                }
-
-                switch (distribution)
-                {
-                    case DistributionType.TrainTest:
-                        TrainModelTrainTest (patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
-                        break;
-                    case DistributionType.CrossValidation:
-                        TrainModelCrossValidation (patternData, setsNumber, trainingUpdate);
-                        break;
-                }
+                throw new Exception(_messages.incorectFileStructure);
             }
-            catch (OperationCanceledException oce)
+
+            this.patterns = new List<Pattern>();
+            foreach (var pair in examplePictures)
             {
+                _cancellationToken.ThrowIfCancellationRequested();
+                this.patterns.Add(new Pattern(pair.Key, pair.Value));
+            }
 
-            }
-            catch (Exception e)
+            switch (distribution)
             {
-                trainingUpdate.Update (e.Message);
+                case DistributionType.TrainTest:
+                    TrainModelTrainTest(patternData, trainingPercent, 100 - trainingPercent, trainingUpdate); // parameters - zawiera 1 lub 2 liczby, domyślne lub ustawione przez użytkownika
+                    break;
+                case DistributionType.CrossValidation:
+                    TrainModelCrossValidation(patternData, setsNumber, trainingUpdate);
+                    break;
             }
-       }
+
+        }
 
         public void TrainModelTrainTest (PatternData data, int train, int test, ITrainingUpdate trainingUpdate)
         {
@@ -224,7 +215,6 @@ namespace PatternRecogniser.Models
 
             for (int j = 0; j < k; j++)
             {
-                // patternDatas[j] - test
                 trainingUpdate.Update ($"{_messages.crossValidationModelTraining (j)}\n");
                 PatternData train = new PatternData ();
                 for (int i = 0; i < k; i++)
@@ -264,7 +254,7 @@ namespace PatternRecogniser.Models
             Tensor picTensor = ops.convert_to_tensor (picAsList.ToArray (), TF_DataType.TF_FLOAT);
             Model model = Helper.ModelBuilder.CreateModel (num_classes);
             Helper.ModelBuilder.Load_Weights (modelInBytes, model);
-            var result = model.Apply (picTensor, training: false); // i coś z result odczytujemy
+            var result = model.Apply (picTensor, training: false); 
             int patternId = 0;
             foreach (var r in result)
             {
@@ -410,7 +400,6 @@ namespace PatternRecogniser.Models
 
 
         // Obsługa zipów i Bitmap
-
         private PatternData OpenZip (byte[] bytes, Dictionary<string, byte[]> examplePictuers)
         {
             _cancellationToken.ThrowIfCancellationRequested ();

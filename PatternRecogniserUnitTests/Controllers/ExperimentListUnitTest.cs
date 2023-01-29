@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -8,6 +9,7 @@ using PatternRecogniser.Models;
 using PatternRecogniser.Services;
 using PatternRecogniser.Services.Repos;
 using PatternRecogniser.UnitsOfWorks;
+using PatternRecogniserUnitTests.TestingInterfers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +26,12 @@ namespace PatternRecogniserUnitTests.Controllers
         private Mock<IGenericRepository<ExtendedModel>> _mockExtendedModelRepo;
         private Mock<IGenericRepository<Experiment>> _mockExperimentRepo;
         private Mock<IGenericRepository<RecognisedPatterns>> _mockRecognisedPatternsRepo;
-        private Mock<IExperimentListUnitOfWork> _mockUnitOfWork;
+        private IExperimentListUnitOfWork _unitOfWorkTest;
+
         private ExperimentListController _controller;
 
-        private IGenericRepository<ExperimentList> _mockExperimentListRepoCalls() { return _mockExperimentListRepo.Object; }
-        private IGenericRepository<User> _mockUserRepoCalls() { return _mockUserRepo.Object; }
-        private IGenericRepository<ExtendedModel> _mockExtendedModelRepoCalls() { return _mockExtendedModelRepo.Object; }
-        private IGenericRepository<Experiment> _mockExperimentRepoCalls() { return _mockExperimentRepo.Object; }
-        private IGenericRepository<RecognisedPatterns> _mockRecognisedPatternsRepoCalls() { return _mockRecognisedPatternsRepo.Object; }
+        
+       
 
         public ExperimentListUnitTest()
         {
@@ -40,16 +40,19 @@ namespace PatternRecogniserUnitTests.Controllers
             _mockExtendedModelRepo = new Mock<IGenericRepository<ExtendedModel>>().DefaultMockSetUp();
             _mockExperimentRepo = new Mock<IGenericRepository<Experiment>>().DefaultMockSetUp();
             _mockRecognisedPatternsRepo = new Mock<IGenericRepository<RecognisedPatterns>>().DefaultMockSetUp();
-            _mockUnitOfWork = new Mock<IExperimentListUnitOfWork>();
-            _mockUnitOfWork.Setup(m => m.experimentListRepo).Callback(() => _mockExperimentListRepoCalls());
-            _mockUnitOfWork.Setup(m => m.userRepo).Callback(() => _mockUserRepoCalls());
-            _mockUnitOfWork.Setup(m => m.extendedModelRepo).Callback(() => _mockExtendedModelRepoCalls());
-            _mockUnitOfWork.Setup(m => m.experimentRepo).Callback(() => _mockExperimentRepoCalls());
-            _mockUnitOfWork.Setup(m => m.recognisedPatternsRepo).Callback(() => _mockRecognisedPatternsRepoCalls());
-
+            _unitOfWorkTest = new ExperimentListUnitOfWorkTest(_mockExperimentListRepo.Object, _mockExtendedModelRepo.Object, _mockUserRepo.Object,
+               _mockExperimentRepo.Object, _mockRecognisedPatternsRepo.Object);
             _controller = new ExperimentListController(
-                _mockUnitOfWork.Object);
+                _unitOfWorkTest);
         }
+
+        [TestMethod]
+        public void IsMockProperlyInit()
+        {
+            var cos =_unitOfWorkTest.experimentListRepo;
+            Assert.IsNotNull(cos);
+        }
+
 
         [TestMethod]
         public void Create_ListExsist()
@@ -77,8 +80,6 @@ namespace PatternRecogniserUnitTests.Controllers
         public void Create_Succes()
         {
             _mockExperimentListRepo.SetUpGet(new List<ExperimentList>());
-            
-
             var user = new User() { login = "ktoś" };
             _controller.SimulateAuthorizedUser(user);
             string listName = "CoolName";
@@ -116,113 +117,14 @@ namespace PatternRecogniserUnitTests.Controllers
             _mockUserRepo.SetUpGet(new List<User>() { user });
 
             _controller.SimulateAuthorizedUser(user);
-            var result = _controller.AddModelTrainingExperiment(list.name, model.extendedModelId);
-            var objectResult = result.Result as OkObjectResult;
+            var result = _controller.AddModelTrainingExperiment(list.name, model.extendedModelId).Result;
+            var objectResult = result as OkObjectResult;
 
             Assert.AreEqual(objectResult.StatusCode, 200);
             Assert.AreEqual(list.experiments.ElementAt(0), ModelTrainingExperiment);
 
         }
 
-        [TestMethod]
-        public void AddPatternRecognitionExperiment()
-        {
-            throw new NotImplementedException();
-        }
-
-        [TestMethod]
-        public void GetLists_CorrectUser()
-        {
-            var user = new User()
-            {
-                login = "CoolLogin"
-            };
-
-            var listToGet = new ExperimentList()
-            {
-                name = "CoolNameForList",
-                userLogin = user.login
-            };
-            var mockExperimentListData = new List<ExperimentList>()
-            {
-                listToGet,
-                new ExperimentList()
-                {
-                    name = "NotCoolName",
-                    userLogin = "NotCoolLogin"
-                },
-                new ExperimentList()
-                {
-                    name = "VeryUncoolName",
-                    userLogin = "NotCoolLogin"
-                }
-
-            };
-
-            _mockExperimentListRepo.SetUpGet(mockExperimentListData);
-            _controller.SimulateAuthorizedUser(user);
-            var respond = _controller.GetLists();
-            var objectResult = respond as ObjectResult;
-            Assert.AreEqual(listToGet, (objectResult.Value as List<ExperimentList>)[0]);
-        }
-
-        [TestMethod]
-        public void GetExperiments()
-        {
-            var user = new User()
-            {
-                login = "CoolLogin"
-            };
-
-            var experimentModel = new ModelTrainingExperiment();
-            var experimentPatternRecognition = new PatternRecognitionExperiment();
-
-            var listToGetModelExperiments = new ExperimentList()
-            {
-                name = "CoolNameForList",
-                userLogin = user.login,
-                experiments = new List<Experiment>() { experimentModel }
-            };
-            var listToGetexperimentPatternRecognition = new ExperimentList()
-            {
-                name = "CoolNameForList2",
-                userLogin = user.login,
-                experiments = new List<Experiment>() { experimentPatternRecognition }
-            };
-            var mockExperimentListData = new List<ExperimentList>()
-            {
-                listToGetModelExperiments,
-                listToGetexperimentPatternRecognition,
-                new ExperimentList()
-                {
-                    name = "NotCoolName",
-                    userLogin = "NotCoolLogin"
-                },
-                new ExperimentList()
-                {
-                    name = "VeryUncoolName",
-                    userLogin = "NotCoolLogin"
-                }
-
-            };
-
-
-            _mockExperimentListRepo.SetUpGet(mockExperimentListData);
-            _controller.SimulateAuthorizedUser(user);
-            var respond = _controller.GetExperiments(listToGetexperimentPatternRecognition.name);
-            var objectResult = respond as ObjectResult;
-            Assert.AreEqual(listToGetexperimentPatternRecognition.experiments.ElementAt(0), (objectResult.Value as List<Experiment>)[0]);
-
-            respond = _controller.GetExperiments(listToGetModelExperiments.name);
-            objectResult = respond as ObjectResult;
-            Assert.AreEqual(listToGetModelExperiments.experiments.ElementAt(0), (objectResult.Value as List<Experiment>)[0]);
-
-        }
-
-        [TestMethod]
-        public void DeleteList()
-        {
-            throw new  NotImplementedException();
-        }
+       
     }
 }

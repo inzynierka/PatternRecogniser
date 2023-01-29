@@ -39,7 +39,7 @@ namespace PatternRecogniser.Controllers
             string refreshToken = tokens.refreshToken;
 
             var principal = _tokenCreator.GetPrincipalFromExpiredToken(accessToken);
-            var login = principal.Identity.Name; //this is mapped to the Name claim by default
+            var login = principal.Identity.Name; 
             var user = _userRepo.Get(u => u.login == login).SingleOrDefault();
 
             if (user is null ||

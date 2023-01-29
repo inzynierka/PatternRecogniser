@@ -88,14 +88,14 @@ namespace PatternRecogniser.Helper
                 {
                     if (trueLabels[j] == 1)
                     {
-                        if (trueLabelProbality[i] > axis)
+                        if (trueLabelProbality[j] >= axis)
                             tp++;
                         else
                             fn++;
                     }
                     else
                     {
-                        if (trueLabelProbality[i] > axis)
+                        if (trueLabelProbality[j] >= axis)
                             fp++;
                         else
                             tn++;

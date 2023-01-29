@@ -12,7 +12,7 @@ namespace PatternRecogniser.Models
     public class PatternRecognitionExperiment : Experiment
     {
         public byte[] testedPattern { get; set; }
-        public virtual ICollection<RecognisedPatterns> recognisedPatterns { get; set; } // albo json
+        public virtual ICollection<RecognisedPatterns> recognisedPatterns { get; set; } 
 
         public override string GetResults()
         {
