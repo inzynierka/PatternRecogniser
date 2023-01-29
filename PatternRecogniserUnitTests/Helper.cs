@@ -34,8 +34,29 @@ namespace PatternRecogniserUnitTests
         public static Mock<IGenericRepository<TEntity>> SetUpGet<TEntity>(this Mock<IGenericRepository<TEntity>> mock, List<TEntity> mockData)
         {
             mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>()))
-                .Returns((Expression<Func<TEntity, bool>> filter, string include) =>
+                .Returns((Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include) =>
                 mockData.AsQueryable<TEntity>().Where(filter).ToList());
+            mock.Setup(a => a.Get(
+                It.IsAny<Expression<Func<TEntity, bool>>>(), 
+                It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(), 
+                It.IsAny<Expression<Func<TEntity, object>>>()))
+                .Returns(
+                (Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, 
+                IIncludableQueryable<TEntity, object>> include, 
+                Expression<Func<TEntity, object>> selector) =>
+                mockData.AsQueryable<TEntity>().Where(filter).Select(selector).ToList());
+            return mock;
+        }
+
+        public static Mock<IGenericRepository<TEntity>> SetUpGet<TEntity, TResult>(this Mock<IGenericRepository<TEntity>> mock, List<TEntity> mockData)
+        {
+            mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>()))
+                .Returns((Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include) =>
+                mockData.AsQueryable<TEntity>().Where(filter).ToList());
+            mock.Setup(a => a.Get<TResult>(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(), It.IsAny<Expression<Func<TEntity, TResult>>>()))
+                .Returns((Expression<Func<TEntity, bool>> filter, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include, Expression<Func<TEntity, TResult>> selector) =>
+                mockData.AsQueryable<TEntity>().Where(filter).Select(selector).ToList());
+
             return mock;
         }
 
@@ -45,6 +66,9 @@ namespace PatternRecogniserUnitTests
             mock.Setup(a => a.SaveChangesAsync()).Callback(() => { return; });
             mock.Setup(a => a.Delete(It.IsAny<TEntity>())).Callback(() => { return; });
             mock.Setup(a => a.Delete(It.IsAny<object>())).Callback(() => { return; });
+            mock.Setup(a => a.Get(It.IsAny<Expression<Func<TEntity, bool>>>(), It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>()))
+                .Returns((Expression<Func<TEntity, bool>> filter, string include) =>
+                new List<TEntity>());
             return mock;
 
         }
@@ -81,6 +105,8 @@ namespace PatternRecogniserUnitTests
             return controller;
         }
 
+
+
         public static TrainingInfo CreateSimpleTrainingInfo(string login, string modelName)
         {
             string projectDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
@@ -108,7 +134,7 @@ namespace PatternRecogniserUnitTests
             List<string> ids = trainingInfoService.GetAsync().Result.Select(a => a.id).ToList();
             foreach(var id in ids)
             {
-                trainingInfoService.RemoveAsync(id);
+                trainingInfoService.RemoveAsync(id).Wait();
             }
         }
     }

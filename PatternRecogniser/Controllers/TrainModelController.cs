@@ -141,10 +141,10 @@ namespace PatternRecogniser.Controllers
         /// 
         /// </returns>
         [HttpDelete("Cancel")]
-        public IActionResult Cancel()
+        public async Task<IActionResult> Cancel()
         {
             string login = User.Identity.Name;
-            bool deleted = _trainInfoQueue.Remove(login);
+            bool deleted = await _trainInfoQueue.Remove(login);
             if (deleted)
                 return Ok(_messages.deletedFromQueue);
             else

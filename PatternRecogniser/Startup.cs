@@ -126,6 +126,8 @@ namespace PatternRecogniser
             });
             services.AddSingleton<IBackgroundTaskQueue, BackgroundQueueLurchTable>();
             services.AddSingleton<ITrainingUpdate>(a => new SimpleComunicationOneToMany());
+            services.AddSingleton<IHostedServiceDBConection, HostedServiceDBConection>();
+
             services.AddHostedService<TrainingModelQueuedHostedService>();
 
             var conectionType = Configuration["DbContextSettings:ConectionType"];

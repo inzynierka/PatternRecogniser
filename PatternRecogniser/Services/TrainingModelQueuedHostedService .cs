@@ -17,13 +17,9 @@ namespace PatternRecogniser.Services
 {
     public class TrainingModelQueuedHostedService : BackgroundService
     {
-        // potencjalnie możemy pracować na raz na x wątkach by trenować. Wtedy będzie potrzebny
-        // słownik w implementacji trainingUpdate
-        //private const int _maxTasks = 3; 
-        //private int _taskCount = 0;
         private readonly ILogger<TrainingModelQueuedHostedService> _logger;
         private IBackgroundTaskQueue _trainInfoQueue;
-        private IServiceScopeFactory _serviceScopeFactory;
+        private IHostedServiceDBConection _hostedServiceDBConection;
         private ITrainingUpdate _trainingUpdate;
         private int _timeoutInSeconds;
         private HostedServiceStringMessages _messages = new HostedServiceStringMessages();
@@ -31,13 +27,13 @@ namespace PatternRecogniser.Services
         public TrainingModelQueuedHostedService(
             ILogger<TrainingModelQueuedHostedService> logger,
             IBackgroundTaskQueue backgroundJobs,
-            IServiceScopeFactory serviceScopeFactory,
+            IHostedServiceDBConection hostedServiceDBConection,
             ITrainingUpdate trainingUpdate,
             TrainingSettings trainingSettings)
         {
             _logger = logger;
             _trainInfoQueue = backgroundJobs;
-            _serviceScopeFactory = serviceScopeFactory;
+            _hostedServiceDBConection = hostedServiceDBConection;
             _trainingUpdate = trainingUpdate;
             _timeoutInSeconds = trainingSettings.TimeoutInSeconds;
         }
@@ -54,7 +50,6 @@ namespace PatternRecogniser.Services
 
         private async void BackgroundProcessing(CancellationToken stoppingToken)
         {
-            // z jakiegoś powodu bez tego nie działa blockingCollection
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
@@ -70,28 +65,21 @@ namespace PatternRecogniser.Services
 
         private async Task Train(TrainingInfo info,  CancellationToken stoppingToken)
         {
-            _trainingUpdate.SetNewUserModel(info.login, info.modelName);
-            User user;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
-                user = dbContext.user.First(u => u.login == info.login);
-            }
-
-
-            
-            var model = new ExtendedModel()
-            {
-                name = info.modelName,
-                userLogin = info.login,
-                distribution = info.distributionType
-            };
-
-            //Stream stream = info.trainingSet.OpenReadStream ();
-            //info.
-            // coś nam to nie działa 
             try
             {
+                _trainingUpdate.SetNewUserModel(info.login, info.modelName);
+                User user = _hostedServiceDBConection.GetUser(info.login);
+
+
+
+                var model = new ExtendedModel()
+                {
+                    name = info.modelName,
+                    userLogin = info.login,
+                    distribution = info.distributionType
+                };
+
+
 
                 var timeout = new TimeoutClass(
                     _timeoutInSeconds,
@@ -101,19 +89,13 @@ namespace PatternRecogniser.Services
                 // potrzebuje przegazać cancellationToken stworzony w timeoutclass
                 timeout.StartWork(() => model.TrainModel(info.distributionType, _trainingUpdate, info.trainingSet, info.trainingPercent, info.sets, timeout.cancellationToken));
 
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    var dbContext = scope.ServiceProvider.GetService<PatternRecogniserDBContext>();
+                await _hostedServiceDBConection.SaveModel(model);
 
-                    dbContext.Add(model);
+                _logger.LogInformation($"request of user  {info.login} is processing {info.modelName}\n");
+                _trainingUpdate.SetNewUserModel(null, null);
 
-
-                    await dbContext.SaveChangesAsync();
-
-                    _logger.LogInformation($"request of user {dbContext.user.First(a => a.login == info.login).login} is processing {info.modelName}\n");
-                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _trainingUpdate.Update(e.Message);
                 _logger.LogInformation($"error in hosted service: {e.Message}\n");
@@ -122,7 +104,6 @@ namespace PatternRecogniser.Services
 
 
 
-            _trainingUpdate.SetNewUserModel(null, null);
         }
     }
 }

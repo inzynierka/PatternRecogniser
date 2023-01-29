@@ -40,7 +40,7 @@ namespace PatternRecogniser.ThreadsComunication
 
         public int NumberInQueue(string login);
 
-        public bool Remove(string login);
+        public Task<bool> Remove(string login);
 
         public bool IsUsersModelInQueue(string login, string modelName = null );
 
@@ -114,12 +114,12 @@ namespace PatternRecogniser.ThreadsComunication
             }
         }
 
-        public bool Remove(string login)
+        public async Task<bool> Remove(string login)
         {
             Value va;
             bool deleted = _queue.TryRemove(login, out va);
             if (deleted)
-                infoService.RemoveAsync(va.info.id).Wait();
+                await infoService.RemoveAsync(va.info.id);
             return deleted;
         }
 

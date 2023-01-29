@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PatternRecogniser.Messages.Model;
 using PatternRecogniser.Models;
 using PatternRecogniser.ThreadsComunication;
 using System;
@@ -13,6 +14,7 @@ namespace PatternRecogniserUnitTests.Models
     [TestClass]
     public class ExtendModelTest
     {
+        private readonly ExtendedModelStringMessages messages = new ExtendedModelStringMessages();
         private IFormFile _trainingSet;
         private ITrainingUpdate _trainingUpdate;
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
@@ -67,13 +69,13 @@ namespace PatternRecogniserUnitTests.Models
             while (!t.IsCompleted)
             {
                 System.Diagnostics.Debug.WriteLine(_trainingUpdate.ActualInfo(login, modelName));
-                Task wait = Task.Delay(TimeSpan.FromSeconds(1));
+                Task wait = Task.Delay(TimeSpan.FromSeconds(5));
                 wait.Wait();
             }
 
             t.Wait();
             Assert.IsNotNull(model.modelTrainingExperiment);
-            
+            Assert.IsTrue(_trainingUpdate.ActualInfo(login, modelName).Contains(messages.startValidation));
         }
 
         [TestMethod]

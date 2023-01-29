@@ -97,9 +97,6 @@ namespace PatternRecogniser.Controllers
                 if (list == null)
                     return BadRequest(_messeges.listDontExisit);
 
-                
-
-
                 //lastPatternRecognitionExperiment
                 var user = _unitOfWork.userRepo.Get(user => user.login == login,
                     user => user.

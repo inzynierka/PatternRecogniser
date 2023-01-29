@@ -13,6 +13,7 @@ namespace PatternRecogniserUnitTests.Controllers
         [TestMethod]
         public void Recognize()
         {
+
         }
     }
 }
