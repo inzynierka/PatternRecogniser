@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatternRecogniser.Models;
 
-namespace PatternRecogniser.EwaMigrations
+namespace PatternRecogniser.Migrations_BackupDB
 {
     [DbContext(typeof(PatternRecogniserDBContext))]
-    [Migration("20230125174907_init")]
-    partial class init
+    [Migration("20230206165742_migartionfinal")]
+    partial class migartionfinal
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
