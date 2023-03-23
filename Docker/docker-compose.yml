@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:   
+  pattern-recognizer:
+    image: ${DOCKER_REGISTRY-}pattern-recognizer
+    ports: 
+    - "40007:80"
+    build:
+      context: ..
+      dockerfile: ./PatternRecogniser/Dockerfile
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - patternnetwork      
+networks:
+  patternnetwork:
+    driver: bridge
