@@ -9,7 +9,8 @@ oraz rozpoznawanie znaków za pomocą wytrenowanego modelu. Dodatkowo, wyniki wa
 
 - PostgreSQL
 - MongoDB
-- React z TypeScript
+- React 
+- TypeScript
 - ASP.NET Core
 - C#
 - TensorFlow
