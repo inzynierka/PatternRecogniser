@@ -7,8 +7,6 @@ oraz rozpoznawanie znaków za pomocą wytrenowanego modelu. Dodatkowo, wyniki wa
 
 ## Technologie
 
-Projekt wykorzystuje wiele różnych technologii, w tym:
-
 - PostgreSQL
 - MongoDB
 - React z TypeScript
